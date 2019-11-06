@@ -1,0 +1,13 @@
+package at.searles.meelan
+
+class Signature(val returnType: Type, vararg val argTypes: Type) {
+    fun convertArguments(vararg args: Node): Array<Node>? {
+        if(args.size < argTypes.size) {
+            return null
+        }
+
+        return argTypes.zip(args)
+            .map {it.first.convert(it.second) ?: return null}
+            .toTypedArray()
+    }
+}

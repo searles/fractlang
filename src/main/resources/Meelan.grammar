@@ -1,0 +1,147 @@
+{{{package at.searles.meelan;
+
+import at.searles.parsingtools.*
+import at.searles.parsingtools.list.CreateEmptyList
+import at.searles.parsingtools.list.CreateSingletonList
+import at.searles.parsingtools.properties.CreateEmptyProperties
+import at.searles.parsingtools.properties.CreateObject
+import at.searles.parsingtools.properties.PutProperty
+}}}
+
+grammar Meelan {
+    regex ws: [\x09\x0b\r \xa0\u1680\u2000-\u200a\u202f\u205f\u3000]+ ;
+	regex nl: "\r\n" | "\n" | "\x0c" | "\x85" | "\u2028" | "\u2029" ; // keep newlines separated for formatting.
+    regex slComment: ('/*' .* '*/')! ;
+    regex mlComment: '//' ([^\n] | [^\r])* ;
+
+{{{    init {
+        tokenizer.addSkipped(ws.tokenId)
+        tokenizer.addSkipped(nl.tokenId)
+        tokenizer.addSkipped(slComment.tokenId)
+        tokenizer.addSkipped(mlComment.tokenId)
+    }
+}}}
+
+    fragment intRex: [0-9]{1,8} ;
+    fragment hexRex: '#' [0-9A-Fa-f]{1,8} ;
+    fragment decimals: '.'[0-9]* ;
+    fragment exponent: [eE]'-'?[0-9]+ ;
+    fragment realRex: [0-9]+(decimals | exponent | decimals exponent) ;
+    fragment identifierRex: [a-zA-Z_][a-zA-Z0-9_]* ;
+    fragment stringRex: ('"' ([^\\"] | '\\'. )* '"') ;
+
+    intNum: regex(intRex, `toInt`) ;
+    realNum: regex(realRex, `toReal`) ;
+    hexNum: regex(hexRex, `toHex`) ;
+    str: regex(stringRex, `toEscString`) ;
+    identifier: regex(identifierRex, `toIdString`) ;
+
+    intNode: (intNum | hexNum) `toIntNode` ;
+    realNode: realNum `toRealNode` ;
+    stringNode: str `toStringNode` ;
+    idNode: identifier `toIdNode` ;
+
+    comma: ',' @ `Annot.Comma` ;
+    exprList: `expr.list(comma)` ;
+
+    vectorNode: '[' exprList `toVectorNode` ']' ;
+
+    atom: intNode     @ `Annot.Num`
+        | realNode    @ `Annot.Num`
+        | stringNode  @ `Annot.Str`
+        | idNode      @ `Annot.Id`
+        | vectorNode
+        | '(' expr ')' ;
+
+    qualified: atom ('.' identifier >> `toQualified`)* ;
+
+    arguments: '(' exprList ')' (app >> `listApply`)? | app `CreateSingletonList()` ;
+
+    app<Node>: qualified (arguments >> `toApp`)? ; // recursive because of eg "sin cos x"
+
+    ifExpr<Node>: 'if' @ `Annot.Kw` `CreateEmptyProperties`
+                        '(' expr >> `PutProperty("condition")` ')'
+                        stmt >> `PutProperty("thenBranch")`
+                        (
+							'else' @ `Annot.Kw` stmt >> `PutProperty("elseBranch")`
+								`CreateObject<Node>(IfElse::class.java, true, "condition", "thenBranch", "elseBranch")`
+							| `CreateObject<Node>(If::class.java, true, "condition", "thenBranch")`
+						) ;
+
+	block: '{' stmts `toBlock` '}' ;
+
+	absExpr: '|' expr `toUnary(BaseOps.Abs)` '|' ;
+
+    term: ifExpr | block | absExpr | app ;
+
+    literal<Node>: '-' literal `toUnary(BaseOps.Neg)`
+                       | '/' literal `toUnary(BaseOps.Recip)`
+                       | term
+                       ;
+
+    cons: literal (':' literal >> `toBinary(BaseOps.Cons)`)? ;
+
+    pow<Node>: cons ('^' pow >> `toBinary(BaseOps.Pow)`)? ;
+
+    product: pow ('*' pow >> `toBinary(BaseOps.Mul)` | '/' pow >> `toBinary(BaseOps.Div)` | '%'  pow >> `toBinary(BaseOps.Mod)` )* ;
+
+    sum: product ('+' product >> `toBinary(BaseOps.Add)` | '-' product >> `toBinary(BaseOps.Sub)` )* ;
+
+	cmp : sum
+		( '>' sum >> `toBinary(BaseOps.Greater)`
+		| '>=' sum >> `toBinary(BaseOps.GreaterEqual)`
+		| '<=' sum >> `toBinary(BaseOps.LessEqual)`
+		| '<' sum >> `toBinary(BaseOps.Less)`
+		| '==' sum >> `toBinary(BaseOps.Equal)`
+		| '!=' sum >> `toBinary(BaseOps.NotEqual)`
+		)? ;
+
+	logicalLit: 'not' cmp `toUnary(BaseOps.Not)` | cmp ;
+	logicalAnd: logicalLit ('and' logicalLit >> `toBinary(BaseOps.And)`)* ;
+	logicalXor: logicalAnd ('xor' logicalAnd >> `toBinary(BaseOps.Xor)`)* ;
+	logicalOr: logicalXor ('or' logicalXor >> `toBinary(BaseOps.Or)`)* ;
+
+	expr<Node>: logicalOr ;
+
+	exprstmt: expr ('=' expr >> `toBinary(BaseOps.Assign)`)? ;
+
+	whilestmt: 'while' @ `Annot.Kw` `CreateEmptyProperties`
+			   '(' expr >> `PutProperty("condition")` ')'
+			   (stmt >> `PutProperty("body")`)?
+			   `CreateObject<Node>(While::class.java, true, "condition", "body")` ;
+
+	forstmt: 'for' @ `Annot.Kw` `CreateEmptyProperties` '(' identifier >> `PutProperty("name")` 'in' expr >> `PutProperty("range")` ')' stmt  >> `PutProperty("body")`
+			 `CreateObject<Node>(For::class.java, true, "name", "range", "body")`;
+
+ 	stmt<Node>: whilestmt | forstmt | exprstmt ;
+
+	vardecl: 'var' @ `Annot.DeclKw` `CreateEmptyProperties`
+	            identifier >> `PutProperty("name")`
+				(':' identifier >> `PutProperty("type")`)?
+				('=' expr >> `PutProperty("init")`)?
+				`CreateObject<Node>(VarDecl::class.java, true, "name", "type", "init")` ;
+
+	parameter: 'var' @ `Annot.DeclKw` `CreateEmptyProperties` identifier >> `PutProperty("name")`
+	            (':' identifier >> `PutProperty("type")`)?
+	            `CreateObject<Node>(VarParameter::class.java, true, "name", "type")`
+	            | idNode ;
+
+	parameters: `parameter.list(comma)` ;
+
+	fundecl: 'fun' @ `Annot.DeclKw` `CreateEmptyProperties` identifier >> `PutProperty("name")`
+				('(' parameters ')' | `CreateEmptyList()`) >> `PutProperty("parameters")`
+				(block | '=' expr ) >> `PutProperty("body")`
+
+				`CreateObject<Node>(FunDecl::class.java, true, "name", "parameters", "body")` ;
+
+	classdecl: 'class' @ `Annot.DeclKw` `CreateEmptyProperties` identifier >> `PutProperty("name")`
+				('(' parameters ')' | `CreateEmptyList()`) >> `PutProperty("parameters")`
+				block >> `PutProperty("body")`
+				`CreateObject<Node>(ClassDecl::class.java, true, "name", "parameters", "body")` ;
+
+	decl: vardecl | fundecl | classdecl ;
+
+    stmtOrDecl: (decl | stmt) ';'? ;
+	stmts<`List<Node>`>: `stmtOrDecl.list()` ;
+	program: stmts `toBlock` ;
+}
