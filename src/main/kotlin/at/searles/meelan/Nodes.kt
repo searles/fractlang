@@ -51,25 +51,25 @@ object toIdNode: Mapping<String, Node> {
 
 object toVectorNode: Mapping<List<Node>, Node> {
     override fun parse(stream: ParserStream, left: List<Node>): Node? {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return VectorNode(stream, left)
     }
 
     override fun left(result: Node): List<Node>? {
-        return null
+        return (result as? VectorNode)?.items
     }
 }
 
 object toQualified: Fold<Node, String, Node> {
     override fun apply(stream: ParserStream, left: Node, right: String): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return QualifiedNode(stream, left, right)
     }
 
     override fun leftInverse(result: Node): Node? {
-        return null
+        return (result as? QualifiedNode)?.instance
     }
 
     override fun rightInverse(result: Node): String? {
-        return null
+        return (result as? QualifiedNode)?.qualifier
     }
 }
 
@@ -158,3 +158,23 @@ fun toBinary(op: Op): Fold<Node, Node, Node> {
         }
     }
 }
+
+/**
+ * Identity in parse-direction. In left-direction, this
+ * mapping passes blocks through so that no semicolons
+ * are added after blocks.
+ */
+object SkipSemicolon: Mapping<Node, Node> {
+    override fun parse(stream: ParserStream?, left: Node): Node? {
+        return left
+    }
+
+    override fun left(result: Node): Node? {
+        if(result is Block || result is ClassDecl || (result is FunDecl && result.body is Block)) {
+            return result
+        }
+
+        return null
+    }
+}
+

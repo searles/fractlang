@@ -32,7 +32,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = Meelan.program.parse(input)
         val source = Meelan.program.print(ast)
 
-        Assert.assertEquals("vara=1", source?.toString())
+        Assert.assertEquals("vara=1;", source?.toString())
     }
 
     @Test
@@ -41,7 +41,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = Meelan.program.parse(input)
         val source = Meelan.program.print(ast)
 
-        Assert.assertEquals("vara:Int", source?.toString())
+        Assert.assertEquals("vara:Int;", source?.toString())
     }
 
     @Test
@@ -50,7 +50,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = Meelan.program.parse(input)
         val source = Meelan.program.print(ast)
 
-        Assert.assertEquals("funa()=1", source?.toString())
+        Assert.assertEquals("funa()=1;", source?.toString())
     }
 
     @Test
@@ -59,7 +59,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = Meelan.program.parse(input)
         val source = Meelan.program.print(ast)
 
-        Assert.assertEquals("funa()=1", source?.toString())
+        Assert.assertEquals("funa()=1;", source?.toString())
     }
 
     @Test
@@ -68,7 +68,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = Meelan.program.parse(input)
         val source = Meelan.program.print(ast)
 
-        Assert.assertEquals("funa(b)=b", source?.toString())
+        Assert.assertEquals("funa(b)=b;", source?.toString())
     }
 
     @Test
@@ -77,7 +77,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = Meelan.program.parse(input)
         val source = Meelan.program.print(ast)
 
-        Assert.assertEquals("funa(varb)=b", source?.toString())
+        Assert.assertEquals("funa(varb)=b;", source?.toString())
     }
 
 
@@ -87,7 +87,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = Meelan.program.parse(input)
         val source = Meelan.program.print(ast)
 
-        Assert.assertEquals("funa(varb:Int)=b", source?.toString())
+        Assert.assertEquals("funa(varb:Int)=b;", source?.toString())
     }
 
     @Test
@@ -96,7 +96,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = Meelan.program.parse(input)
         val source = Meelan.program.print(ast)
 
-        Assert.assertEquals("{vara=1}", source?.toString())
+        Assert.assertEquals("{vara=1;}", source?.toString())
     }
 
     @Test
@@ -105,7 +105,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = Meelan.program.parse(input)
         val source = Meelan.program.print(ast)
 
-        Assert.assertEquals("funa(){vara=1}", source?.toString())
+        Assert.assertEquals("funa(){vara=1;}", source?.toString())
     }
 
     @Test
@@ -114,7 +114,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = Meelan.program.parse(input)
         val source = Meelan.program.print(ast)
 
-        Assert.assertEquals("classa(varb:Int){varc:Int=b}", source?.toString())
+        Assert.assertEquals("classa(varb:Int){varc:Int=b;}", source?.toString())
     }
 
     @Test
@@ -142,5 +142,77 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val source = Meelan.expr.print(ast)
 
         Assert.assertEquals("1*2+3*4", source?.toString())
+    }
+
+    @Test
+    fun testConsQualifier() {
+        val input = ParserStream.fromString("(1:2).x")
+        val ast = Meelan.expr.parse(input)
+        val source = Meelan.expr.print(ast)
+
+        Assert.assertEquals("(1:2).x", source?.toString())
+    }
+
+    @Test
+    fun testQualifierFunCall() {
+        val input = ParserStream.fromString("f.x (1, 2)")
+        val ast = Meelan.expr.parse(input)
+        val source = Meelan.expr.print(ast)
+
+        Assert.assertEquals("f.x(1,2)", source?.toString())
+    }
+
+    @Test
+    fun testVector() {
+        val input = ParserStream.fromString("[1, 2, 3]")
+        val ast = Meelan.expr.parse(input)
+        val source = Meelan.expr.print(ast)
+
+        Assert.assertEquals("[1,2,3]", source?.toString())
+    }
+
+    @Test
+    fun testArrayAccess() {
+        val input = ParserStream.fromString("a[1, 2]")
+        val ast = Meelan.expr.parse(input)
+        val source = Meelan.expr.print(ast)
+
+        Assert.assertEquals("a[1,2]", source?.toString())
+    }
+
+    @Test
+    fun testSimpleApp() {
+        val input = ParserStream.fromString("sin x")
+        val ast = Meelan.expr.parse(input)
+        val source = Meelan.expr.print(ast)
+
+        Assert.assertEquals("sinx", source?.toString())
+    }
+
+    @Test
+    fun testAppThenParenthesisThenApp() {
+        val input = ParserStream.fromString("x (y+1) z")
+        val ast = Meelan.expr.parse(input)
+        val source = Meelan.expr.print(ast)
+
+        Assert.assertEquals("x(y+1)z", source?.toString())
+    }
+
+    @Test
+    fun testParenthesisThenApp() {
+        val input = ParserStream.fromString("(y+1) z")
+        val ast = Meelan.expr.parse(input)
+        val source = Meelan.expr.print(ast)
+
+        Assert.assertEquals("(y+1)z", source?.toString())
+    }
+
+    @Test
+    fun testSimpleAlgorithm() {
+        val input = ParserStream.fromString("var i = 0; var sum = 0; while(i < 10) {sum = sum + i; i = i + 1}")
+        val ast = Meelan.program.parse(input)
+        val source = Meelan.program.print(ast)
+
+        Assert.assertEquals("vari=0;varsum=0;while(i<10){sum=sum+i;i=i+1;};", source?.toString())
     }
 }

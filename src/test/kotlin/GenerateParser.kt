@@ -30,6 +30,6 @@ class GenerateParser {
     }
 
     companion object {
-        val createFiles = false
+        val createFiles = true
     }
 }
