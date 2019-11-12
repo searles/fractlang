@@ -1,11 +1,8 @@
 package at.searles.meelan
 
-import at.searles.parsing.ParserStream
-import at.searles.parsingtools.SyntaxInfo
+import at.searles.parsing.Trace
 
-abstract class Node: SyntaxInfo, Op {
-    protected constructor(stream: ParserStream) : super(stream)
-    protected constructor(node: Node) : super(node)
+abstract class Node(val trace: Trace) {
 
     var type: Type? = null // null means not assigned yet.
 

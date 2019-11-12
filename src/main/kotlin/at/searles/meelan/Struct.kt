@@ -1,7 +1,7 @@
 package at.searles.meelan
 
 class Struct(val size: Int): Type {
-    override fun byteCount(): Int {
+    override fun byteSize(): Int {
         return size
     }
 

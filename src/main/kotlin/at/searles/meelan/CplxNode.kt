@@ -1,8 +1,15 @@
 package at.searles.meelan
 
+import at.searles.commons.math.Cplx
 import at.searles.parsing.Trace
-class VarDecl(trace: Trace, val name: String, val typeName: String?, val init: Node?): Node(trace) {
+class CplxNode(trace: Trace, val value: Cplx) : Node(trace) {
+
+    init {
+        type = BaseTypes.Cplx
+    }
+
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }
+
 }

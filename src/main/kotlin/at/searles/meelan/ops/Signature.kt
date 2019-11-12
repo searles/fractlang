@@ -1,4 +1,7 @@
-package at.searles.meelan
+package at.searles.meelan.ops
+
+import at.searles.meelan.Node
+import at.searles.meelan.Type
 
 class Signature(val returnType: Type, vararg val argTypes: Type) {
     fun convertArguments(vararg args: Node): Array<Node>? {

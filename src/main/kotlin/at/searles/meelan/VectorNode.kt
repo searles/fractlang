@@ -1,8 +1,11 @@
 package at.searles.meelan
 
-import at.searles.parsing.ParserStream
+import at.searles.parsing.Trace
 
-class VectorNode(stream: ParserStream, val items: List<Node>) : Node(stream) {
+/**
+ * Is removed during semantic analysis?
+ */
+class VectorNode(trace: Trace, val items: List<Node>): Node(trace) {
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }

@@ -1,8 +1,12 @@
 package at.searles.meelan
 
-import at.searles.parsing.ParserStream
+import at.searles.parsing.Trace
 
-class While(stream: ParserStream, val condition: Node, val body: Node?): Node(stream) {
+class While(trace: Trace, val condition: Node, val body: Node?): Node(trace) {
+    init {
+        type = BaseTypes.Unit
+    }
+
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }

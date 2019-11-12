@@ -1,7 +1,12 @@
 package at.searles.meelan
 
 import at.searles.parsing.Trace
-class VarDecl(trace: Trace, val name: String, val typeName: String?, val init: Node?): Node(trace) {
+
+class Reg(trace: Trace, type: Type, val relativeOffset: Int): Node(trace) {
+    init {
+        this.type = type
+    }
+
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }

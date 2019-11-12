@@ -7,7 +7,11 @@ import at.searles.parsingtools.list.CreateSingletonList
 import at.searles.parsingtools.properties.CreateEmptyProperties
 import at.searles.parsingtools.properties.CreateObject
 import at.searles.parsingtools.properties.PutProperty
+
+import at.searles.meelan.ops.*
 }}}
+
+// TODO Add Bool and extern!
 
 grammar Meelan {
     regex ws: [\x09\x0b\r \xa0\u1680\u2000-\u200a\u202f\u205f\u3000]+ ;
@@ -73,40 +77,40 @@ grammar Meelan {
 
 	block: '{' stmts `toBlock` '}' ;
 
-	absExpr: '|' expr `toUnary(BaseOps.Abs)` '|' ;
+	absExpr: '|' expr `toUnary(Abs)` '|' ;
 
     term: ifExpr | block | absExpr | app ;
 
-    literal<Node>: '-' literal `toUnary(BaseOps.Neg)`
-                       | '/' literal `toUnary(BaseOps.Recip)`
+    literal<Node>: '-' literal `toUnary(Neg)`
+                       | '/' literal `toUnary(Recip)`
                        | term
                        ;
 
-    cons: literal (':' literal >> `toBinary(BaseOps.Cons)`)? ;
+    cons: literal (':' literal >> `toBinary(Cons)`)? ;
 
-    pow<Node>: cons ('^' pow >> `toBinary(BaseOps.Pow)`)? ;
+    pow<Node>: cons ('^' pow >> `toBinary(Pow)`)? ;
 
-    product: pow ('*' pow >> `toBinary(BaseOps.Mul)` | '/' pow >> `toBinary(BaseOps.Div)` | '%'  pow >> `toBinary(BaseOps.Mod)` )* ;
+    product: pow ('*' pow >> `toBinary(Mul)` | '/' pow >> `toBinary(Div)` | '%'  pow >> `toBinary(Mod)` )* ;
 
-    sum: product ('+' product >> `toBinary(BaseOps.Add)` | '-' product >> `toBinary(BaseOps.Sub)` )* ;
+    sum: product ('+' product >> `toBinary(Add)` | '-' product >> `toBinary(Sub)` )* ;
 
 	cmp : sum
-		( '>' sum >> `toBinary(BaseOps.Greater)`
-		| '>=' sum >> `toBinary(BaseOps.GreaterEqual)`
-		| '<=' sum >> `toBinary(BaseOps.LessEqual)`
-		| '<' sum >> `toBinary(BaseOps.Less)`
-		| '==' sum >> `toBinary(BaseOps.Equal)`
-		| '!=' sum >> `toBinary(BaseOps.NotEqual)`
+		( '>' sum >> `toBinary(Greater)`
+		| '>=' sum >> `toBinary(GreaterEqual)`
+		| '<=' sum >> `toBinary(LessEqual)`
+		| '<' sum >> `toBinary(Less)`
+		| '==' sum >> `toBinary(Equal)`
+		| '!=' sum >> `toBinary(NotEqual)`
 		)? ;
 
-	logicalLit: 'not' cmp `toUnary(BaseOps.Not)` | cmp ;
-	logicalAnd: logicalLit ('and' logicalLit >> `toBinary(BaseOps.And)`)* ;
-	logicalXor: logicalAnd ('xor' logicalAnd >> `toBinary(BaseOps.Xor)`)* ;
-	logicalOr: logicalXor ('or' logicalXor >> `toBinary(BaseOps.Or)`)* ;
+	logicalLit: 'not' cmp `toUnary(Not)` | cmp ;
+	logicalAnd: logicalLit ('and' logicalLit >> `toBinary(And)`)* ;
+	logicalXor: logicalAnd ('xor' logicalAnd >> `toBinary(Xor)`)* ;
+	logicalOr: logicalXor ('or' logicalXor >> `toBinary(Or)`)* ;
 
 	expr<Node>: logicalOr ;
 
-	exprstmt: expr ('=' expr >> `toBinary(BaseOps.Assign)`)? ;
+	exprstmt: expr ('=' expr >> `toBinary(Assign)`)? ;
 
 	whilestmt: 'while' @ `Annot.Kw` `CreateEmptyProperties`
 			   '(' expr >> `PutProperty("condition")` ')'

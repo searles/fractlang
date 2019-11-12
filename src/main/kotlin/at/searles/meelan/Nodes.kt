@@ -1,5 +1,6 @@
 package at.searles.meelan
 
+import at.searles.meelan.ops.BaseOp
 import at.searles.parsing.Fold
 import at.searles.parsing.Mapping
 import at.searles.parsing.ParserStream
@@ -11,7 +12,7 @@ val toIdString = {s: CharSequence -> s.toString()}
 
 object toIntNode: Mapping<Int, Node> {
     override fun parse(stream: ParserStream, left: Int): Node? {
-        return IntNode(stream, left)
+        return IntNode(stream.createTrace(), left)
     }
 
     override fun left(result: Node): Int? {
@@ -21,7 +22,7 @@ object toIntNode: Mapping<Int, Node> {
 
 object toRealNode: Mapping<Double, Node> {
     override fun parse(stream: ParserStream, left: Double): Node? {
-        return RealNode(stream, left)
+        return RealNode(stream.createTrace(), left)
     }
 
     override fun left(result: Node): Double? {
@@ -31,7 +32,7 @@ object toRealNode: Mapping<Double, Node> {
 
 object toStringNode: Mapping<String, Node> {
     override fun parse(stream: ParserStream, left: String): Node? {
-        return StringNode(stream, left)
+        return StringNode(stream.createTrace(), left)
     }
 
     override fun left(result: Node): String? {
@@ -41,7 +42,7 @@ object toStringNode: Mapping<String, Node> {
 
 object toIdNode: Mapping<String, Node> {
     override fun parse(stream: ParserStream, left: String): Node? {
-        return IdNode(stream, left)
+        return IdNode(stream.createTrace(), left)
     }
 
     override fun left(result: Node): String? {
@@ -51,7 +52,7 @@ object toIdNode: Mapping<String, Node> {
 
 object toVectorNode: Mapping<List<Node>, Node> {
     override fun parse(stream: ParserStream, left: List<Node>): Node? {
-        return VectorNode(stream, left)
+        return VectorNode(stream.createTrace(), left)
     }
 
     override fun left(result: Node): List<Node>? {
@@ -61,7 +62,7 @@ object toVectorNode: Mapping<List<Node>, Node> {
 
 object toQualified: Fold<Node, String, Node> {
     override fun apply(stream: ParserStream, left: Node, right: String): Node {
-        return QualifiedNode(stream, left, right)
+        return QualifiedNode(stream.createTrace(), left, right)
     }
 
     override fun leftInverse(result: Node): Node? {
@@ -101,11 +102,11 @@ object listApply: Fold<List<Node>, Node, List<Node>> {
 
 object toApp: Fold<Node, List<Node>, Node> {
     override fun apply(stream: ParserStream, left: Node, right: List<Node>): Node {
-        return App(stream, left, right)
+        return App(stream.createTrace(), left, right)
     }
 
     override fun leftInverse(result: Node): Node? {
-        return (result as? App)?.op as? Node
+        return (result as? App)?.head
     }
 
     override fun rightInverse(result: Node): List<Node>? {
@@ -115,7 +116,7 @@ object toApp: Fold<Node, List<Node>, Node> {
 
 object toBlock: Mapping<List<Node>, Node> {
     override fun parse(stream: ParserStream, left: List<Node>): Node? {
-        return Block(stream, left)
+        return Block(stream.createTrace(), left)
     }
 
     override fun left(result: Node): List<Node>? {
@@ -123,38 +124,38 @@ object toBlock: Mapping<List<Node>, Node> {
     }
 }
 
-private fun appArgOrNull(app: Node, op: Op, arity: Int, index: Int): Node? {
-    if(app !is App
-        || app.op != op
-        || app.args.size != arity) return null
+private fun instrArgOrNull(instr: Node, op: BaseOp, arity: Int, index: Int): Node? {
+    if(instr !is Instruction
+        || instr.op != op
+        || instr.arguments.size != arity) return null
 
-    return app.args[index]
+    return instr.arguments[index]
 }
 
-fun toUnary(op: Op): Mapping<Node, Node> {
+fun toUnary(op: BaseOp): Mapping<Node, Node> {
     return object: Mapping<Node, Node> {
         override fun parse(stream: ParserStream, left: Node): Node? {
-            return App(stream, op, listOf(left))
+            return Instruction(stream.createTrace(), op, left)
         }
 
         override fun left(result: Node): Node? {
-            return appArgOrNull(result, op, 1, 0)
+            return instrArgOrNull(result, op, 1, 0)
         }
     }
 }
 
-fun toBinary(op: Op): Fold<Node, Node, Node> {
+fun toBinary(op: BaseOp): Fold<Node, Node, Node> {
     return object: Fold<Node, Node, Node> {
         override fun apply(stream: ParserStream, left: Node, right: Node): Node {
-            return App(stream, op, listOf(left, right))
+            return Instruction(stream.createTrace(), op, left, right)
         }
 
         override fun leftInverse(result: Node): Node? {
-            return appArgOrNull(result, op, 2, 0)
+            return instrArgOrNull(result, op, 2, 0)
         }
 
         override fun rightInverse(result: Node): Node? {
-            return appArgOrNull(result, op, 2, 1)
+            return instrArgOrNull(result, op, 2, 1)
         }
     }
 }

@@ -1,8 +1,11 @@
 package at.searles.meelan
 
-import at.searles.parsing.ParserStream
+import at.searles.parsing.Trace
+class StringNode(trace: Trace, val string: String): Node(trace) {
+    init {
+        type = BaseTypes.String
+    }
 
-class StringNode(stream: ParserStream, val string: String): Node(stream) {
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }

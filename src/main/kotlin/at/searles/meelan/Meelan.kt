@@ -11,6 +11,7 @@ import at.searles.parsingtools.properties.PutProperty
 
 import at.searles.lexer.Lexer
 import at.searles.lexer.SkipTokenizer
+import at.searles.meelan.ops.*
 import at.searles.parsing.Ref
 import at.searles.parsingtools.generator.Context
 import at.searles.parsingtools.opt
@@ -138,44 +139,50 @@ object Meelan {
     val block = context.text("{").then(stmts).then(toBlock).then(context.text("}"))
 
     // position 2764-2808
-    val absExpr = context.text("|").then(expr).then(toUnary(BaseOps.Abs)).then(context.text("|"))
+    val absExpr = context.text("|").then(expr).then(toUnary(Abs)).then(context.text("|"))
 
     // position 2816-2852
     val term = ifExpr.or(block).or(absExpr).or(app)
 
     // position 2860-3001
     init {
-        literal.set(context.text("-").then(literal).then(toUnary(BaseOps.Neg)).or(context.text("/").then(literal).then(toUnary(BaseOps.Recip))).or(term))
+        literal.set(context.text("-").then(literal).then(toUnary(Neg)).or(context.text("/").then(literal).then(toUnary(
+            Recip))).or(term))
     }
 
     // position 3032-3088
-    val cons = literal.then(context.text(":").then(literal.fold(toBinary(BaseOps.Cons))).opt())
+    val cons = literal.then(context.text(":").then(literal.fold(toBinary(Cons))).opt())
 
     // position 3096-3149
     init {
-        pow.set(cons.then(context.text("^").then(pow.fold(toBinary(BaseOps.Pow))).opt()))
+        pow.set(cons.then(context.text("^").then(pow.fold(toBinary(Pow))).opt()))
     }
 
     // position 3157-3283
-    val product = pow.then(context.text("*").then(pow.fold(toBinary(BaseOps.Mul))).or(context.text("/").then(pow.fold(toBinary(BaseOps.Div)))).or(context.text("%").then(pow.fold(toBinary(BaseOps.Mod)))).rep())
+    val product = pow.then(context.text("*").then(pow.fold(toBinary(Mul))).or(context.text("/").then(pow.fold(toBinary(
+        Div)))).or(context.text("%").then(pow.fold(toBinary(Mod)))).rep())
 
     // position 3291-3387
-    val sum = product.then(context.text("+").then(product.fold(toBinary(BaseOps.Add))).or(context.text("-").then(product.fold(toBinary(BaseOps.Sub)))).rep())
+    val sum = product.then(context.text("+").then(product.fold(toBinary(Add))).or(context.text("-").then(product.fold(toBinary(
+        Sub)))).rep())
 
     // position 3392-3671
-    val cmp = sum.then(context.text(">").then(sum.fold(toBinary(BaseOps.Greater))).or(context.text(">=").then(sum.fold(toBinary(BaseOps.GreaterEqual)))).or(context.text("<=").then(sum.fold(toBinary(BaseOps.LessEqual)))).or(context.text("<").then(sum.fold(toBinary(BaseOps.Less)))).or(context.text("==").then(sum.fold(toBinary(BaseOps.Equal)))).or(context.text("!=").then(sum.fold(toBinary(BaseOps.NotEqual)))).opt())
+    val cmp = sum.then(context.text(">").then(sum.fold(toBinary(Greater))).or(context.text(">=").then(sum.fold(toBinary(
+        GreaterEqual)))).or(context.text("<=").then(sum.fold(toBinary(LessEqual)))).or(context.text("<").then(sum.fold(toBinary(
+        Less)))).or(context.text("==").then(sum.fold(toBinary(Equal)))).or(context.text("!=").then(sum.fold(toBinary(
+        NotEqual)))).opt())
 
     // position 3676-3726
-    val logicalLit = context.text("not").then(cmp).then(toUnary(BaseOps.Not)).or(cmp)
+    val logicalLit = context.text("not").then(cmp).then(toUnary(Not)).or(cmp)
 
     // position 3730-3799
-    val logicalAnd = logicalLit.then(context.text("and").then(logicalLit.fold(toBinary(BaseOps.And))).rep())
+    val logicalAnd = logicalLit.then(context.text("and").then(logicalLit.fold(toBinary(And))).rep())
 
     // position 3803-3872
-    val logicalXor = logicalAnd.then(context.text("xor").then(logicalAnd.fold(toBinary(BaseOps.Xor))).rep())
+    val logicalXor = logicalAnd.then(context.text("xor").then(logicalAnd.fold(toBinary(Xor))).rep())
 
     // position 3876-3942
-    val logicalOr = logicalXor.then(context.text("or").then(logicalXor.fold(toBinary(BaseOps.Or))).rep())
+    val logicalOr = logicalXor.then(context.text("or").then(logicalXor.fold(toBinary(Or))).rep())
 
     // position 3947-3968
     init {
@@ -183,7 +190,7 @@ object Meelan {
     }
 
     // position 3973-4029
-    val exprstmt = expr.then(context.text("=").then(expr.fold(toBinary(BaseOps.Assign))).opt())
+    val exprstmt = expr.then(context.text("=").then(expr.fold(toBinary(Assign))).opt())
 
     // position 4034-4250
     val whilestmt = context.text("while").annotate(Annot.Kw).then(CreateEmptyProperties).then(context.text("(")).then(expr.fold(PutProperty("condition"))).then(context.text(")")).then(stmt.fold(PutProperty("body")).opt()).then(CreateObject<Node>(While::class.java, true, "condition", "body"))

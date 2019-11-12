@@ -1,8 +1,6 @@
 package at.searles.meelan
 
-import at.searles.parsing.ParserStream
-
-class DefDecl(stream: ParserStream): Node(stream) {
+class FunEnv(funDecl: FunDecl, context: Frame) : Node(funDecl.trace) {
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }

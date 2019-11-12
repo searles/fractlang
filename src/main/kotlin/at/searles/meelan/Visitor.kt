@@ -4,7 +4,6 @@ interface Visitor<T> {
     fun visit(app: App): T
     fun visit(block: Block): T
     fun visit(classDecl: ClassDecl): T
-    fun visit(defDecl: DefDecl): T
     fun visit(forStmt: For): T
     fun visit(frame: Frame): T
     fun visit(funDecl: FunDecl): T
@@ -19,4 +18,11 @@ interface Visitor<T> {
     fun visit(varParameter: VarParameter): T
     fun visit(vectorNode: VectorNode): T
     fun visit(whileStmt: While): T
+    fun visit(classEnv: ClassEnv): T
+    fun visit(funEnv: FunEnv): T
+    fun visit(cplxNode: CplxNode): T
+    fun visit(instruction: Instruction): T
+    fun visit(reg: Reg): T
+    fun visit(boolNode: BoolNode): T
+    fun visit(nopNode: NopNode): T
 }

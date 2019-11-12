@@ -1,10 +1,12 @@
 package at.searles.meelan
 
-import at.searles.parsing.ParserStream
+import at.searles.parsing.Trace
+class RealNode(trace: Trace, val value: Double) : Node(trace) {
+    init {
+        type = BaseTypes.Real
+    }
 
-class RealNode(stream: ParserStream, val value: Double) : Node(stream) {
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }
-
 }

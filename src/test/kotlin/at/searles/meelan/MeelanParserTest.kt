@@ -7,7 +7,7 @@ import org.junit.Assert
 import org.junit.Test
 import java.io.FileReader
 
-class MeelanSrcTest {
+class MeelanParserTest {
     /*
     // what is returned:
 value.x/value.y are normalized to the range 0-1.

@@ -1,7 +1,6 @@
 package at.searles.meelan
 
-import at.searles.parsing.Trace
-class Block(trace: Trace, val stmts: List<Node>): Node(trace) {
+class ClassEnv(classDecl: ClassDecl, context: Frame) : Node(classDecl.trace) {
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }

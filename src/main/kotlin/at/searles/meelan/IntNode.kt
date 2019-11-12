@@ -1,10 +1,12 @@
 package at.searles.meelan
 
-import at.searles.parsing.ParserStream
+import at.searles.parsing.Trace
+class IntNode(trace: Trace, val value: Int) : Node(trace) {
+    init {
+        type = BaseTypes.Integer
+    }
 
-class IntNode(stream: ParserStream, val value: Int) : Node(stream) {
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }
-
 }

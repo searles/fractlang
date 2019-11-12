@@ -1,8 +1,8 @@
 package at.searles.meelan
 
-import at.searles.parsing.ParserStream
+import at.searles.parsing.Trace
 
-class App(stream: ParserStream, val op: Op, val args: List<Node>): Node(stream) {
+class App(trace: Trace, val head: Node, val args: List<Node>): Node(trace) {
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }
