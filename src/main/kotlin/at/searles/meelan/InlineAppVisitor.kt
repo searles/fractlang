@@ -3,26 +3,41 @@ package at.searles.meelan
 import at.searles.meelan.ops.Assign
 import at.searles.parsing.Trace
 
+/**
+ * args are not inlined
+ */
 class InlineAppVisitor(val trace: Trace, val args: List<Node>, val parentVisitor: InlineVisitor): Visitor<Node> {
+
+	private val inlinedArgs: ListNode by lazy {
+		args.map { it.accept(parentVisitor) }
+	}
+
     private fun defineArgs(parameters: List<Node>, innerVisitor: InlineVisitor) {
-        parameters.zip(args).forEach {
-            // TODO: if it is a var add assignment add it to inner block
+        parameters.zip(inlinedArgs).forEach {
             if(it.first is IdNode) {
-            } else if(it.first is VarParameter) {
+				innerVisitor.setInTable(it.second.trace, it.first.id, it.second)
+			} else if(it.first is VarParameter) {
+				val varNode = if(it.first.varType == null) {
+					VarParameter(it.first.trace, it.first.id, it.second.type)
+				} else {
+					it.first
+				}
+				
+				innerVisitor.initializeVar(it.second.trace, varNode, it.second)
             } else {
                 throw IllegalArgumentException("parameters must be Id or Var!")
             }
-
-            innerVisitor.block.add(App(it.second.trace, Assign, listOf(paramId, args)))
-
-
         }
     }
-
-    override fun visit(funEnv: FunEnv): Node {
-        if(funEnv.decl.parameters.size != args.size) {
+	
+	private fun checkArity(trace: Trace, expected: Int) {
+        if(expected != args.size) {
             throw SemanticAnalysisException("bad number of arguments", trace)
         }
+	}
+	
+    override fun visit(funEnv: FunEnv): Node {
+        checkArity(funEnv.decl.parameters.size)
 
         val innerVisitor = InlineVisitor(funEnv.table, parentVisitor.varNameGenerator)
 
@@ -36,98 +51,113 @@ class InlineAppVisitor(val trace: Trace, val args: List<Node>, val parentVisitor
     }
 
     override fun visit(classEnv: ClassEnv): Node {
-        val innerTable = classEnv.table.spawnChildTable()
-        val innerBlock = ArrayList<Node>()
-        // TODO check arity
-        defineArgs(classEnv.decl.parameters, innerTable)
+        checkArity(classEnv.decl.parameters.size)
 
-        classDecl.block.accept(InlineVisitor(innerTable, innerBlock))
+        val innerVisitor = InlineVisitor(classEnv.table, parentVisitor.varNameGenerator)
 
-        block.add(Block(innerBlock))
+        defineArgs(classEnv.decl.parameters, innerVisitor)
 
-        return ObjectNode(objectTable)
+        val objectBlock = classDecl.block.accept(innerVisitor)
+
+        parentVisitor.addStmt(objectBlock)
+
+        return ObjectNode(innerVisitor.table.top())
     }
 
-    override fun visit(op: Op): Node {
-        // inline non-base-ops?
-        // yes, why not. Types are also fine.
-        return op.apply()
-    }
-
-    override fun visit(app: App): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun visit(block: Block): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun visit(classDecl: ClassDecl): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun visit(forStmt: For): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun visit(funDecl: FunDecl): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun visit(idNode: IdNode): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun visit(ifStmt: If): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun visit(ifElse: IfElse): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun visit(intNode: IntNode): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun visit(qualifiedNode: QualifiedNode): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun visit(realNode: RealNode): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun visit(stringNode: StringNode): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun visit(varDecl: VarDecl): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun visit(varParameter: VarParameter): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun visit(op: OpNode): Node {
+        return op.apply(trace, inlinedArgs)
     }
 
     override fun visit(vectorNode: VectorNode): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+		// this could be something like [1,2,3][4]
+		
+		// TODO sometimes.
+		throw SemanticAnalysisException("lists are not yet supported")
     }
 
-    override fun visit(whileStmt: While): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+	private fun createImplicit(head: Node): Node {
+		// all implicits allow only one argument
+		checkArity(1)
+		
+		if(inlinedArgs.get(0) is VectorNode) {
+			// FIXME
+		}
+		
+		return Mul.apply(trace, listOf(factor, inlinedArgs.get(0)))
+	}
+
+    override fun visit(ifElse: IfElse): Node {
+        return createImplicit(ifElse)
+    }
+
+    override fun visit(intNode: IntNode): Node {
+		return createImplicit(intNode)
+    }
+
+    override fun visit(realNode: RealNode): Node {
+		return createImplicit(realNode)
     }
 
     override fun visit(cplxNode: CplxNode): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+		return createImplicit(cplxNode)
     }
 
-    override fun visit(boolNode: BoolNode): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun visit(app: App): Node {
+		// for example (sin x) y?
+        return createImplicit(app)
+    }
+
+    override fun visit(block: Block): Node {
+        return createImplicit(block)
+    }
+
+    override fun visit(classDecl: ClassDecl): Node {
+		throw IllegalArgumentException("class declaration should have been inlined")
+    }
+
+    override fun visit(funDecl: FunDecl): Node {
+		throw IllegalArgumentException("fun declaration should have been inlined")
+    }
+
+    override fun visit(varDecl: VarDecl): Node {
+		throw IllegalArgumentException("var declaration should have been inlined")
+    }
+
+    override fun visit(idNode: IdNode): Node {
+		throw IllegalArgumentException("id should have been inlined")
+    }
+
+    override fun visit(qualifiedNode: QualifiedNode): Node {
+		throw IllegalArgumentException("qualified node should have been inlined")
+    }
+
+    override fun visit(varParameter: VarParameter): Node {
+		throw IllegalArgumentException("unreachable")
     }
 
     override fun visit(nop: Nop): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+		// (var x = 1) y
+        throw SemanticAnalysisException("cannot use this as a function head", nop.trace)
     }
 
+    override fun visit(forStmt: For): Node {
+        throw SemanticAnalysisException("cannot use for-statement as a function head", nop.trace)
+    }
+
+    override fun visit(whileStmt: While): Node {
+        throw SemanticAnalysisException("cannot use while-statement as a function head", nop.trace)
+    }
+
+    override fun visit(ifStmt: If): Node {
+        throw SemanticAnalysisException("cannot use if-statement as a function head", nop.trace)
+    }
+
+    override fun visit(stringNode: StringNode): Node {
+		// any funny use for that?
+        throw SemanticAnalysisException("cannot use string as a function head", nop.trace)
+    }
+	
+    override fun visit(boolNode: BoolNode): Node {
+        throw SemanticAnalysisException("cannot use boolean as a function head", nop.trace)
+    }
 }
