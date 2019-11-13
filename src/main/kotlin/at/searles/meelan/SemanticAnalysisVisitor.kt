@@ -3,10 +3,7 @@ package at.searles.meelan
 import at.searles.meelan.ops.Assign
 import java.lang.IllegalArgumentException
 
-class SemanticAnalysisVisitor(val frame: Frame): Visitor<Node> {
-    override fun visit(reg: Reg): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+class SemanticAnalysisVisitor(val frame: Frame, val varIndexCounter): Visitor<Node> {
 
     override fun visit(cplxNode: CplxNode): Node {
         return cplxNode
@@ -38,12 +35,12 @@ class SemanticAnalysisVisitor(val frame: Frame): Visitor<Node> {
 
     override fun visit(classDecl: ClassDecl): Node  {
         frame.addClass(classDecl)
-        return NopNode(classDecl.trace)
+        return Nop(classDecl.trace)
     }
 
     override fun visit(funDecl: FunDecl): Node  {
         frame.addFun(funDecl)
-        return NopNode(funDecl.trace)
+        return Nop(funDecl.trace)
     }
 
     override fun visit(varDecl: VarDecl): Node  {
@@ -63,7 +60,7 @@ class SemanticAnalysisVisitor(val frame: Frame): Visitor<Node> {
             Instruction(varDecl.trace, Assign, reg, type.convert(initialization))
         }
 
-        return NopNode(varDecl.trace)
+        return Nop(varDecl.trace)
     }
 
     override fun visit(idNode: IdNode): Node  {

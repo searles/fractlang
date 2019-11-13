@@ -5,7 +5,6 @@ interface Visitor<T> {
     fun visit(block: Block): T
     fun visit(classDecl: ClassDecl): T
     fun visit(forStmt: For): T
-    fun visit(frame: Frame): T
     fun visit(funDecl: FunDecl): T
     fun visit(idNode: IdNode): T
     fun visit(ifStmt: If): T
@@ -21,8 +20,6 @@ interface Visitor<T> {
     fun visit(classEnv: ClassEnv): T
     fun visit(funEnv: FunEnv): T
     fun visit(cplxNode: CplxNode): T
-    fun visit(instruction: Instruction): T
-    fun visit(reg: Reg): T
     fun visit(boolNode: BoolNode): T
-    fun visit(nopNode: NopNode): T
+    fun visit(nop: Nop): T
 }

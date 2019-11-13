@@ -1,7 +1,8 @@
 package at.searles.meelan
 
+import at.searles.parsing.Trace
 import java.lang.RuntimeException
 
-class SemanticAnalysisException(msg: String, node: Node) : RuntimeException(
-    msg + "@${node.trace.start}-${node.trace.end}"
+class SemanticAnalysisException(msg: String, trace: Trace) : RuntimeException(
+    msg + "@${trace.start}-${trace.end}"
 )

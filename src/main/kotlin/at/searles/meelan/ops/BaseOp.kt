@@ -1,10 +1,10 @@
 package at.searles.meelan.ops
 
-import at.searles.meelan.Instruction
+import at.searles.meelan.App
 import at.searles.meelan.Node
 import at.searles.parsing.Trace
 
-abstract class BaseOp(vararg val signatures: Signature) {
+abstract class BaseOp(private vararg val signatures: Signature) : Op {
     fun findSignature(arguments: List<Node>): Signature? {
         return signatures.firstOrNull{
             signature -> signature.argTypes.size == arguments.size
@@ -13,6 +13,6 @@ abstract class BaseOp(vararg val signatures: Signature) {
     }
 
     fun apply(trace: Trace, args: List<Node>): Node {
-        return Instruction(trace, this, *args.toTypedArray())
+        return App(trace, this, args)
     }
 }
