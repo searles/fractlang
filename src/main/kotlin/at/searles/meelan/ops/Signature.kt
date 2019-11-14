@@ -10,7 +10,7 @@ class Signature(val returnType: Type, vararg val argTypes: Type) {
         }
 
         return argTypes.zip(args)
-            .map {it.first.convert(it.second) ?: return null}
+            .map {it.first.convert(it.second)}
             .toTypedArray()
     }
 }

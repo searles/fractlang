@@ -12,7 +12,7 @@ abstract class BaseOp(private vararg val signatures: Signature) : Op {
         }
     }
 
-    fun apply(trace: Trace, args: List<Node>): Node {
+    override fun apply(trace: Trace, args: List<Node>): Node {
         return App(trace, this, args)
     }
 }

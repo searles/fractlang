@@ -9,4 +9,5 @@ interface Op {
         return OpNode(trace, this)
     }
 
+    fun apply(trace: Trace, args: List<Node>): Node
 }

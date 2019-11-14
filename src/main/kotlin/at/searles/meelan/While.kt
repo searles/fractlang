@@ -2,7 +2,7 @@ package at.searles.meelan
 
 import at.searles.parsing.Trace
 
-class While(trace: Trace, val condition: Node, val body: Node?): Node(trace) {
+class While(trace: Trace, val condition: Node, val body: Node): Node(trace) {
     init {
         type = BaseTypes.Unit
     }

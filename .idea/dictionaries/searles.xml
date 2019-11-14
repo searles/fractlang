@@ -2,6 +2,7 @@
   <dictionary name="searles">
     <words>
       <w>decl</w>
+      <w>stmts</w>
     </words>
   </dictionary>
 </component>

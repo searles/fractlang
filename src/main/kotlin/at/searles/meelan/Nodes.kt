@@ -1,9 +1,7 @@
 package at.searles.meelan
 
 import at.searles.meelan.ops.BaseOp
-import at.searles.parsing.Fold
-import at.searles.parsing.Mapping
-import at.searles.parsing.ParserStream
+import at.searles.parsing.*
 
 val toInt = {s: CharSequence -> s.toString().toInt()}
 val toHex = {s: CharSequence -> s.toString().toBigInteger(16).toInt()}
@@ -124,22 +122,23 @@ object toBlock: Mapping<List<Node>, Node> {
     }
 }
 
-private fun instrArgOrNull(instr: Node, op: BaseOp, arity: Int, index: Int): Node? {
-    if(instr !is Instruction
-        || instr.op != op
-        || instr.arguments.size != arity) return null
+private fun appArgOrNull(app: Node, op: BaseOp, arity: Int, index: Int): Node? {
+    if(app !is App
+        || app.head !is OpNode
+        || app.head.op != op
+        || app.args.size != arity) return null
 
-    return instr.arguments[index]
+    return app.args[index]
 }
 
 fun toUnary(op: BaseOp): Mapping<Node, Node> {
     return object: Mapping<Node, Node> {
         override fun parse(stream: ParserStream, left: Node): Node? {
-            return Instruction(stream.createTrace(), op, left)
+            return App(stream.createTrace(), op, listOf(left))
         }
 
         override fun left(result: Node): Node? {
-            return instrArgOrNull(result, op, 1, 0)
+            return appArgOrNull(result, op, 1, 0)
         }
     }
 }
@@ -147,16 +146,47 @@ fun toUnary(op: BaseOp): Mapping<Node, Node> {
 fun toBinary(op: BaseOp): Fold<Node, Node, Node> {
     return object: Fold<Node, Node, Node> {
         override fun apply(stream: ParserStream, left: Node, right: Node): Node {
-            return Instruction(stream.createTrace(), op, left, right)
+            return App(stream.createTrace(), op, listOf(left, right))
         }
 
         override fun leftInverse(result: Node): Node? {
-            return instrArgOrNull(result, op, 2, 0)
+            return appArgOrNull(result, op, 2, 0)
         }
 
         override fun rightInverse(result: Node): Node? {
-            return instrArgOrNull(result, op, 2, 1)
+            return appArgOrNull(result, op, 2, 1)
         }
+    }
+}
+
+fun stringToType(trace: Trace, typeName: String): Type {
+    return BaseTypes.values().firstOrNull { it.name == typeName }
+        ?: throw SemanticAnalysisException("no such type", trace)
+}
+
+object ToType: Mapping<String, Type> {
+    override fun parse(stream: ParserStream, left: String): Type? {
+        return stringToType(stream.createTrace(), left)
+    }
+
+    override fun left(result: Type): String? {
+        return result.toString()
+    }
+}
+
+object toBool: Mapping<CharSequence, Node> {
+    override fun parse(stream: ParserStream, left: CharSequence): Node? {
+        return BoolNode(stream.createTrace(), left.toString().toBoolean())
+    }
+
+    override fun left(result: Node): CharSequence? {
+        return (result as? BoolNode)?.value?.toString()
+    }
+}
+
+object toNop: Initializer<Node> {
+    override fun parse(stream: ParserStream): Node? {
+        return Nop(stream.createTrace())
     }
 }
 

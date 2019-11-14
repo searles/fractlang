@@ -1,4 +1,4 @@
-{{{package at.searles.meelan;
+{{{package at.searles.meelan
 
 import at.searles.parsing.Mapping
 import at.searles.parsingtools.*
@@ -11,7 +11,7 @@ import at.searles.parsingtools.properties.PutProperty
 import at.searles.meelan.ops.*
 }}}
 
-// TODO Add Bool and extern!
+// TODO Add extern!
 
 grammar Meelan {
     regex ws: [\x09\x0b\r \xa0\u1680\u2000-\u200a\u202f\u205f\u3000]+ ;
@@ -39,6 +39,7 @@ grammar Meelan {
     realNum: regex(realRex, `toReal`) ;
     hexNum: regex(hexRex, `toHex`) ;
     str: regex(stringRex, `toEscString`) ;
+    bool: regex('true' | 'false', `toBool`) ;
     identifier: regex(identifierRex, `toIdString`) ;
 
     intNode: (intNum | hexNum) `toIntNode` ;
@@ -114,7 +115,7 @@ grammar Meelan {
 
 	whilestmt: 'while' @ `Annot.Kw` `CreateEmptyProperties`
 			   '(' expr >> `PutProperty("condition")` ')'
-			   (stmt >> `PutProperty("body")`)?
+			   (stmt | `toNop`) >> `PutProperty("body")`
 			   `CreateObject<Node>(While::class.java, true, "condition", "body")` ;
 
 	forstmt: 'for' @ `Annot.Kw` `CreateEmptyProperties` '(' identifier >> `PutProperty("name")` 'in' expr >> `PutProperty("range")` ')' stmt  >> `PutProperty("body")`
@@ -124,13 +125,18 @@ grammar Meelan {
 
 	vardecl: 'var' @ `Annot.DeclKw` `CreateEmptyProperties`
 	            identifier >> `PutProperty("name")`
-				(':' identifier >> `PutProperty("typeName")`)?
+				(':' (identifier `ToType`) >> `PutProperty("varType")`)?
 				('=' expr >> `PutProperty("init")`)?
-				`CreateObject<Node>(VarDecl::class.java, true, "name", "typeName", "init")` ;
+				`CreateObject<Node>(VarDecl::class.java, true, "name", "varType", "init")` ;
+
+	valdecl: 'val' @ `Annot.DeclKw` `CreateEmptyProperties`
+	            identifier >> `PutProperty("name")`
+				('=' expr >> `PutProperty("init")`)
+				`CreateObject<Node>(ValDecl::class.java, true, "name", "init")` ;
 
 	parameter: 'var' @ `Annot.DeclKw` `CreateEmptyProperties` identifier >> `PutProperty("name")`
-	            (':' identifier >> `PutProperty("typeName")`)?
-	            `CreateObject<Node>(VarParameter::class.java, true, "name", "typeName")`
+	            (':' (identifier `ToType`) >> `PutProperty("varType")`)?
+	            `CreateObject<Node>(VarParameter::class.java, true, "name", "varType")`
 	            | idNode ;
 
 	parameters: `parameter.list(comma)` ;
@@ -146,7 +152,7 @@ grammar Meelan {
 				block >> `PutProperty("body")`
 				`CreateObject<Node>(ClassDecl::class.java, true, "name", "parameters", "body")` ;
 
-	decl: vardecl | fundecl | classdecl ;
+	decl: vardecl | valdecl | fundecl | classdecl ;
 
     semicolon: ';' `Mapping.identity<Node>()` ;
 

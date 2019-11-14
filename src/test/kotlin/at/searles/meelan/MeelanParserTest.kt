@@ -53,6 +53,16 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         Assert.assertEquals("funa()=1;", source?.toString())
     }
 
+
+    @Test
+    fun testValConst() {
+        val input = ParserStream.fromString("val a = 1")
+        val ast = Meelan.program.parse(input)
+        val source = Meelan.program.print(ast)
+
+        Assert.assertEquals("vala=1;", source?.toString())
+    }
+
     @Test
     fun testFunWithNoArg() {
         val input = ParserStream.fromString("fun a() = 1")
@@ -199,14 +209,13 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
     }
 
     @Test
-    fun testParenthesisThenApp() {
-        val input = ParserStream.fromString("(y+1) z")
-        val ast = Meelan.expr.parse(input)
-        val source = Meelan.expr.print(ast)
+    fun testWhileNoBody() {
+        val input = ParserStream.fromString("while (1 == 1);")
+        val ast = Meelan.program.parse(input)
+        val source = Meelan.program.print(ast)
 
-        Assert.assertEquals("(y+1)z", source?.toString())
+        Assert.assertEquals("while (1 == 1);", source?.toString())
     }
-
     @Test
     fun testSimpleAlgorithm() {
         val input = ParserStream.fromString("var i = 0; var sum = 0; while(i < 10) {sum = sum + i; i = i + 1}")

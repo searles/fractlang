@@ -1,31 +1,26 @@
 package at.searles.meelan
 
-import at.searles.meelan.ops.Assign
+import at.searles.meelan.ops.Mul
 import at.searles.parsing.Trace
 
 /**
  * args are not inlined
  */
-class InlineAppVisitor(val trace: Trace, val args: List<Node>, val parentVisitor: InlineVisitor): Visitor<Node> {
-
-	private val inlinedArgs: ListNode by lazy {
+class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private val parentVisitor: InlineVisitor): Visitor<Node> {
+    private val inlinedArgs: List<Node> by lazy {
 		args.map { it.accept(parentVisitor) }
 	}
 
     private fun defineArgs(parameters: List<Node>, innerVisitor: InlineVisitor) {
         parameters.zip(inlinedArgs).forEach {
-            if(it.first is IdNode) {
-				innerVisitor.setInTable(it.second.trace, it.first.id, it.second)
-			} else if(it.first is VarParameter) {
-				val varNode = if(it.first.varType == null) {
-					VarParameter(it.first.trace, it.first.id, it.second.type)
-				} else {
-					it.first
-				}
-				
-				innerVisitor.initializeVar(it.second.trace, varNode, it.second)
-            } else {
-                throw IllegalArgumentException("parameters must be Id or Var!")
+
+            val parameter = it.first
+            val argument = it.second
+
+            when (parameter) {
+                is IdNode -> innerVisitor.setInTable(it.second.trace, parameter.id, it.second)
+                is VarParameter -> innerVisitor.initializeVar(argument.trace, parameter, argument)
+                else -> throw IllegalArgumentException("parameters must be Id or Var")
             }
         }
     }
@@ -37,53 +32,50 @@ class InlineAppVisitor(val trace: Trace, val args: List<Node>, val parentVisitor
 	}
 	
     override fun visit(funEnv: FunEnv): Node {
-        checkArity(funEnv.decl.parameters.size)
+        checkArity(trace, funEnv.decl.parameters.size)
 
         val innerVisitor = InlineVisitor(funEnv.table, parentVisitor.varNameGenerator)
 
         defineArgs(funEnv.decl.parameters, innerVisitor)
 
-        val returnValue = funEnv.decl.accept(innerTable, innerBlock))
-
-        block.add(innerBlock)
-
-        return returnValue
+        return funEnv.decl.body.accept(innerVisitor)
     }
 
     override fun visit(classEnv: ClassEnv): Node {
-        checkArity(classEnv.decl.parameters.size)
+        checkArity(trace, classEnv.decl.parameters.size)
 
         val innerVisitor = InlineVisitor(classEnv.table, parentVisitor.varNameGenerator)
 
         defineArgs(classEnv.decl.parameters, innerVisitor)
 
-        val objectBlock = classDecl.block.accept(innerVisitor)
+        val objectBlock = classEnv.decl.body.accept(innerVisitor)
 
         parentVisitor.addStmt(objectBlock)
 
-        return ObjectNode(innerVisitor.table.top())
+        return ObjectNode(trace, innerVisitor.table.top())
     }
 
-    override fun visit(op: OpNode): Node {
-        return op.apply(trace, inlinedArgs)
+    override fun visit(opNode: OpNode): Node {
+        return opNode.op.apply(trace, inlinedArgs)
     }
 
     override fun visit(vectorNode: VectorNode): Node {
 		// this could be something like [1,2,3][4]
 		
 		// TODO sometimes.
-		throw SemanticAnalysisException("lists are not yet supported")
+		throw SemanticAnalysisException("lists are not yet supported", vectorNode.trace)
     }
 
 	private fun createImplicit(head: Node): Node {
 		// all implicits allow only one argument
-		checkArity(1)
+		checkArity(trace, 1)
 		
-		if(inlinedArgs.get(0) is VectorNode) {
-			// FIXME
+		if(inlinedArgs[0] is VectorNode) {
+            // TODO sometimes.
+            throw SemanticAnalysisException("lists are not yet supported", trace)
 		}
 		
-		return Mul.apply(trace, listOf(factor, inlinedArgs.get(0)))
+		return Mul.apply(trace, listOf(head, inlinedArgs[0]))
 	}
 
     override fun visit(ifElse: IfElse): Node {
@@ -123,6 +115,10 @@ class InlineAppVisitor(val trace: Trace, val args: List<Node>, val parentVisitor
 		throw IllegalArgumentException("var declaration should have been inlined")
     }
 
+    override fun visit(valDecl: ValDecl): Node {
+        throw IllegalArgumentException("val declaration should have been inlined")
+    }
+
     override fun visit(idNode: IdNode): Node {
 		throw IllegalArgumentException("id should have been inlined")
     }
@@ -135,29 +131,33 @@ class InlineAppVisitor(val trace: Trace, val args: List<Node>, val parentVisitor
 		throw IllegalArgumentException("unreachable")
     }
 
+    override fun visit(objectNode: ObjectNode): Node {
+        throw SemanticAnalysisException("cannot use this as a function head", objectNode.trace)
+    }
+
     override fun visit(nop: Nop): Node {
 		// (var x = 1) y
         throw SemanticAnalysisException("cannot use this as a function head", nop.trace)
     }
 
     override fun visit(forStmt: For): Node {
-        throw SemanticAnalysisException("cannot use for-statement as a function head", nop.trace)
+        throw SemanticAnalysisException("cannot use for-statement as a function head", forStmt.trace)
     }
 
     override fun visit(whileStmt: While): Node {
-        throw SemanticAnalysisException("cannot use while-statement as a function head", nop.trace)
+        throw SemanticAnalysisException("cannot use while-statement as a function head", whileStmt.trace)
     }
 
     override fun visit(ifStmt: If): Node {
-        throw SemanticAnalysisException("cannot use if-statement as a function head", nop.trace)
+        throw SemanticAnalysisException("cannot use if-statement as a function head", ifStmt.trace)
     }
 
     override fun visit(stringNode: StringNode): Node {
 		// any funny use for that?
-        throw SemanticAnalysisException("cannot use string as a function head", nop.trace)
+        throw SemanticAnalysisException("cannot use string as a function head", stringNode.trace)
     }
 	
     override fun visit(boolNode: BoolNode): Node {
-        throw SemanticAnalysisException("cannot use boolean as a function head", nop.trace)
+        throw SemanticAnalysisException("cannot use boolean as a function head", boolNode.trace)
     }
 }

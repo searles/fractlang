@@ -22,4 +22,7 @@ interface Visitor<T> {
     fun visit(cplxNode: CplxNode): T
     fun visit(boolNode: BoolNode): T
     fun visit(nop: Nop): T
+    fun visit(opNode: OpNode): T
+    fun visit(objectNode: ObjectNode): T
+    fun visit(valDecl: ValDecl): T
 }
