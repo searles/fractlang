@@ -1,6 +1,7 @@
 package at.searles.meelan
 
 import at.searles.meelan.ops.BaseOp
+import at.searles.meelan.ops.HasSpecialSyntax
 import at.searles.parsing.*
 
 val toInt = {s: CharSequence -> s.toString().toInt()}
@@ -104,11 +105,19 @@ object toApp: Fold<Node, List<Node>, Node> {
     }
 
     override fun leftInverse(result: Node): Node? {
-        return (result as? App)?.head
+        if(result !is App || result.head !is OpNode || result.head.op is HasSpecialSyntax) {
+            return null
+        }
+
+        return result.head
     }
 
     override fun rightInverse(result: Node): List<Node>? {
-        return (result as? App)?.args
+        if(result !is App || result.head !is OpNode || result.head.op is HasSpecialSyntax) {
+            return null
+        }
+
+        return result.args
     }
 }
 
