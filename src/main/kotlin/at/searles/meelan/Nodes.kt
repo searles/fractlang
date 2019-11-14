@@ -190,6 +190,18 @@ object toNop: Initializer<Node> {
     }
 }
 
+object OpNodePrinter: Mapping<Node, Node> {
+	override fun parse(stream: ParserStream, left: Node): Node? {
+		return null
+	}
+	
+	override fun left(result: Node): Node? {
+		return (Node as? OpNode)?.let {
+			IdNode(result.trace, op.toString())
+		}
+	}
+}
+
 /**
  * Identity in parse-direction. In left-direction, this
  * mapping passes blocks through so that no semicolons
