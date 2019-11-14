@@ -214,7 +214,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = Meelan.program.parse(input)
         val source = Meelan.program.print(ast)
 
-        Assert.assertEquals("while (1 == 1);", source?.toString())
+        Assert.assertEquals("while(1==1);", source?.toString())
     }
     @Test
     fun testSimpleAlgorithm() {

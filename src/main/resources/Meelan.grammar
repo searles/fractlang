@@ -115,7 +115,7 @@ grammar Meelan {
 
 	whilestmt: 'while' @ `Annot.Kw` `CreateEmptyProperties`
 			   '(' expr >> `PutProperty("condition")` ')'
-			   (stmt | `toNop`) >> `PutProperty("body")`
+			   (`stmt.or(createNop, true)`) >> `PutProperty("body")`
 			   `CreateObject<Node>(While::class.java, true, "condition", "body")` ;
 
 	forstmt: 'for' @ `Annot.Kw` `CreateEmptyProperties` '(' identifier >> `PutProperty("name")` 'in' expr >> `PutProperty("range")` ')' stmt  >> `PutProperty("body")`

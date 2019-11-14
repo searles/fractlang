@@ -105,7 +105,11 @@ object toApp: Fold<Node, List<Node>, Node> {
     }
 
     override fun leftInverse(result: Node): Node? {
-        if(result !is App || result.head !is OpNode || result.head.op is HasSpecialSyntax) {
+        if(result !is App) {
+            return null
+        }
+
+        if(result.head is OpNode && result.head.op is HasSpecialSyntax) {
             return null
         }
 
@@ -113,7 +117,11 @@ object toApp: Fold<Node, List<Node>, Node> {
     }
 
     override fun rightInverse(result: Node): List<Node>? {
-        if(result !is App || result.head !is OpNode || result.head.op is HasSpecialSyntax) {
+        if(result !is App) {
+            return null
+        }
+
+        if(result.head is OpNode && result.head.op is HasSpecialSyntax) {
             return null
         }
 
@@ -193,9 +201,13 @@ object toBool: Mapping<CharSequence, Node> {
     }
 }
 
-object toNop: Initializer<Node> {
+object createNop: Initializer<Node> {
     override fun parse(stream: ParserStream): Node? {
         return Nop(stream.createTrace())
+    }
+
+    override fun consume(t: Node?): Boolean {
+        return t is Nop
     }
 }
 
@@ -205,8 +217,8 @@ object OpNodePrinter: Mapping<Node, Node> {
 	}
 	
 	override fun left(result: Node): Node? {
-		return (Node as? OpNode)?.let {
-			IdNode(result.trace, op.toString())
+		return (result as? OpNode)?.let {
+			IdNode(result.trace, result.op.toString())
 		}
 	}
 }
