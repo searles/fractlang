@@ -46,7 +46,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
 
     @Test
     fun testFunConst() {
-        val input = ParserStream.fromString("fun a = 1")
+        val input = ParserStream.fromString("fun a() = 1")
         val ast = Meelan.program.parse(input)
         val source = Meelan.program.print(ast)
 
@@ -111,7 +111,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
 
     @Test
     fun testFunConstWithBlock() {
-        val input = ParserStream.fromString("fun a { var a = 1; }")
+        val input = ParserStream.fromString("fun a() { var a = 1; }")
         val ast = Meelan.program.parse(input)
         val source = Meelan.program.print(ast)
 
@@ -125,6 +125,15 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val source = Meelan.program.print(ast)
 
         Assert.assertEquals("classa(varb:Int){varc:Int=b;}", source?.toString())
+    }
+
+    @Test
+    fun testQualified() {
+        val input = ParserStream.fromString("class a(var b: Int) { var c: Int = b  }; var d = a(1).c;")
+        val ast = Meelan.program.parse(input)
+        val source = Meelan.program.print(ast)
+
+        Assert.assertEquals("classa(varb:Int){varc:Int=b;};vard=a(1).c", source?.toString())
     }
 
     @Test

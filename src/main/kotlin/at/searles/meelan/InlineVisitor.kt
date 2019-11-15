@@ -10,10 +10,6 @@ import at.searles.parsing.Trace
 
 // Example for unit test:
 
-// var a = { var b = 1; b }
-// this becomes
-// $0 = 1; var $0: Int; $1 = $0; var $1: Int;
-// when assigning memory, it is assigned backwards.
 // maintain a sorted set 'activeVars' by offset position. Remove var that is not used anymore. Always use max value for efficiency.
 // defragmentation :D
 
@@ -45,16 +41,18 @@ class InlineVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<Str
 	 * @param varNode The declaration part. Must contain the proper type.
 	 */
 	fun initializeVar(trace: Trace, varNode: VarParameter, initialization: Node?) {
-		val newVarName = varNameGenerator.next()
-		val newVarNode = VarParameter(varNode.trace, newVarName, varNode.type)
-
 		val type = varNode.varType
 				?: initialization?.type
 				?: throw SemanticAnalysisException("Could not determine type", varNode.trace)
 
+		val newVarName = varNameGenerator.next()
+		val newIdNode = IdNode(varNode.trace, newVarName).apply {
+			this.type = type
+		}
+
 		if(initialization != null) {
-			val assignment = App(trace, Assign,
-				listOf(newVarNode, type.convert(initialization)))
+			val assignment = Assign.apply(trace,
+				listOf(newIdNode, type.convert(initialization)))
 
 			addStmt(assignment)
 		}
@@ -62,7 +60,7 @@ class InlineVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<Str
 		val newVarDecl = VarDecl(trace, newVarName, type, null)
 		addStmt(newVarDecl)
 
-		setInTable(varNode.trace, varNode.name, newVarNode)
+		setInTable(varNode.trace, varNode.name, newIdNode)
 	}
 
 
@@ -101,11 +99,6 @@ class InlineVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<Str
 	override fun visit(varDecl: VarDecl): Node {
         val initialization = varDecl.init?.accept(this)
 
-        // TODO: Put into parser: let{ typeName ->
-        //                BaseTypes.values()
-        //                    .firstOrNull { it.name == typeName }
-        //                    ?: throw SemanticAnalysisException("unknown type $typeName", varDecl) }
-
         val type = varDecl.varType
             ?:initialization?.type
             ?:throw SemanticAnalysisException("missing type", varDecl.trace)
@@ -129,7 +122,7 @@ class InlineVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<Str
 
 		val stmts = innerVisitor.block
 		
-		return Block(block.trace, stmts).apply {
+		return Block(block.trace, stmts.filter { it !is Nop }).apply {
 			type = if(stmts.isEmpty()) BaseTypes.Unit else stmts.last().type
 		}
     }

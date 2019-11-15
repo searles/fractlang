@@ -213,27 +213,27 @@ object Meelan {
     // position 5275-5310
     val parameters = parameter.list(comma)
 
-    // position 5315-5616
-    val fundecl = context.text("fun").annotate(Annot.DeclKw).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text("(").then(parameters).then(context.text(")")).or(CreateEmptyList()).fold(PutProperty("parameters"))).then(block.or(context.text("=").then(expr)).fold(PutProperty("body"))).then(CreateObject<Node>(FunDecl::class.java, true, "name", "parameters", "body"))
+    // position 5315-5592
+    val fundecl = context.text("fun").annotate(Annot.DeclKw).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text("(")).then(parameters.fold(PutProperty("parameters"))).then(context.text(")")).then(block.or(context.text("=").then(expr)).fold(PutProperty("body"))).then(CreateObject<Node>(FunDecl::class.java, true, "name", "parameters", "body"))
 
-    // position 5621-5913
+    // position 5597-5889
     val classdecl = context.text("class").annotate(Annot.DeclKw).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text("(").then(parameters).then(context.text(")")).or(CreateEmptyList()).fold(PutProperty("parameters"))).then(block.fold(PutProperty("body"))).then(CreateObject<Node>(ClassDecl::class.java, true, "name", "parameters", "body"))
 
-    // position 5918-5963
+    // position 5894-5939
     val decl = vardecl.or(valdecl).or(fundecl).or(classdecl)
 
-    // position 5971-6012
+    // position 5947-5988
     val semicolon = context.text(";").then(Mapping.identity<Node>())
 
-    // position 6020-6081
+    // position 5996-6057
     val stmtOrDecl = decl.or(stmt).then(semicolon.or(SkipSemicolon, true))
 
-    // position 6085-6125
+    // position 6061-6101
     init {
         stmts.set(stmtOrDecl.list())
     }
 
-    // position 6129-6153
+    // position 6105-6129
     val program = stmts.then(toBlock)
 
 }

@@ -34,9 +34,9 @@ class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private v
     override fun visit(funEnv: FunEnv): Node {
         checkArity(trace, funEnv.decl.parameters.size)
 
-        val innerVisitor = InlineVisitor(funEnv.table, parentVisitor.varNameGenerator)
+        defineArgs(funEnv.decl.parameters, parentVisitor)
 
-        defineArgs(funEnv.decl.parameters, innerVisitor)
+        val innerVisitor = InlineVisitor(funEnv.table, parentVisitor.varNameGenerator)
 
         return funEnv.decl.body.accept(innerVisitor)
     }

@@ -2,10 +2,11 @@ package at.searles.meelan.ops
 
 import at.searles.meelan.App
 import at.searles.meelan.Node
+import at.searles.meelan.SemanticAnalysisException
 import at.searles.parsing.Trace
 
 abstract class BaseOp(private vararg val signatures: Signature) : Op {
-    fun findSignature(arguments: List<Node>): Signature? {
+    open fun findSignature(arguments: List<Node>): Signature? {
         return signatures.firstOrNull{
             signature -> signature.argTypes.size == arguments.size
                 && signature.argTypes.zip(arguments).all { it.first.canConvert(it.second) }
@@ -13,6 +14,14 @@ abstract class BaseOp(private vararg val signatures: Signature) : Op {
     }
 
     override fun apply(trace: Trace, args: List<Node>): Node {
-        return App(trace, this, args)
+        // find correct type
+        val signature = findSignature(args)
+        if(signature != null) {
+            return App(trace, this, args).apply {
+                this.type = signature.returnType
+            }
+        } else {
+            throw SemanticAnalysisException("could not determine type for $this", trace)
+        }
     }
 }

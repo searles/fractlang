@@ -142,7 +142,7 @@ grammar Meelan {
 	parameters: `parameter.list(comma)` ;
 
 	fundecl: 'fun' @ `Annot.DeclKw` `CreateEmptyProperties` identifier >> `PutProperty("name")`
-				('(' parameters ')' | `CreateEmptyList()`) >> `PutProperty("parameters")`
+				'(' parameters >> `PutProperty("parameters")` ')'
 				(block | '=' expr ) >> `PutProperty("body")`
 
 				`CreateObject<Node>(FunDecl::class.java, true, "name", "parameters", "body")` ;
