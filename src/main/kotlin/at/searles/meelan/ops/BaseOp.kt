@@ -8,33 +8,31 @@ import at.searles.meelan.nodes.IdNode
 import at.searles.parsing.Trace
 
 abstract class BaseOp(private vararg val signatures: Signature) : Op {
-    open fun findSignature(arguments: List<Node>): Signature? {
+    open fun findSignature(trace: Trace, arguments: List<Node>): Signature {
         // check L-value
         arguments.forEachIndexed { index, arg ->
             if(isLValueOnly(index) && arg !is IdNode) {
-                return null
+                throw SemanticAnalysisException("expression expects a variable", trace)
             }
         }
 
         return signatures.firstOrNull{
             signature -> signature.argTypes.size == arguments.size
-                && signature.argTypes.zip(arguments).all { it.first.canConvert(it.second) }
+                && signature.argTypes.zip(arguments).all { it.first.canConvert(it.second) } :?
+                throw SemanticAnalysisException("not applicable to types ${arguments.map { it.type } }", trace)
         }
     }
 
     override fun apply(trace: Trace, args: List<Node>): Node {
         // find correct type
-        val signature = findSignature(args)
-        if(signature != null) {
-            if(args.all { it is ConstValue }) {
-                return eval(trace, args)
-            }
+        val signature = findSignature(trace, args)
 
-            return App(trace, this, args).apply {
-                this.type = signature.returnType
-            }
-        } else {
-            throw SemanticAnalysisException("Invalid arguments for ${this}", trace)
+        if(args.all { it is ConstValue }) {
+            return eval(trace, args)
+        }
+
+        return App(trace, this, args).apply {
+            this.type = signature.returnType
         }
     }
 
