@@ -1,5 +1,7 @@
 package at.searles.meelan
 
+import at.searles.meelan.nodes.Node
+
 interface SymbolTable {
     operator fun get(id: String): Node?
 

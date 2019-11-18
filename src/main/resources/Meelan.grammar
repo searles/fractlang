@@ -9,6 +9,8 @@ import at.searles.parsingtools.properties.CreateObject
 import at.searles.parsingtools.properties.PutProperty
 
 import at.searles.meelan.ops.*
+import at.searles.meelan.nodes.*
+
 }}}
 
 // TODO Add extern!
@@ -46,6 +48,7 @@ grammar Meelan {
     realNode: realNum `toRealNode` ;
     stringNode: str `toStringNode` ;
     idNode: identifier `toIdNode` ;
+    boolNode: bool `toBoolNode` ;
 
     comma: ',' @ `Annot.Comma` ;
     exprList: `expr.list(comma)` ;
@@ -56,16 +59,15 @@ grammar Meelan {
         | realNode    @ `Annot.Num`
         | stringNode  @ `Annot.Str`
         | idNode      @ `Annot.Id`
+        | boolNode    @ `Annot.Num`
         | vectorNode
         | '(' expr ')' ;
-
-    qualified: atom ('.' identifier >> `toQualified`)* ;
 
     argumentsInParentheses: '(' exprList ')' (app >> `listApply`)? ;
     singleArgument: app `CreateSingletonList()` ;
     arguments: `argumentsInParentheses.or(singleArgument, true)` ; // swap on inversion to avoid () in single args
 
-    app<Node>: qualified (arguments >> `toApp`)? ; // recursive because of eg "sin cos x"
+    app<Node>: atom (arguments >> `toApp` | '.' identifier >> `toQualified`)* ; // recursive because of eg "sin cos x"
 
     ifExpr<Node>: 'if' @ `Annot.Kw` `CreateEmptyProperties`
                         '(' expr >> `PutProperty("condition")` ')'

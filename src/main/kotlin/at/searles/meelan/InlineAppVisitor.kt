@@ -1,5 +1,6 @@
 package at.searles.meelan
 
+import at.searles.meelan.nodes.*
 import at.searles.meelan.ops.Mul
 import at.searles.parsing.Trace
 
@@ -48,9 +49,11 @@ class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private v
 
         defineArgs(classEnv.decl.parameters, innerVisitor)
 
-        val objectBlock = classEnv.decl.body.accept(innerVisitor)
+        (classEnv.decl.body as Block).stmts.forEach {
+            innerVisitor.addStmt(it.accept(innerVisitor))
+        }
 
-        parentVisitor.addStmt(objectBlock)
+        parentVisitor.addStmt(Block(classEnv.trace, innerVisitor.block))
 
         return ObjectNode(trace, innerVisitor.table.top())
     }

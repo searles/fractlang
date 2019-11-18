@@ -1,5 +1,7 @@
-package at.searles.meelan
+package at.searles.meelan.nodes
 
+import at.searles.meelan.Type
+import at.searles.meelan.Visitor
 import at.searles.parsing.Trace
 class VarParameter(trace: Trace,  val name: String, val varType: Type?): Node(trace) {
 

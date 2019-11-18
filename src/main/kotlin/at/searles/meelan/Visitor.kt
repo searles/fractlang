@@ -1,5 +1,7 @@
 package at.searles.meelan
 
+import at.searles.meelan.nodes.*
+
 interface Visitor<T> {
     fun visit(app: App): T
     fun visit(block: Block): T

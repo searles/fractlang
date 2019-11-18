@@ -1,5 +1,7 @@
-package at.searles.meelan
+package at.searles.meelan.nodes
 
+import at.searles.meelan.Type
+import at.searles.meelan.Visitor
 import at.searles.parsing.Trace
 
 abstract class Node(val trace: Trace) {

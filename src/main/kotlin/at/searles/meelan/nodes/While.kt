@@ -1,5 +1,7 @@
-package at.searles.meelan
+package at.searles.meelan.nodes
 
+import at.searles.meelan.BaseTypes
+import at.searles.meelan.Visitor
 import at.searles.parsing.Trace
 
 class While(trace: Trace, val condition: Node, val body: Node): Node(trace) {

@@ -1,5 +1,7 @@
 package at.searles.meelan
 
+import at.searles.meelan.nodes.Node
+
 interface Type {
     fun canConvert(node: Node): Boolean
     fun convert(node: Node): Node

@@ -1,10 +1,19 @@
 package at.searles.meelan
 
+import at.searles.meelan.nodes.CplxNode
+import at.searles.meelan.nodes.IntNode
+import at.searles.meelan.nodes.Node
+import at.searles.meelan.nodes.RealNode
 import at.searles.meelan.ops.Cons
 import at.searles.meelan.ops.ToReal
+import at.searles.parsing.Trace
 
 enum class BaseTypes: Type {
     Int {
+        override fun createNumNode(trace: Trace, value: kotlin.Int): Node {
+            return IntNode(trace, value)
+        }
+
         override fun commonType(type: Type): Type? {
             return when(type) {
                 Int -> Int
@@ -28,6 +37,10 @@ enum class BaseTypes: Type {
 
         override fun byteSize(): kotlin.Int = 4
     }, Real {
+        override fun createNumNode(trace: Trace, value: kotlin.Int): Node {
+            return RealNode(trace, value.toDouble())
+        }
+
         override fun commonType(type: Type): Type? {
             return when(type) {
                 Int -> Real
@@ -54,6 +67,10 @@ enum class BaseTypes: Type {
 
         override fun byteSize(): kotlin.Int = 8
     }, Cplx {
+        override fun createNumNode(trace: Trace, value: kotlin.Int): Node {
+            return CplxNode(trace, at.searles.commons.math.Cplx(value.toDouble()))
+        }
+
         override fun commonType(type: Type): Type? {
             return when(type) {
                 Int -> Cplx
@@ -77,11 +94,13 @@ enum class BaseTypes: Type {
                 Int -> Cons.apply(node.trace,
                     listOf(
                         ToReal.apply(node.trace, listOf(node)),
-                        RealNode(node.trace, 0.0)))
+                        RealNode(node.trace, 0.0)
+                    ))
                 Real -> Cons.apply(node.trace,
                     listOf(
                         node,
-                        RealNode(node.trace, 0.0)))
+                        RealNode(node.trace, 0.0)
+                    ))
                 Cplx -> node
                 else -> throw SemanticAnalysisException("cannot convert to ${this.name}", node.trace)
             }
@@ -89,6 +108,10 @@ enum class BaseTypes: Type {
 
         override fun byteSize(): kotlin.Int = 16
     }, Bool {
+        override fun createNumNode(trace: Trace, value: kotlin.Int): Node {
+            throw IllegalArgumentException()
+        }
+
         override fun commonType(type: Type): Type? {
             return if(type == this) this else null
         }
@@ -107,6 +130,10 @@ enum class BaseTypes: Type {
 
         override fun byteSize(): kotlin.Int = 0
     }, Unit {
+        override fun createNumNode(trace: Trace, value: kotlin.Int): Node {
+            throw IllegalArgumentException()
+        }
+
         override fun commonType(type: Type): Type? {
             return if(type == this) this else null
         }
@@ -125,6 +152,10 @@ enum class BaseTypes: Type {
 
         override fun byteSize(): kotlin.Int = 0
     }, String {
+        override fun createNumNode(trace: Trace, value: kotlin.Int): Node {
+            throw IllegalArgumentException()
+        }
+
         override fun commonType(type: Type): Type? {
             return if(type == this) this else null
         }
@@ -142,5 +173,7 @@ enum class BaseTypes: Type {
         }
 
         override fun byteSize(): kotlin.Int = 0
-    }
+    };
+
+    abstract fun createNumNode(trace: Trace, value: kotlin.Int): Node
 }

@@ -1,15 +1,50 @@
 package at.searles.meelan
 
+import at.searles.meelan.nodes.Node
 import at.searles.parsing.ParserStream
-import at.searles.parsing.printing.ConcreteSyntaxTree
 import org.junit.Assert
 import org.junit.Test
 
 class SemanticAnalysisTest {
-    private lateinit var output: String
-    private lateinit var inlined: Node
-    private lateinit var ast: Node
-    private lateinit var stream: ParserStream
+
+    @Test
+    fun testMissingInAssignment() {
+        withSource("var a = a")
+
+        actParse()
+
+        try {
+            actInline()
+            Assert.fail()
+        } catch(e: SemanticAnalysisException) {
+            e.printStackTrace()
+        }
+    }
+
+    @Test
+    fun testLexicalScope() {
+        withSource("var a = 1; var b = {var a = 2; a}")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1;var_1:Int;_3={_2=2;var_2:Int;_2;};var_3:Int;", output)
+    }
+
+    @Test
+    fun testEvalValues() {
+        withSource("var a = -(-(1 + 2) - 3);")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=6;var_1:Int;", output)
+
+    }
 
     @Test
     fun testVar() {
@@ -21,6 +56,18 @@ class SemanticAnalysisTest {
         actPrint()
 
         Assert.assertEquals("_1=1;var_1:Int;", output)
+    }
+
+    @Test
+    fun testRValueAssignment() {
+        withSource("val a = 1; a = 1")
+
+        actParse()
+
+        try {
+            actInline()
+            Assert.fail()
+        } catch(e: SemanticAnalysisException) {}
     }
 
     @Test
@@ -44,7 +91,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_2=_1+1;var_2:Int;", output)
+        Assert.assertEquals("_2={_1=1;var_1:Int;_1;}+1;var_2:Int;", output)
     }
 
     @Test
@@ -68,7 +115,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=2+1;var_1:Int;", output)
+        Assert.assertEquals("_1=3;var_1:Int;", output)
     }
 
     @Test
@@ -116,7 +163,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_2={_1+2;};var_2:Int;", output)
+        Assert.assertEquals("{_1=1;var_1:Int;}_2=_1;var_2:Int;", output)
     }
 
     @Test
@@ -128,7 +175,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_2={_1+2;};var_2:Int;", output)
+        Assert.assertEquals("{_1=1;var_1:Int;}_2=_1;var_2:Int;", output)
     }
 
     @Test
@@ -140,32 +187,80 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_2={_1+2;};var_2:Int;", output)
+        Assert.assertEquals("{_1=1.1;var_1:Real;}_2=_1;var_2:Real;", output)
     }
 
     @Test
-    fun testObjectWithOneTypedArgAndOneMemberReal() {
-        withSource("class A(d: Real) { var b = d }; var c = A(1).b;")
+    fun testSimpleCast() {
+        withSource("var x: Real = 1")
 
         actParse()
         actInline()
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_2={_1+2;};var_2:Int;", output)
+        Assert.assertEquals("_1=1.0;var_1:Real;", output)
     }
 
     @Test
-    fun test() {
-        withSource("// how does this work?\n" +
+    fun testObjectWithOneTypedArgAndOneMemberReal() {
+        withSource("class A(var d: Real) { var b = d }; var c = A(1).b;")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("{_1=1.0;var_1:Real;_2=_1;var_2:Real;}_3=_2;var_3:Real;", output)
+    }
+
+    @Test
+    fun testIfElseStmt() {
+        withSource("var a = 1; if(a == 1) a = 2 else a = 3")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1;var_1:Int;if(_1==1)_1=2else_1=3;", output)
+    }
+
+    @Test
+    fun testIfElseExpr() {
+        withSource("var a = 1; a = if(a == 1) 2 else 3")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1;var_1:Int;_1=if(_1==1)2else3;", output)
+    }
+
+    @Test
+    fun testIfElseBool() {
+        withSource("var a = 1; if(if(a == 1) false else true) a = 2 else a = 3")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("{_1=1.0;var_1:Real;_2=_1;var_2:Real;}_3=_2;var_3:Real;", output)
+    }
+
+    @Test
+    fun testClassNameHiding() {
+        withSource(
                 "var f = 2;\n" +
                 "class A(var a: Int) {\n" +
-                "var b = a * f + 1;\n" +
+                "    var b = a * f + 1;\n" +
                 "}\n" +
                 "{\n" +
-                "def f = 6;\n" +
-                "var d = A(3);\n" +
-                "var e = d.b;\n" +
+                "    val f = 6;\n" +
+                "    val d = A(3);\n" +
+                "    var e = d.b;\n" +
                 "}\n")
 
         actParse()
@@ -173,8 +268,18 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("", output)
+        Assert.assertEquals("_1=2;var_1:Int;" +
+                "{" +
+                "{_2=3;var_2:Int;" +
+                "_3=_2*_1+1;var_3:Int;" +
+                "}_4=_3;var_4:Int;" +
+                "}", output)
     }
+
+    private lateinit var output: String
+    private lateinit var inlined: Node
+    private lateinit var ast: Node
+    private lateinit var stream: ParserStream
 
     private fun actPrint() {
         output = Meelan.program.print(inlined).toString()

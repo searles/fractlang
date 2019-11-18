@@ -1,9 +1,10 @@
 package at.searles.meelan.ops
 
-import at.searles.meelan.BaseTypes
+import at.searles.meelan.nodes.Node
+import at.searles.parsing.Trace
 
-object Greater: HasSpecialSyntax, BaseOp(
-    Signature(BaseTypes.Bool, BaseTypes.Int, BaseTypes.Int),
-    Signature(BaseTypes.Bool, BaseTypes.Real, BaseTypes.Real)
-) {
+object Greater: HasSpecialSyntax, Op {
+    override fun apply(trace: Trace, args: List<Node>): Node {
+        return Less.apply(trace, listOf(args[1], args[0]))
+    }
 }

@@ -1,5 +1,6 @@
 package at.searles.meelan
 
+import at.searles.meelan.nodes.*
 import at.searles.meelan.ops.Assign
 import at.searles.parsing.Trace
 
@@ -22,7 +23,7 @@ import at.searles.parsing.Trace
 
 
 class InlineVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<String>): Visitor<Node> {
-	private val block = ArrayList<Node>()
+	val block = ArrayList<Node>()
     val table = parentTable.fork()
 
 	fun setInTable(trace: Trace, id: String, value: Node) {
@@ -32,7 +33,9 @@ class InlineVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<Str
 	}
 
 	fun addStmt(stmt: Node) {
-		block.add(stmt)
+		if(stmt !is Nop) {
+			block.add(stmt)
+		}
 	}
 	
 	/**
@@ -89,11 +92,13 @@ class InlineVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<Str
             throw SemanticAnalysisException("node does not allow members", qualifiedNode.trace)
         }
 
-        return instance.getMember(qualifiedNode.qualifier)
+        return instance.getMember(qualifiedNode.trace, qualifiedNode.qualifier)
     }
 
 	override fun visit(valDecl: ValDecl): Node {
-		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+		val assignment = valDecl.init.accept(this)
+		table.set(valDecl.name, assignment)
+		return Nop(valDecl.trace)
 	}
 
 	override fun visit(varDecl: VarDecl): Node {
@@ -103,7 +108,8 @@ class InlineVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<Str
             ?:initialization?.type
             ?:throw SemanticAnalysisException("missing type", varDecl.trace)
 
-		initializeVar(varDecl.trace, VarParameter(varDecl.trace, varDecl.name, type), initialization)
+		initializeVar(varDecl.trace,
+			VarParameter(varDecl.trace, varDecl.name, type), initialization)
 		
         return Nop(varDecl.trace)
     }
@@ -163,15 +169,17 @@ class InlineVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<Str
 		}
 		
 		val inlinedThenBranch = ifElse.thenBranch.accept(this)
-		val inlinedElseBranch = ifElse.thenBranch.accept(this)
+		val inlinedElseBranch = ifElse.elseBranch.accept(this)
 
 		val type = inlinedThenBranch.type.commonType(inlinedElseBranch.type) ?:
 			throw SemanticAnalysisException("incompatible types in if-else statement", ifElse.trace)
 			
-		return IfElse(ifElse.trace, 
-					inlinedCondition,
-					type.convert(inlinedThenBranch),
-					type.convert(inlinedElseBranch)).apply {
+		return IfElse(
+			ifElse.trace,
+			inlinedCondition,
+			type.convert(inlinedThenBranch),
+			type.convert(inlinedElseBranch)
+		).apply {
 				this.type = type
 		}
     }

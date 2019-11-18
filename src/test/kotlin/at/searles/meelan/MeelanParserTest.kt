@@ -133,7 +133,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = Meelan.program.parse(input)
         val source = Meelan.program.print(ast)
 
-        Assert.assertEquals("classa(varb:Int){varc:Int=b;};vard=a(1).c", source?.toString())
+        Assert.assertEquals("classa(varb:Int){varc:Int=b;}vard=a1.c;", source?.toString())
     }
 
     @Test

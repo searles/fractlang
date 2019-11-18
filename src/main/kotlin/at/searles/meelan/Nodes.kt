@@ -1,6 +1,7 @@
 package at.searles.meelan
 
-import at.searles.meelan.ops.BaseOp
+import at.searles.meelan.nodes.*
+import at.searles.meelan.ops.Op
 import at.searles.meelan.ops.HasSpecialSyntax
 import at.searles.parsing.*
 
@@ -45,7 +46,9 @@ object toIdNode: Mapping<String, Node> {
     }
 
     override fun left(result: Node): String? {
+        // also covers ops that were already converted.
         return (result as? IdNode)?.id
+            ?: (result as? OpNode)?.op?.toString()
     }
 }
 
@@ -139,7 +142,7 @@ object toBlock: Mapping<List<Node>, Node> {
     }
 }
 
-private fun appArgOrNull(app: Node, op: BaseOp, arity: Int, index: Int): Node? {
+private fun appArgOrNull(app: Node, op: Op, arity: Int, index: Int): Node? {
     if(app !is App
         || app.head !is OpNode
         || app.head.op != op
@@ -148,7 +151,7 @@ private fun appArgOrNull(app: Node, op: BaseOp, arity: Int, index: Int): Node? {
     return app.args[index]
 }
 
-fun toUnary(op: BaseOp): Mapping<Node, Node> {
+fun toUnary(op: Op): Mapping<Node, Node> {
     return object: Mapping<Node, Node> {
         override fun parse(stream: ParserStream, left: Node): Node? {
             return App(stream.createTrace(), op, listOf(left))
@@ -160,7 +163,7 @@ fun toUnary(op: BaseOp): Mapping<Node, Node> {
     }
 }
 
-fun toBinary(op: BaseOp): Fold<Node, Node, Node> {
+fun toBinary(op: Op): Fold<Node, Node, Node> {
     return object: Fold<Node, Node, Node> {
         override fun apply(stream: ParserStream, left: Node, right: Node): Node {
             return App(stream.createTrace(), op, listOf(left, right))
@@ -191,13 +194,23 @@ object ToType: Mapping<String, Type> {
     }
 }
 
-object toBool: Mapping<CharSequence, Node> {
-    override fun parse(stream: ParserStream, left: CharSequence): Node? {
-        return BoolNode(stream.createTrace(), left.toString().toBoolean())
+object toBool: Mapping<CharSequence, Boolean> {
+    override fun parse(stream: ParserStream, left: CharSequence): Boolean? {
+        return left.toString().toBoolean()
     }
 
-    override fun left(result: Node): CharSequence? {
-        return (result as? BoolNode)?.value?.toString()
+    override fun left(result: Boolean): CharSequence? {
+        return result.toString()
+    }
+}
+
+object toBoolNode: Mapping<Boolean, Node> {
+    override fun parse(stream: ParserStream, left: Boolean): Node? {
+        return BoolNode(stream.createTrace(), left)
+    }
+
+    override fun left(result: Node): Boolean? {
+        return (result as? BoolNode)?.value
     }
 }
 
@@ -209,18 +222,6 @@ object createNop: Initializer<Node> {
     override fun consume(t: Node?): Boolean {
         return t is Nop
     }
-}
-
-object OpNodePrinter: Mapping<Node, Node> {
-	override fun parse(stream: ParserStream, left: Node): Node? {
-		return null
-	}
-	
-	override fun left(result: Node): Node? {
-		return (result as? OpNode)?.let {
-			IdNode(result.trace, result.op.toString())
-		}
-	}
 }
 
 /**
