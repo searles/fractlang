@@ -1,6 +1,8 @@
 package at.searles.meelan
 
 import at.searles.meelan.nodes.*
+import at.searles.meelan.ops.Jump
+import at.searles.parsing.Trace
 
 class LinearizeStmt(val stmts: ArrayList<Node> = ArrayList(), val varNameGenerator: Iterator<String>): Visitor<Unit> {
 
@@ -25,15 +27,51 @@ class LinearizeStmt(val stmts: ArrayList<Node> = ArrayList(), val varNameGenerat
     }
 
     override fun visit(forStmt: For) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        // TODO
+        throw SemanticAnalysisException("for not (yet) supported", forStmt.trace)
+    }
+
+    private fun createLabel(trace: Trace): Node {
+        // FIXME idNode is nice for output but how to ensure that it is properly handled?
+        // Examples are Generation of VM.
+        return IdNode(trace, varNameGenerator.next()).apply { type = BaseTypes.Unit }
     }
 
     override fun visit(ifStmt: If) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val trueLabel = createLabel(ifStmt.condition.trace)
+        val falseLabel = createLabel(ifStmt.condition.trace)
+
+        ifStmt.condition.accept(LinearizeBool(stmts, varNameGenerator, trueLabel, falseLabel))
+        stmts.add(trueLabel)
+        ifStmt.thenBranch.accept(this)
+        stmts.add(falseLabel)
     }
 
     override fun visit(ifElse: IfElse) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val trueLabel = createLabel(ifElse.condition.trace)
+        val falseLabel = createLabel(ifElse.condition.trace)
+        val endLabel = createLabel(ifElse.condition.trace)
+
+        ifElse.condition.accept(LinearizeBool(stmts, varNameGenerator, trueLabel, falseLabel))
+        stmts.add(trueLabel)
+        ifElse.thenBranch.accept(this)
+        stmts.add(Jump.apply(ifElse.trace, listOf(endLabel)))
+        stmts.add(falseLabel)
+        ifElse.elseBranch.accept(this)
+        stmts.add(endLabel)
+    }
+
+    override fun visit(whileStmt: While) {
+        val startLabel = createLabel(whileStmt.trace)
+        val trueLabel = createLabel(whileStmt.condition.trace)
+        val falseLabel = createLabel(whileStmt.condition.trace)
+
+        stmts.add(startLabel)
+        whileStmt.condition.accept(LinearizeBool(stmts, varNameGenerator, trueLabel, falseLabel))
+        stmts.add(trueLabel)
+        whileStmt.body.accept(this)
+        stmts.add(Jump.apply(whileStmt.trace, listOf(startLabel)))
+        stmts.add(falseLabel)
     }
 
     override fun visit(intNode: IntNode) {
@@ -48,10 +86,6 @@ class LinearizeStmt(val stmts: ArrayList<Node> = ArrayList(), val varNameGenerat
         require(false) {"must inline first"}
     }
 
-    override fun visit(whileStmt: While) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
     override fun visit(cplxNode: CplxNode) {
         require(false) {"must inline first"}
     }
@@ -61,7 +95,7 @@ class LinearizeStmt(val stmts: ArrayList<Node> = ArrayList(), val varNameGenerat
     }
 
     override fun visit(opNode: OpNode) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        require(false) {"must inline first"}
     }
 
     override fun visit(stringNode: StringNode) {

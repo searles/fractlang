@@ -194,13 +194,15 @@ object ToType: Mapping<String, Type> {
     }
 }
 
-object toBool: Mapping<CharSequence, Boolean> {
-    override fun parse(stream: ParserStream, left: CharSequence): Boolean? {
-        return left.toString().toBoolean()
-    }
+fun toBool(value: Boolean): Initializer<Boolean> {
+    return object: Initializer<Boolean> {
+        override fun parse(stream: ParserStream): Boolean? {
+            return value
+        }
 
-    override fun left(result: Boolean): CharSequence? {
-        return result.toString()
+        override fun consume(t: Boolean): Boolean {
+            return t == value
+        }
     }
 }
 

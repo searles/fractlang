@@ -27,6 +27,42 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
     }
 
     @Test
+    fun testTrueAsExpr() {
+        val input = ParserStream.fromString("true")
+        val ast = Meelan.expr.parse(input)
+        val source = Meelan.expr.print(ast)
+
+        Assert.assertEquals("true", source)
+    }
+
+    @Test
+    fun testIfElseBool() {
+        val input = ParserStream.fromString("if(if(a == 1) false else true) a = 2 else a = 3")
+        val ast = Meelan.program.parse(input)
+        val source = Meelan.program.print(ast)
+
+        Assert.assertEquals("if(if(a==1)falseelsetrue)a=2elsea=3;", source)
+    }
+
+    @Test
+    fun testIfElseExprBool() {
+        val input = ParserStream.fromString("if(a == 1) false else true")
+        val ast = Meelan.expr.parse(input)
+        val source = Meelan.expr.print(ast)
+
+        Assert.assertEquals("if(a==1)falseelsetrue", source)
+    }
+
+    @Test
+    fun testIfElseExpr() {
+        val input = ParserStream.fromString("if(a == 1) 1 else 2")
+        val ast = Meelan.expr.parse(input)
+        val source = Meelan.expr.print(ast)
+
+        Assert.assertEquals("if(a==1)1else2", source?.toString())
+    }
+
+    @Test
     fun testUntypedVar() {
         val input = ParserStream.fromString("var a = 1")
         val ast = Meelan.program.parse(input)

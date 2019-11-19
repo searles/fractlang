@@ -50,9 +50,77 @@ class LinearizationTest {
 
         Assert.assertEquals(
             "\$1=2;var\$1:Int;" +
-                "R1=\$1+3;varR1:Int;" +
-                "R2=1+R1;varR2:Int;" +
-                "\$2=R2;var\$2:Int;", output)
+                    "R1=\$1+3;varR1:Int;" +
+                    "R2=1+R1;varR2:Int;" +
+                    "\$2=R2;var\$2:Int;", output)
+    }
+
+    @Test
+    fun testIfStmt() {
+        withSource("var a = 1; if(a == 1) a = a + 1;")
+
+        actParse()
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals(
+            "\$1=2;var\$1:Int;" +
+                    "R1=\$1+3;varR1:Int;" +
+                    "R2=1+R1;varR2:Int;" +
+                    "\$2=R2;var\$2:Int;", output)
+    }
+
+    @Test
+    fun testIfElseStmt() {
+        withSource("var a = 1; if(a == 1) a = a + 1; else a = a + 2")
+
+        actParse()
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals(
+            "\$1=2;var\$1:Int;" +
+                    "R1=\$1+3;varR1:Int;" +
+                    "R2=1+R1;varR2:Int;" +
+                    "\$2=R2;var\$2:Int;", output)
+    }
+
+    @Test
+    fun testIfElseExpr() {
+        withSource("var a = 1; a = a + if(a == 1) 1 else 2")
+
+        actParse()
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals(
+            "\$1=2;var\$1:Int;" +
+                    "R1=\$1+3;varR1:Int;" +
+                    "R2=1+R1;varR2:Int;" +
+                    "\$2=R2;var\$2:Int;", output)
+    }
+
+    @Test
+    fun testWhileStmt() {
+        withSource("var a = 1; while(a < 10) a = a + 1")
+
+        actParse()
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals(
+            "\$1=2;var\$1:Int;" +
+                    "R1=\$1+3;varR1:Int;" +
+                    "R2=1+R1;varR2:Int;" +
+                    "\$2=R2;var\$2:Int;", output)
     }
 
     private lateinit var output: String

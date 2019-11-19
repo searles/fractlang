@@ -247,7 +247,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("{_1=1.0;var_1:Real;_2=_1;var_2:Real;}_3=_2;var_3:Real;", output)
+        Assert.assertEquals("_1=1;var_1:Int;if(if(_1==1)falseelsetrue)_1=2else_1=3;", output)
     }
 
     @Test

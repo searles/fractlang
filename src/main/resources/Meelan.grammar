@@ -41,7 +41,9 @@ grammar Meelan {
     realNum: regex(realRex, `toReal`) ;
     hexNum: regex(hexRex, `toHex`) ;
     str: regex(stringRex, `toEscString`) ;
-    bool: regex('true' | 'false', `toBool`) ;
+    boolTrue: 'true' ;
+    boolFalse: 'false' ;
+    bool: boolTrue `toBool(true)` | boolFalse `toBool(false)` ;
     identifier: regex(identifierRex, `toIdString`) ;
 
     intNode: (intNum | hexNum) `toIntNode` ;
@@ -58,8 +60,8 @@ grammar Meelan {
     atom: intNode     @ `Annot.Num`
         | realNode    @ `Annot.Num`
         | stringNode  @ `Annot.Str`
-        | idNode      @ `Annot.Id`
         | boolNode    @ `Annot.Num`
+        | idNode      @ `Annot.Id`
         | vectorNode
         | '(' expr ')' ;
 
