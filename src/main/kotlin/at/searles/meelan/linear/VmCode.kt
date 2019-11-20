@@ -1,19 +1,23 @@
-class VmCode(val linearCode: LinearCode, instructions: List<BaseOp>) {
+package at.searles.meelan.linear
+
+import at.searles.meelan.ops.BaseOp
+
+class VmCode(val linearCode: LinearCode, val instructions: List<BaseOp>) {
 	
 	val instructionOffsets = createInstructionOffsets(instructions)
-	val memoryAddress: Map<String, Int> = createVariableOffsets(codeLines)	
+	val memoryAddress: Map<String, Int> = createVariableOffsets(codeLines)
 	
-	val vmCode: List<Int> = ArrayList<Int>(linearCode.offset)
+	val vmCode: List<Int> = ArrayList(linearCode.offset)
 	
 	init {
-		codeLines.filterInstance<VmInstruction>.forEach { it.addToVmCode(this) } 
+		linearCode.code.filterIsInstance<VmInstruction>().forEach { it.addToVmCode(this) }
 	}
 
 	fun add(code: Int) {
 		vmCode.add(code)
 	}
 
-	fun add(real: Real) {
+	fun add(real: Double) {
 		// TODO
 		vmCode.add(code)
 	}
@@ -26,7 +30,14 @@ class VmCode(val linearCode: LinearCode, instructions: List<BaseOp>) {
 	fun add(id: String) {
 		vmCode.add(memoryAddress[id])
 	}
-	
+
+	/**
+	 * Adds fn call
+	 */
+	fun add(op: BaseOp, index: Int) {
+		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+	}
+
 	companion object {
 		fun createInstructionOffsets(instructions: List<BaseOp>): Map<BaseOp, Int> {
 			val retMap = LinkedHashMap<BaseOp, Int>()

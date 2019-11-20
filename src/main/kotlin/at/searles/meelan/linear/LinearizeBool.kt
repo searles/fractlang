@@ -1,8 +1,10 @@
-package at.searles.meelan
+package at.searles.meelan.linear
 
+import at.searles.meelan.Visitor
 import at.searles.meelan.nodes.*
 
-class LinearizeBool(val stmts: ArrayList<Node> = ArrayList(), val varNameGenerator: Iterator<String>, trueLabel: Node, falseLabel: Node): Visitor<Unit> {
+class LinearizeBool(val code: LinearCode, val varNameGenerator: Iterator<String>, trueLabel: Label, falseLabel: Label):
+    Visitor<Unit> {
     override fun visit(boolNode: BoolNode) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }

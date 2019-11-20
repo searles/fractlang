@@ -4,13 +4,12 @@ import at.searles.meelan.nodes.Node
 import at.searles.meelan.Type
 
 class Signature(val returnType: Type, vararg val argTypes: Type) {
-    fun convertArguments(vararg args: Node): Array<Node>? {
-        if(args.size < argTypes.size) {
-            return null
-        }
+    fun convertArguments(args: List<Node>): List<Node> {
+        require(args.size >= argTypes.size)
+        return argTypes.zip(args).map { it.first.convert(it.second) }
+    }
 
-        return argTypes.zip(args)
-            .map {it.first.convert(it.second)}
-            .toTypedArray()
+    fun matches(args: List<Node>): Boolean {
+        return argTypes.size <= args.size && argTypes.zip(args).all { it.first.canConvert(it.second) }
     }
 }

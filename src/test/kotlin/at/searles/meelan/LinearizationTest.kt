@@ -1,5 +1,6 @@
 package at.searles.meelan
 
+import at.searles.meelan.linear.LinearizeStmt
 import at.searles.meelan.nodes.Block
 import at.searles.meelan.nodes.Node
 import at.searles.parsing.ParserStream

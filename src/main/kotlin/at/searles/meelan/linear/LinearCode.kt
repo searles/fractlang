@@ -1,3 +1,5 @@
+package at.searles.meelan.linear
+
 class LinearCode() {
 	val code = ArrayList<CodeLine>()
 

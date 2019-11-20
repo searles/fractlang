@@ -2,8 +2,9 @@ package at.searles.meelan.nodes
 
 import at.searles.meelan.BaseTypes
 import at.searles.meelan.Visitor
+import at.searles.meelan.linear.VmArg
 import at.searles.parsing.Trace
-class IntNode(trace: Trace, val value: Int) : Node(trace), ConstValue {
+class IntNode(trace: Trace, val value: Int) : Node(trace), ConstValue, VmArg {
     init {
         type = BaseTypes.Int
     }
