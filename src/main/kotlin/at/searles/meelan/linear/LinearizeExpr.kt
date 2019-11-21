@@ -4,18 +4,10 @@ import at.searles.meelan.Visitor
 import at.searles.meelan.nodes.*
 import at.searles.meelan.ops.Assign
 import at.searles.meelan.ops.BaseOp
+import at.searles.meelan.ops.Jump
 import java.lang.IllegalArgumentException
 
-class LinearizeExpr(val code: LinearCode, val varNameGenerator: Iterator<String>, val optTargetNode: IdNode?): Visitor<VmArg> {
-
-    private fun assignToTargetNode(expr: Node): VmArg {
-        val targetNode = optTargetNode ?: run {
-            val resultVarName = varNameGenerator.next()
-            IdNode(expr.trace, resultVarName)
-        }
-
-        return targetNode
-    }
+class LinearizeExpr(private val code: LinearCode, private val varNameGenerator: Iterator<String>, private val optTargetNode: IdNode?): Visitor<VmArg> {
 
     override fun visit(app: App): VmArg {
         val op = (app.head as OpNode).op as BaseOp
@@ -42,6 +34,29 @@ class LinearizeExpr(val code: LinearCode, val varNameGenerator: Iterator<String>
         return target
     }
 
+    override fun visit(ifElse: IfElse): VmArg {
+        val targetNode = optTargetNode ?: IdNode(ifElse.trace, varNameGenerator.next()).apply { type = ifElse.type }
+
+        // last argument is the target.
+        val trueLabel = Label()
+        val falseLabel = Label()
+        val endLabel = Label()
+
+        ifElse.condition.accept(LinearizeBool(code, varNameGenerator, trueLabel, falseLabel))
+        code.addLabel(trueLabel)
+        ifElse.thenBranch.accept(LinearizeExpr(code, varNameGenerator, targetNode))
+        code.addInstruction(VmInstruction(Jump, 0, listOf(endLabel)))
+        code.addLabel(falseLabel)
+        ifElse.elseBranch.accept(LinearizeExpr(code, varNameGenerator, targetNode))
+        code.addLabel(endLabel)
+
+        if(optTargetNode == null) {
+            code.alloc(Alloc(targetNode.id, targetNode.type))
+        }
+
+        return targetNode
+    }
+
     override fun visit(block: Block): VmArg {
         block.stmts.dropLast(1).forEach {
             it.accept(LinearizeStmt(code, varNameGenerator))
@@ -50,39 +65,39 @@ class LinearizeExpr(val code: LinearCode, val varNameGenerator: Iterator<String>
         return block.stmts.last().accept(this)
     }
 
-    private fun assignToOptTargetNode() {
-        // TODO
-    }
-
     override fun visit(idNode: IdNode): VmArg {
-        // FIXME must assign
-        if(optTargetNode != null) {
-            val args =  listOf(optTargetNode, idNode)
-            code.addInstruction(VmInstruction(Assign, Assign.indexOf(args), args))
-            return optTargetNode
+        if(optTargetNode != null && optTargetNode.id != idNode.id) {
+            return assignIfTargetNode(idNode)
         }
 
         return idNode
     }
 
+    private fun assignIfTargetNode(arg: VmArg): VmArg {
+        if(optTargetNode != null) {
+            val args =  listOf(optTargetNode, arg)
+            @Suppress("UNCHECKED_CAST")
+            code.addInstruction(VmInstruction(Assign, Assign.indexOf(args as List<Node>), args))
+            return optTargetNode
+        }
+
+        return arg
+    }
+
     override fun visit(intNode: IntNode): VmArg {
-        return intNode
+        return assignIfTargetNode(intNode)
     }
 
     override fun visit(realNode: RealNode): VmArg {
-        return realNode
+        return assignIfTargetNode(realNode)
     }
 
     override fun visit(cplxNode: CplxNode): VmArg {
-        return cplxNode
+        return assignIfTargetNode(cplxNode)
     }
 
     override fun visit(boolNode: BoolNode): VmArg {
         throw IllegalArgumentException()
-    }
-
-    override fun visit(ifElse: IfElse): VmArg {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun visit(varDecl: VarDecl): VmArg {
