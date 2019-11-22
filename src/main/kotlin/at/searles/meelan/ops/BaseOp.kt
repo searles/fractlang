@@ -13,7 +13,7 @@ abstract class BaseOp(vararg val signatures: Signature) : Op {
     }
 
     override fun apply(trace: Trace, args: List<Node>): Node {
-        // FIXME convertArgumets
+        // FIXME convertArgumets, use Optimizer
 
         // find correct type
         val signatureIndex = getSignatureIndex(args)
@@ -31,24 +31,29 @@ abstract class BaseOp(vararg val signatures: Signature) : Op {
         }
     }
 
-    /**
-     * If all arguments are insta
-     */
-    abstract fun eval(trace: Trace, args: List<Node>): Node
+    open fun parameterConfigurationCount() {
+	}
+	
+	open fun getParameterConfiguration(index: Int): List<Pair<Type, Boolean>> {
+	}
+
+	open fun indexOfParameterConfiguration(List<Node>) { 
+		
+	}
 
     /**
      * Returns the index of the matching signature
      * @return -1 if there is no match.
      */
-    open fun getSignatureIndex(args: List<Node>): Int {
+    /*open fun getSignatureIndex(args: List<Node>): Int {
         return signatures.indexOfFirst { it.matches(args) }
-    }
+    }*/
 
     override fun toString(): String {
         return javaClass.simpleName
     }
 
-    private fun countKindsPerSignature(): Int {
+    /*private fun countKindsPerSignature(): Int {
         return 1 shl signatures[0].argTypes.size - 1
     }
 
@@ -101,5 +106,5 @@ abstract class BaseOp(vararg val signatures: Signature) : Op {
 
     open fun getSignatureForIndex(index: Int): Signature {
         return signatures[index / countKindsPerSignature()]
-    }
+    }*/
 }
