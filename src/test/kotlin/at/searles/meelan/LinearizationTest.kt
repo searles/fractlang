@@ -1,7 +1,7 @@
 package at.searles.meelan
 
+import at.searles.meelan.linear.LinearCode
 import at.searles.meelan.linear.LinearizeStmt
-import at.searles.meelan.nodes.Block
 import at.searles.meelan.nodes.Node
 import at.searles.parsing.ParserStream
 import org.junit.Assert
@@ -125,20 +125,19 @@ class LinearizationTest {
     }
 
     private lateinit var output: String
-    private lateinit var linearized: Block
+    private lateinit var linearized: LinearCode
     private lateinit var inlined: Node
     private lateinit var ast: Node
     private lateinit var stream: ParserStream
 
     private fun actPrint() {
-        output = Meelan.program.print(linearized).toString()
+        output = linearized.code.toString()
     }
 
     private fun actLinearize() {
-        val stmts = ArrayList<Node>()
+        linearized = LinearCode()
         val varNameGenerator = generateSequence(1) { it + 1 }.map { "R$it" }.iterator()
-        inlined.accept(LinearizeStmt(stmts, varNameGenerator))
-        linearized = Block(inlined.trace, stmts)
+        inlined.accept(LinearizeStmt(linearized, varNameGenerator))
     }
 
     private fun actInline() {

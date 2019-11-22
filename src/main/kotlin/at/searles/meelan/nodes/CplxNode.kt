@@ -6,7 +6,8 @@ import at.searles.meelan.Visitor
 import at.searles.meelan.linear.VmArg
 import at.searles.meelan.linear.VmCode
 import at.searles.parsing.Trace
-class CplxNode(trace: Trace, val value: Cplx) : Node(trace), VmArg {
+
+class CplxNode(trace: Trace, val value: Cplx) : Node(trace), ConstValue, VmArg.Num {
     init {
         type = BaseTypes.Cplx
     }
@@ -16,10 +17,18 @@ class CplxNode(trace: Trace, val value: Cplx) : Node(trace), VmArg {
     }
 
     override fun addToVmCode(vmCode: VmCode) {
-        // TODO Move to commons
-        val l = java.lang.Double.doubleToRawLongBits(d)
-        // beware of big endian systems [are there any?]
-        return intArrayOf((l and 0x0ffffffffL).toInt(), (l shr 32).toInt())
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        vmCode.add(value)
+    }
+
+    override fun isZero(): Boolean {
+        return value.re() == 0.0 && value.im() == 0.0
+    }
+
+    override fun isOne(): Boolean {
+        return value.re() == 1.0 && value.im() == 0.0
+    }
+
+    override fun toString(): String {
+        return "$value"
     }
 }

@@ -3,8 +3,10 @@ package at.searles.meelan.nodes
 import at.searles.meelan.BaseTypes
 import at.searles.meelan.Visitor
 import at.searles.meelan.linear.VmArg
+import at.searles.meelan.linear.VmCode
 import at.searles.parsing.Trace
-class IntNode(trace: Trace, val value: Int) : Node(trace), ConstValue, VmArg {
+
+class IntNode(trace: Trace, val value: Int) : Node(trace), ConstValue, VmArg.Num {
     init {
         type = BaseTypes.Int
     }
@@ -19,5 +21,13 @@ class IntNode(trace: Trace, val value: Int) : Node(trace), ConstValue, VmArg {
 
     override fun isOne(): Boolean {
         return value == 1
+    }
+
+    override fun addToVmCode(vmCode: VmCode) {
+        vmCode.add(value)
+    }
+
+    override fun toString(): String {
+        return "$value"
     }
 }

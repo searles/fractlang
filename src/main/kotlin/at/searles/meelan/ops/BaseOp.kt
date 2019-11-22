@@ -6,8 +6,15 @@ import at.searles.meelan.SemanticAnalysisException
 import at.searles.meelan.nodes.ConstValue
 import at.searles.parsing.Trace
 
-abstract class BaseOp(private vararg val signatures: Signature) : Op {
+abstract class BaseOp(vararg val signatures: Signature) : Op {
+
+    init {
+        require(signatures.all { it.argTypes.size == signatures[0].argTypes.size })
+    }
+
     override fun apply(trace: Trace, args: List<Node>): Node {
+        // FIXME convertArgumets
+
         // find correct type
         val signatureIndex = getSignatureIndex(args)
 
@@ -24,8 +31,15 @@ abstract class BaseOp(private vararg val signatures: Signature) : Op {
         }
     }
 
+    /**
+     * If all arguments are insta
+     */
     abstract fun eval(trace: Trace, args: List<Node>): Node
 
+    /**
+     * Returns the index of the matching signature
+     * @return -1 if there is no match.
+     */
     open fun getSignatureIndex(args: List<Node>): Int {
         return signatures.indexOfFirst { it.matches(args) }
     }
@@ -34,7 +48,7 @@ abstract class BaseOp(private vararg val signatures: Signature) : Op {
         return javaClass.simpleName
     }
 
-    open fun countKindsPerSignature(): Int {
+    private fun countKindsPerSignature(): Int {
         return 1 shl signatures[0].argTypes.size - 1
     }
 
@@ -52,7 +66,7 @@ abstract class BaseOp(private vararg val signatures: Signature) : Op {
 
     }
 
-    open fun kindIndex(args: List<Node>): Int {
+    private fun kindIndex(args: List<Node>): Int {
         val signature = signatures[0]
 
         var index = 0
@@ -68,7 +82,7 @@ abstract class BaseOp(private vararg val signatures: Signature) : Op {
         return index
     }
 
-    fun getArgIsConst(kindIndex: Int): Array<Boolean> {
+    open fun getIsConstArrayForIndex(kindIndex: Int): Array<Boolean> {
         val signature = signatures[0]
 
         var index = kindIndex
@@ -83,5 +97,9 @@ abstract class BaseOp(private vararg val signatures: Signature) : Op {
         require(kindIndex == 0)
 
         return argIsConst
+    }
+
+    open fun getSignatureForIndex(index: Int): Signature {
+        return signatures[index / countKindsPerSignature()]
     }
 }

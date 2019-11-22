@@ -7,16 +7,13 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.collections.LinkedHashMap
-import java.lang.Integer
 
-
-
-class VmCode(val linearCode: LinearCode, val instructions: List<BaseOp>) {
+class VmCode(linearCode: LinearCode, instructions: List<BaseOp>) {
 	
-	val instructionOffsets = createInstructionOffsets(instructions)
-	val memoryAddress: Map<String, Int> = createVariableOffsets(linearCode)
+	private val instructionOffsets = createInstructionOffsets(instructions)
+	private val memoryAddress: Map<String, Int> = createVariableOffsets(linearCode)
 	
-	val vmCode = ArrayList<Int>(linearCode.offset)
+	private val vmCode = ArrayList<Int>(linearCode.offset)
 	
 	init {
 		linearCode.code.filterIsInstance<VmInstruction>().forEach { it.addToVmCode(this) }
@@ -46,8 +43,8 @@ class VmCode(val linearCode: LinearCode, val instructions: List<BaseOp>) {
 	 * Adds fn call
 	 */
 	fun add(op: BaseOp, index: Int) {
-		// TODO
-		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+		val opIndex = instructionOffsets[op] ?: error("missing ${op}")
+		add(opIndex + index)
 	}
 
 	companion object {
@@ -62,7 +59,7 @@ class VmCode(val linearCode: LinearCode, val instructions: List<BaseOp>) {
 							// not with filter because arguments are possibly identical
 							// thus causing side effects
 							val lastEntry = actives.lastEntry() // on top of last item.
-							val offset = lastEntry.key + lastEntry.value.type.byteSize()
+							val offset = lastEntry.key + lastEntry.value.type.vmCodeSize()
 							offsets[arg.id] = offset
 							actives[offset] = arg
 						}

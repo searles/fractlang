@@ -35,7 +35,7 @@ enum class BaseTypes: Type {
             }
         }
 
-        override fun byteSize(): kotlin.Int = 4
+        override fun vmCodeSize(): kotlin.Int = 4
     }, Real {
         override fun createNumNode(trace: Trace, value: kotlin.Int): Node {
             return RealNode(trace, value.toDouble())
@@ -65,7 +65,7 @@ enum class BaseTypes: Type {
             }
         }
 
-        override fun byteSize(): kotlin.Int = 8
+        override fun vmCodeSize(): kotlin.Int = 8
     }, Cplx {
         override fun createNumNode(trace: Trace, value: kotlin.Int): Node {
             return CplxNode(trace, at.searles.commons.math.Cplx(value.toDouble()))
@@ -106,7 +106,7 @@ enum class BaseTypes: Type {
             }
         }
 
-        override fun byteSize(): kotlin.Int = 16
+        override fun vmCodeSize(): kotlin.Int = 16
     }, Bool {
         override fun createNumNode(trace: Trace, value: kotlin.Int): Node {
             throw IllegalArgumentException()
@@ -128,7 +128,7 @@ enum class BaseTypes: Type {
             }
         }
 
-        override fun byteSize(): kotlin.Int = 0
+        override fun vmCodeSize(): kotlin.Int = 0
     }, Unit {
         override fun createNumNode(trace: Trace, value: kotlin.Int): Node {
             throw IllegalArgumentException()
@@ -150,7 +150,7 @@ enum class BaseTypes: Type {
             }
         }
 
-        override fun byteSize(): kotlin.Int = 0
+        override fun vmCodeSize(): kotlin.Int = 0
     }, String {
         override fun createNumNode(trace: Trace, value: kotlin.Int): Node {
             throw IllegalArgumentException()
@@ -172,7 +172,7 @@ enum class BaseTypes: Type {
             }
         }
 
-        override fun byteSize(): kotlin.Int = 0
+        override fun vmCodeSize(): kotlin.Int = 0
     };
 
     abstract fun createNumNode(trace: Trace, value: kotlin.Int): Node

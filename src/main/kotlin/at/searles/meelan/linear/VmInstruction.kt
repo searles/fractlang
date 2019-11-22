@@ -11,4 +11,8 @@ class VmInstruction(val op: BaseOp, val index: Int, val args: List<VmArg>): Code
 		vmCode.add(op, index)
 		args.forEach { it.addToVmCode(vmCode) }
 	}
+
+	override fun toString(): String {
+		return "$op[$index] $args"
+	}
 }
