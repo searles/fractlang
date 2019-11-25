@@ -12,7 +12,7 @@ class LinearizeExpr(private val code: LinearCode, private val varNameGenerator: 
     override fun visit(app: App): VmArg {
         val op = (app.head as OpNode).op as BaseOp
 
-        val index = op.indexOf(app.args)
+        val index = op.indexOfParameterConfiguration(app.args)
 
         val linearizedArgs = app.args.map { it.accept(
             LinearizeExpr(
@@ -77,7 +77,7 @@ class LinearizeExpr(private val code: LinearCode, private val varNameGenerator: 
         if(optTargetNode != null) {
             val args =  listOf(optTargetNode, arg)
             @Suppress("UNCHECKED_CAST")
-            code.addInstruction(VmInstruction(Assign, Assign.indexOf(args as List<Node>), args))
+            code.addInstruction(VmInstruction(Assign, Assign.indexOfParameterConfiguration(args as List<Node>), args))
             return optTargetNode
         }
 

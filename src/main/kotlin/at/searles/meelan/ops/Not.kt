@@ -5,10 +5,11 @@ import at.searles.meelan.nodes.BoolNode
 import at.searles.meelan.nodes.Node
 import at.searles.parsing.Trace
 
-object Not: HasSpecialSyntax, BaseOp(
+object Not: HasSpecialSyntax, StandardOp(
     Signature(BaseTypes.Bool, BaseTypes.Bool)
 ) {
-    override fun eval(trace: Trace, args: List<Node>): Node {
-        return BoolNode(trace, !(args[0] as BoolNode).value)
+    override fun evaluate(trace: Trace, signature: Signature, args: List<Node>): Node {
+        if(args[0] is BoolNode) return BoolNode(trace, !(args[0] as BoolNode).value)
+        return app(trace, signature, args)
     }
 }

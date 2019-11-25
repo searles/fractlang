@@ -6,7 +6,7 @@ import at.searles.meelan.linear.VmArg
 import at.searles.meelan.linear.VmCode
 import at.searles.parsing.Trace
 
-class RealNode(trace: Trace, val value: Double) : Node(trace), ConstValue, VmArg.Num {
+class RealNode(trace: Trace, val value: Double) : Node(trace), NumValue, VmArg.Num {
     init {
         type = BaseTypes.Real
     }

@@ -7,13 +7,13 @@ import at.searles.meelan.nodes.RealNode
 import at.searles.parsing.Trace
 import java.lang.IllegalArgumentException
 
-object ToReal: BaseOp(
+object ToReal: StandardOp(
     Signature(BaseTypes.Real, BaseTypes.Int)
 ) {
-    override fun eval(trace: Trace, args: List<Node>): Node {
+    override fun evaluate(trace: Trace, signature: Signature, args: List<Node>): Node {
         return when(val arg = args[0]) {
             is IntNode -> RealNode(trace, arg.value.toDouble())
-            else -> throw IllegalArgumentException()
+            else -> app(trace, signature, args)
         }
     }
 }

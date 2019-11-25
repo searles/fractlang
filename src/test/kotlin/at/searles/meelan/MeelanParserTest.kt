@@ -24,6 +24,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = Meelan.program.parse(input)
         val source = Meelan.program.print(ast)
 
+        Assert.assertNotNull(source)
     }
 
     @Test
@@ -32,7 +33,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = Meelan.expr.parse(input)
         val source = Meelan.expr.print(ast)
 
-        Assert.assertEquals("true", source)
+        Assert.assertEquals("true", source?.toString())
     }
 
     @Test
@@ -41,7 +42,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = Meelan.program.parse(input)
         val source = Meelan.program.print(ast)
 
-        Assert.assertEquals("if(if(a==1)falseelsetrue)a=2elsea=3;", source)
+        Assert.assertEquals("if(if(a==1)falseelsetrue)a=2elsea=3;", source?.toString())
     }
 
     @Test
@@ -50,7 +51,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = Meelan.expr.parse(input)
         val source = Meelan.expr.print(ast)
 
-        Assert.assertEquals("if(a==1)falseelsetrue", source)
+        Assert.assertEquals("if(a==1)falseelsetrue", source?.toString())
     }
 
     @Test

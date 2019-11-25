@@ -6,7 +6,7 @@ import at.searles.meelan.linear.VmArg
 import at.searles.meelan.linear.VmCode
 import at.searles.parsing.Trace
 
-class IntNode(trace: Trace, val value: Int) : Node(trace), ConstValue, VmArg.Num {
+class IntNode(trace: Trace, val value: Int) : Node(trace), NumValue, VmArg.Num {
     init {
         type = BaseTypes.Int
     }

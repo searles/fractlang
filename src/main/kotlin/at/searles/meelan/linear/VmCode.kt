@@ -82,7 +82,7 @@ class VmCode(linearCode: LinearCode, instructions: List<BaseOp>) {
 			instructions.fold(0) { offset, op ->
 				run {
 					retMap[op] = offset
-					offset + op.countKinds()
+					offset + op.countParameterConfigurations()
 				}
 			}
 

@@ -79,7 +79,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_2=_1+1;var_2:Int;", output)
+        Assert.assertEquals("_1=1;var_1:Int;_2=1+_1;var_2:Int;", output)
     }
 
     @Test
@@ -91,7 +91,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_2={_1=1;var_1:Int;_1;}+1;var_2:Int;", output)
+        Assert.assertEquals("_2=1+{_1=1;var_1:Int;_1;};var_2:Int;", output)
     }
 
     @Test
@@ -127,7 +127,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=2;var_1:Int;_2=_1+1;var_2:Int;", output)
+        Assert.assertEquals("_1=2;var_1:Int;_2=1+_1;var_2:Int;", output)
     }
 
     @Test
@@ -139,7 +139,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=2;var_1:Int;_2=_1+1;var_2:Int;", output)
+        Assert.assertEquals("_1=2;var_1:Int;_2=1+_1;var_2:Int;", output)
     }
 
     @Test
@@ -151,7 +151,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_2={_1+2;};var_2:Int;", output)
+        Assert.assertEquals("_1=1;var_1:Int;_2={2+_1;};var_2:Int;", output)
     }
 
     @Test
@@ -271,7 +271,7 @@ class SemanticAnalysisTest {
         Assert.assertEquals("_1=2;var_1:Int;" +
                 "{" +
                 "{_2=3;var_2:Int;" +
-                "_3=_2*_1+1;var_3:Int;" +
+                "_3=1+_2*_1;var_3:Int;" +
                 "}_4=_3;var_4:Int;" +
                 "}", output)
     }

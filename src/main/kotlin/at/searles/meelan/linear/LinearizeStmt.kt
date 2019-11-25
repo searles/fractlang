@@ -14,7 +14,7 @@ class LinearizeStmt(val code: LinearCode, val varNameGenerator: Iterator<String>
         val op: BaseOp = app.head.op
 
         val linearizedArgs = app.args.map { it.accept(LinearizeExpr(code, varNameGenerator, null))}
-        code.addInstruction(VmInstruction(op, op.indexOf(app.args), linearizedArgs))
+        code.addInstruction(VmInstruction(op, op.indexOfParameterConfiguration(app.args), linearizedArgs))
     }
 
     override fun visit(block: Block) {

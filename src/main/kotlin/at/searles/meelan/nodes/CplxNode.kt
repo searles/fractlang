@@ -7,7 +7,7 @@ import at.searles.meelan.linear.VmArg
 import at.searles.meelan.linear.VmCode
 import at.searles.parsing.Trace
 
-class CplxNode(trace: Trace, val value: Cplx) : Node(trace), ConstValue, VmArg.Num {
+class CplxNode(trace: Trace, val value: Cplx) : Node(trace), NumValue, VmArg.Num {
     init {
         type = BaseTypes.Cplx
     }
