@@ -18,18 +18,18 @@ class GenerateParser {
             return
         }
 
-        val input = ParserStream(TokenStream.fromCharStream(ReaderCharStream(FileReader("src/main/resources/Meelan.grammar"))))
+        val input = ParserStream(TokenStream.fromCharStream(ReaderCharStream(FileReader("src/main/resources/Fractlang.grammar"))))
         val output = Generator.program.parse(input)
 
         if(output is Generator.Program) {
             val kotlinSource = output.accept(KotlinVisitor())
-            File("src/main/kotlin/at/searles/meelan/Meelan.kt").writeText(kotlinSource)
+            File("src/main/kotlin/at/searles/fractlang/parsing/FractlangParser.kt").writeText(kotlinSource)
         } else {
             Assert.fail()
         }
     }
 
     companion object {
-        val createFiles = false // switch to create parser-file
+        val createFiles = true // switch to create parser-file
     }
 }
