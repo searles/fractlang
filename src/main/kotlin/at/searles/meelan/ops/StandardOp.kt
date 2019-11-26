@@ -49,6 +49,10 @@ abstract class StandardOp(vararg signatures: Signature): BaseOp(*signatures) {
     }
 
     override fun getSignatureForIndex(offset: Int): Signature {
-        return signatures[offset / countPerSignature]
+        val index = offset / countPerSignature
+
+        require(0 <= index && index < signatures.size) { "bad call: $this[$offset]" }
+
+        return signatures[index]
     }
 }
