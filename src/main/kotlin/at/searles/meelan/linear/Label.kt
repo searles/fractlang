@@ -9,4 +9,8 @@ class Label: VmArg, CodeLine {
 		require(offset != -1)
 		vmCode.add(offset)
 	}
+
+	override fun toString(): String {
+		return "@$offset"
+	}
 }

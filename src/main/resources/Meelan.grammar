@@ -115,7 +115,7 @@ grammar Meelan {
 
 	expr<Node>: logicalOr ;
 
-	exprstmt: expr ('=' expr >> `toBinary(Assign)`)? ;
+	exprstmt: expr ('=' expr >> `toAssignment`)? ;
 
 	whilestmt: 'while' @ `Annot.Kw` `CreateEmptyProperties`
 			   '(' expr >> `PutProperty("condition")` ')'

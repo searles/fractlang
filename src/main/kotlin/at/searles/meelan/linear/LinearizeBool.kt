@@ -10,32 +10,52 @@ class LinearizeBool(val code: LinearCode, val varNameGenerator: Iterator<String>
         throw IllegalArgumentException("should have been inlined")
     }
 
+    private fun visitAnd(args: List<Node>) {
+        val midLabel = Label()
+        args[0].accept(LinearizeBool(code, varNameGenerator, midLabel, falseLabel))
+        code.addLabel(midLabel)
+        args[1].accept(LinearizeBool(code, varNameGenerator, trueLabel, falseLabel))
+    }
+
+    private fun visitOr(args: List<Node>) {
+        val midLabel = Label()
+        args[0].accept(LinearizeBool(code, varNameGenerator, trueLabel, midLabel))
+        code.addLabel(midLabel)
+        args[1].accept(LinearizeBool(code, varNameGenerator, trueLabel, falseLabel))
+    }
+
+    private fun visitXor(args: List<Node>) {
+        val midTrueLabel = Label()
+        val midFalseLabel = Label()
+        args[0].accept(LinearizeBool(code, varNameGenerator, midTrueLabel, midFalseLabel))
+        code.addLabel(midTrueLabel)
+        args[1].accept(LinearizeBool(code, varNameGenerator, falseLabel, trueLabel))
+        code.addLabel(midFalseLabel)
+        args[1].accept(LinearizeBool(code, varNameGenerator, trueLabel, falseLabel))
+    }
+
+    private fun visitNot(args: List<Node>) {
+        args[0].accept(LinearizeBool(code, varNameGenerator, falseLabel, trueLabel))
+    }
+
+    private fun visitExpr(op: BaseOp, args: List<Node>) {
+        val index = op.indexOfParameterConfiguration(args)
+        val linearizedArgs = args.map {
+            it.accept(LinearizeExpr(code, varNameGenerator, null))
+        }
+
+        code.addInstruction(VmInstruction(op, index, linearizedArgs + trueLabel + falseLabel))
+    }
+
     override fun visit(app: App) {
-        require(app.head is OpNode)
+        require(app.head is OpNode && app.head.op is BaseOp)
 
         when(app.head.op) {
-            is And -> {
-                val midLabel = Label()
-                app.args[0].accept(LinearizeBool(code, varNameGenerator, midLabel, falseLabel))
-                code.addLabel(midLabel)
-                app.args[1].accept(LinearizeBool(code, varNameGenerator, trueLabel, falseLabel))
-            }
-            is Or -> {
-                val midLabel = Label()
-                app.args[0].accept(LinearizeBool(code, varNameGenerator, trueLabel, midLabel))
-                code.addLabel(midLabel)
-                app.args[1].accept(LinearizeBool(code, varNameGenerator, trueLabel, falseLabel))
-            }
-            is Xor -> {
-                val midTrueLabel = Label()
-                val midFalseLabel = Label()
-                app.args[0].accept(LinearizeBool(code, varNameGenerator, midTrueLabel, midFalseLabel))
-                code.addLabel(midTrueLabel)
-                app.args[1].accept(LinearizeBool(code, varNameGenerator, falseLabel, trueLabel))
-                code.addLabel(midFalseLabel)
-                app.args[1].accept(LinearizeBool(code, varNameGenerator, trueLabel, falseLabel))
-            }
-            is Not -> app.args[0].accept(LinearizeBool(code, varNameGenerator, falseLabel, trueLabel))
+            is And -> visitAnd(app.args)
+            is Or -> visitOr(app.args)
+            is Xor -> visitXor(app.args)
+            is Not -> visitNot(app.args)
+            else -> visitExpr(app.head.op as BaseOp, app.args)
         }
     }
 
@@ -59,82 +79,86 @@ class LinearizeBool(val code: LinearCode, val varNameGenerator: Iterator<String>
     }
 
     override fun visit(classDecl: ClassDecl) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(forStmt: For) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(funDecl: FunDecl) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(idNode: IdNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(ifStmt: If) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(intNode: IntNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(qualifiedNode: QualifiedNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(realNode: RealNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(stringNode: StringNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(varDecl: VarDecl) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(varParameter: VarParameter) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(vectorNode: VectorNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(whileStmt: While) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(classEnv: ClassEnv) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(funEnv: FunEnv) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(cplxNode: CplxNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(nop: Nop) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(opNode: OpNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(objectNode: ObjectNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(valDecl: ValDecl) {
-        require(false)
+        error("not applicable")
+    }
+
+    override fun visit(assignment: Assignment) {
+        error("not applicable")
     }
 }

@@ -11,7 +11,8 @@ import at.searles.parsing.Trace
 
 // Example for unit test:
 
-// maintain a sorted set 'activeVars' by offset position. Remove var that is not used anymore. Always use max value for efficiency.
+// maintain a sorted set 'activeVars' by offset position. Remove var that is not used anymore.
+// Always use max value for efficiency.
 // defragmentation :D
 
 // algorithm:
@@ -54,9 +55,7 @@ class InlineVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<Str
 		}
 
 		if(initialization != null) {
-			val assignment = Assign.apply(trace,
-				listOf(newIdNode, type.convert(initialization)))
-
+			val assignment = Assignment(trace, newIdNode, type.convert(initialization))
 			addStmt(assignment)
 		}
 
@@ -107,6 +106,10 @@ class InlineVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<Str
         val type = varDecl.varType
             ?:initialization?.type
             ?:throw SemanticAnalysisException("missing type", varDecl.trace)
+
+		if(type.vmCodeSize() == 0) {
+			throw SemanticAnalysisException("cannot create variable of this type", varDecl.trace)
+		}
 
 		initializeVar(varDecl.trace,
 			VarParameter(varDecl.trace, varDecl.name, type), initialization)
@@ -260,10 +263,23 @@ class InlineVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<Str
     override fun visit(forStmt: For): Node {
 		// syntax: for ( (var)? id (':' type)? in collection )
 		// collection is either a vector or a 1..3 or a 1 until range.
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+		// TODO sometimes...
+		throw SemanticAnalysisException("not implemented", forStmt.trace)
     }
 
     override fun visit(varParameter: VarParameter): Node {
-		throw IllegalArgumentException("unreachable")
+		error("not applicable")
     }
+
+	override fun visit(assignment: Assignment): Node {
+		val lhs = assignment.lhs.accept(this)
+
+		if(lhs !is IdNode) {
+			throw SemanticAnalysisException("Cannot assign to this value", lhs.trace)
+		}
+
+		val rhs = assignment.rhs.accept(this)
+
+		return Assignment(assignment.trace, lhs, rhs)
+	}
 }

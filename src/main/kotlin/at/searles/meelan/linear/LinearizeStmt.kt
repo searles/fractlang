@@ -9,12 +9,19 @@ import at.searles.meelan.ops.Jump
 class LinearizeStmt(val code: LinearCode, val varNameGenerator: Iterator<String>): Visitor<Unit> {
 
     override fun visit(app: App) {
+        // FIXME Are there any?
+        error("test")
         require(app.head is OpNode && app.head.op is BaseOp)
 
         val op: BaseOp = app.head.op
 
         val linearizedArgs = app.args.map { it.accept(LinearizeExpr(code, varNameGenerator, null))}
         code.addInstruction(VmInstruction(op, op.indexOfParameterConfiguration(app.args), linearizedArgs))
+    }
+
+    override fun visit(assignment: Assignment) {
+        require(assignment.lhs is IdNode)
+        assignment.rhs.accept(LinearizeExpr(code, varNameGenerator, assignment.lhs))
     }
 
     override fun visit(block: Block) {
@@ -24,8 +31,13 @@ class LinearizeStmt(val code: LinearCode, val varNameGenerator: Iterator<String>
     }
 
     override fun visit(varDecl: VarDecl) {
-        require(varDecl.init == null)
-        code.alloc(Alloc(varDecl.name, varDecl.type))
+        require(varDecl.init == null && varDecl.varType != null)
+
+        if(varDecl.varType.vmCodeSize() == 0) {
+            throw SemanticAnalysisException("not an assignable expression", varDecl.trace)
+        }
+
+        code.alloc(Alloc(varDecl.name, varDecl.varType!!))
     }
 
     override fun visit(idNode: IdNode) {
@@ -81,65 +93,66 @@ class LinearizeStmt(val code: LinearCode, val varNameGenerator: Iterator<String>
     }
 
     override fun visit(intNode: IntNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(realNode: RealNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(vectorNode: VectorNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(cplxNode: CplxNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(boolNode: BoolNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(opNode: OpNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(stringNode: StringNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(classDecl: ClassDecl) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(funDecl: FunDecl) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(qualifiedNode: QualifiedNode) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(varParameter: VarParameter) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(valDecl: ValDecl) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(nop: Nop) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(objectNode: ObjectNode) {
-        require(false)
+        error("not applicable")
     }
     override fun visit(classEnv: ClassEnv) {
-        require(false)
+        error("not applicable")
     }
 
     override fun visit(funEnv: FunEnv) {
-        require(false)
+        error("not applicable")
     }
+
 }

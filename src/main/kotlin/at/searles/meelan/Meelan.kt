@@ -195,53 +195,53 @@ object Meelan {
         expr.set(logicalOr)
     }
 
-    // position 4052-4100
-    val exprstmt = expr.then(context.text("=").then(expr.fold(toBinary(Assign))).opt())
+    // position 4052-4096
+    val exprstmt = expr.then(context.text("=").then(expr.fold(toAssignment)).opt())
 
-    // position 4105-4342
+    // position 4101-4338
     val whilestmt = context.text("while").annotate(Annot.Kw).then(CreateEmptyProperties).then(context.text("(")).then(expr.fold(PutProperty("condition"))).then(context.text(")")).then(stmt.or(createNop, true).fold(PutProperty("body"))).then(CreateObject<Node>(While::class.java, true, "condition", "body"))
 
-    // position 4347-4582
+    // position 4343-4578
     val forstmt = context.text("for").annotate(Annot.Kw).then(CreateEmptyProperties).then(context.text("(")).then(identifier.fold(PutProperty("name"))).then(context.text("in")).then(expr.fold(PutProperty("range"))).then(context.text(")")).then(stmt.fold(PutProperty("body"))).then(CreateObject<Node>(For::class.java, true, "name", "range", "body"))
 
-    // position 4587-4629
+    // position 4583-4625
     init {
         stmt.set(whilestmt.or(forstmt).or(exprstmt))
     }
 
-    // position 4634-4919
+    // position 4630-4915
     val vardecl = context.text("var").annotate(Annot.DeclKw).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text(":").then(identifier.then(ToType).fold(PutProperty("varType"))).opt()).then(context.text("=").then(expr.fold(PutProperty("init"))).opt()).then(CreateObject<Node>(VarDecl::class.java, true, "name", "varType", "init"))
 
-    // position 4924-5136
+    // position 4920-5132
     val valdecl = context.text("val").annotate(Annot.DeclKw).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text("=").then(expr.fold(PutProperty("init")))).then(CreateObject<Node>(ValDecl::class.java, true, "name", "init"))
 
-    // position 5141-5411
+    // position 5137-5407
     val parameter = context.text("var").annotate(Annot.DeclKw).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text(":").then(identifier.then(ToType).fold(PutProperty("varType"))).opt()).then(CreateObject<Node>(VarParameter::class.java, true, "name", "varType")).or(idNode)
 
-    // position 5416-5451
+    // position 5412-5447
     val parameters = parameter.list(comma)
 
-    // position 5456-5733
+    // position 5452-5729
     val fundecl = context.text("fun").annotate(Annot.DeclKw).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text("(")).then(parameters.fold(PutProperty("parameters"))).then(context.text(")")).then(block.or(context.text("=").then(expr)).fold(PutProperty("body"))).then(CreateObject<Node>(FunDecl::class.java, true, "name", "parameters", "body"))
 
-    // position 5738-6030
+    // position 5734-6026
     val classdecl = context.text("class").annotate(Annot.DeclKw).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text("(").then(parameters).then(context.text(")")).or(CreateEmptyList()).fold(PutProperty("parameters"))).then(block.fold(PutProperty("body"))).then(CreateObject<Node>(ClassDecl::class.java, true, "name", "parameters", "body"))
 
-    // position 6035-6080
+    // position 6031-6076
     val decl = vardecl.or(valdecl).or(fundecl).or(classdecl)
 
-    // position 6088-6129
+    // position 6084-6125
     val semicolon = context.text(";").then(Mapping.identity<Node>())
 
-    // position 6137-6198
+    // position 6133-6194
     val stmtOrDecl = decl.or(stmt).then(semicolon.or(SkipSemicolon, true))
 
-    // position 6202-6242
+    // position 6198-6238
     init {
         stmts.set(stmtOrDecl.list())
     }
 
-    // position 6246-6270
+    // position 6242-6266
     val program = stmts.then(toBlock)
 
 }

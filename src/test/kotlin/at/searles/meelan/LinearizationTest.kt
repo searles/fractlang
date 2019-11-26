@@ -10,6 +10,22 @@ import org.junit.Test
 class LinearizationTest {
 
     @Test
+    fun testAssignWhileToVarFail() {
+        withSource("var b = 1; var a = { while(b==2) {} }")
+
+        actParse()
+
+        try {
+            actInline()
+            actLinearize()
+            Assert.fail()
+        } catch(e: SemanticAnalysisException) {
+            e.printStackTrace()
+        }
+    }
+
+
+    @Test
     fun testSimpleVar() {
         withSource("var a = 1")
 
@@ -19,7 +35,7 @@ class LinearizationTest {
 
         actPrint()
 
-        Assert.assertEquals("\$1=1;var\$1:Int;", output)
+        Assert.assertEquals("[Assign[1] [\$1, 1], alloc \$1: Int]", output)
     }
 
     @Test
@@ -32,16 +48,22 @@ class LinearizationTest {
 
         actPrint()
 
-        Assert.assertEquals("\$1=1;var\$1:Int;" +
-                "\$2=2;var\$2:Int;" +
-                "R1=\$1+\$2;varR1:Int;" +
-                "R2=R1+3;varR2:Int;" +
-                "\$3=R2;var\$3:Int;", output)
+        Assert.assertEquals(
+            "[" +
+                    "Assign[1] [\$1, 1], " +
+                    "alloc \$1: Int, " +
+                    "Assign[1] [\$2, 2], " +
+                    "alloc \$2: Int, " +
+                    "Add[1] [3, \$1, R1], " +
+                    "alloc R1: Int, " +
+                    "Add[0] [R1, \$2, \$3], " +
+                    "alloc \$3: Int" +
+                    "]", output)
     }
 
     @Test
     fun testBlock() {
-        withSource("var a = 1 + {var b = 2; b +3 }")
+        withSource("var a = 1 + {var b = 2; b + 3 }")
 
         actParse()
         actInline()
@@ -50,10 +72,14 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "\$1=2;var\$1:Int;" +
-                    "R1=\$1+3;varR1:Int;" +
-                    "R2=1+R1;varR2:Int;" +
-                    "\$2=R2;var\$2:Int;", output)
+            "[" +
+                    "Assign[1] [\$1, 2], " +
+                    "alloc \$1: Int, " +
+                    "Add[1] [3, \$1, R1], " +
+                    "alloc R1: Int, " +
+                    "Add[1] [1, R1, \$2], " +
+                    "alloc \$2: Int" +
+                    "]", output)
     }
 
     @Test
@@ -67,10 +93,14 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "\$1=2;var\$1:Int;" +
-                    "R1=\$1+3;varR1:Int;" +
-                    "R2=1+R1;varR2:Int;" +
-                    "\$2=R2;var\$2:Int;", output)
+            "[" +
+                    "Assign[1] [\$1, 1], " +
+                    "alloc \$1: Int, " +
+                    "Equal[2] [\$1, 1, @14, @21], " +
+                    "@14, " +
+                    "Add[1] [1, \$1, \$1], " +
+                    "@21" +
+                    "]", output)
     }
 
     @Test
@@ -84,10 +114,14 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "\$1=2;var\$1:Int;" +
-                    "R1=\$1+3;varR1:Int;" +
-                    "R2=1+R1;varR2:Int;" +
-                    "\$2=R2;var\$2:Int;", output)
+            "[" +
+                    "Assign[1] [\$1, 1], " +
+                    "alloc \$1: Int, " +
+                    "Equal[2] [\$1, 1, @14, @21], " +
+                    "@14, " +
+                    "Add[1] [1, \$1, \$1], " +
+                    "@21" +
+                    "]", output)
     }
 
     @Test
@@ -101,10 +135,19 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "\$1=2;var\$1:Int;" +
-                    "R1=\$1+3;varR1:Int;" +
-                    "R2=1+R1;varR2:Int;" +
-                    "\$2=R2;var\$2:Int;", output)
+            "[" +
+                    "Assign[1] [\$1, 1], " +
+                    "alloc \$1: Int, " +
+                    "Equal[2] [\$1, 1, @14, @22], " +
+                    "@14, " +
+                    "Assign[1] [R1, 1], " +
+                    "Jump[0] [@28], " +
+                    "@22, " +
+                    "Assign[1] [R1, 2], " +
+                    "@28, " +
+                    "alloc R1: Int, " +
+                    "Add[0] [\$1, R1, \$1]" +
+                    "]", output)
     }
 
     @Test
@@ -118,10 +161,16 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "\$1=2;var\$1:Int;" +
-                    "R1=\$1+3;varR1:Int;" +
-                    "R2=1+R1;varR2:Int;" +
-                    "\$2=R2;var\$2:Int;", output)
+            "[" +
+                    "Assign[1] [\$1, 1], " +
+                    "alloc \$1: Int, " +
+                    "@6, " +
+                    "Less[2] [\$1, 10, @14, @23], " +
+                    "@14, " +
+                    "Add[1] [1, \$1, \$1], " +
+                    "Jump[0] [@6], " +
+                    "@23" +
+                    "]", output)
     }
 
     private lateinit var output: String

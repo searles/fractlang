@@ -1,5 +1,6 @@
 package at.searles.meelan.linear
 
+import at.searles.meelan.SemanticAnalysisException
 import at.searles.meelan.Visitor
 import at.searles.meelan.nodes.*
 import at.searles.meelan.ops.Assign
@@ -58,6 +59,10 @@ class LinearizeExpr(private val code: LinearCode, private val varNameGenerator: 
     }
 
     override fun visit(block: Block): VmArg {
+        if(block.stmts.isEmpty()) {
+            throw SemanticAnalysisException("not an expression", block.trace)
+        }
+
         block.stmts.dropLast(1).forEach {
             it.accept(LinearizeStmt(code, varNameGenerator))
         }
@@ -97,70 +102,74 @@ class LinearizeExpr(private val code: LinearCode, private val varNameGenerator: 
     }
 
     override fun visit(boolNode: BoolNode): VmArg {
-        throw IllegalArgumentException()
+        error("not applicable")
     }
 
     override fun visit(varDecl: VarDecl): VmArg {
-        throw IllegalArgumentException()
+        error("not applicable")
     }
 
     override fun visit(forStmt: For): VmArg {
-        throw IllegalArgumentException()
+        error("not applicable")
     }
 
     override fun visit(ifStmt: If): VmArg {
-        throw IllegalArgumentException()
+        error("not applicable")
     }
 
     override fun visit(whileStmt: While): VmArg {
-        throw IllegalArgumentException() // should be a type error.
+        error("not applicable") // should be a type error.
     }
 
     override fun visit(classEnv: ClassEnv): VmArg {
-        throw IllegalArgumentException()
+        error("not applicable")
     }
 
     override fun visit(funEnv: FunEnv): VmArg {
-        throw IllegalArgumentException()
+        error("not applicable")
     }
 
     override fun visit(opNode: OpNode): VmArg {
-        throw IllegalArgumentException()
+        error("not applicable")
     }
 
     override fun visit(objectNode: ObjectNode): VmArg {
-        throw IllegalArgumentException()
+        error("not applicable")
     }
 
     override fun visit(valDecl: ValDecl): VmArg {
-        throw IllegalArgumentException()
+        error("not applicable")
     }
 
     override fun visit(nop: Nop): VmArg {
-        throw IllegalArgumentException()
+        error("not applicable")
     }
 
     override fun visit(classDecl: ClassDecl): VmArg {
-        throw IllegalArgumentException()
+        error("not applicable")
     }
 
     override fun visit(funDecl: FunDecl): VmArg {
-        throw IllegalArgumentException()
+        error("not applicable")
     }
 
     override fun visit(qualifiedNode: QualifiedNode): VmArg {
-        throw IllegalArgumentException()
+        error("not applicable")
     }
 
     override fun visit(stringNode: StringNode): VmArg {
-        throw IllegalArgumentException()
+        error("not applicable")
     }
 
     override fun visit(varParameter: VarParameter): VmArg {
-        throw IllegalArgumentException()
+        error("not applicable")
     }
 
     override fun visit(vectorNode: VectorNode): VmArg {
-        throw IllegalArgumentException()
+        error("not applicable")
+    }
+
+    override fun visit(assignment: Assignment): VmArg {
+        error("not applicable")
     }
 }

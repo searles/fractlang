@@ -163,4 +163,8 @@ class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private v
     override fun visit(boolNode: BoolNode): Node {
         throw SemanticAnalysisException("cannot use boolean as a function head", boolNode.trace)
     }
+
+    override fun visit(assignment: Assignment): Node {
+        throw SemanticAnalysisException("cannot use assignment as a function head", assignment.trace)
+    }
 }

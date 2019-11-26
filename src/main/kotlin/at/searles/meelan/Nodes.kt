@@ -163,6 +163,20 @@ fun toUnary(op: Op): Mapping<Node, Node> {
     }
 }
 
+object toAssignment: Fold<Node, Node, Node> {
+    override fun apply(stream: ParserStream, left: Node, right: Node): Node {
+        return Assignment(stream.createTrace(), left, right)
+    }
+
+    override fun leftInverse(result: Node): Node? {
+        return (result as? Assignment)?.lhs
+    }
+
+    override fun rightInverse(result: Node): Node? {
+        return (result as? Assignment)?.rhs
+    }
+}
+
 fun toBinary(op: Op): Fold<Node, Node, Node> {
     return object: Fold<Node, Node, Node> {
         override fun apply(stream: ParserStream, left: Node, right: Node): Node {

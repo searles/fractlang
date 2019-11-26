@@ -27,4 +27,5 @@ interface Visitor<T> {
     fun visit(opNode: OpNode): T
     fun visit(objectNode: ObjectNode): T
     fun visit(valDecl: ValDecl): T
+    fun visit(assignment: Assignment): T
 }

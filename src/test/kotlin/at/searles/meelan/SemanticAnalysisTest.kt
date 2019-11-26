@@ -8,6 +8,20 @@ import org.junit.Test
 class SemanticAnalysisTest {
 
     @Test
+    fun testAssignWhileToVarFail() {
+        withSource("var b = 1; var a = { while(b==2) {} }")
+
+        actParse()
+
+        try {
+            actInline()
+            Assert.fail()
+        } catch(e: SemanticAnalysisException) {
+            e.printStackTrace()
+        }
+    }
+
+    @Test
     fun testMissingInAssignment() {
         withSource("var a = a")
 
