@@ -171,4 +171,8 @@ class LinearizeStmt(val code: LinearCode, val varNameGenerator: Iterator<String>
         error("not applicable")
     }
 
+    override fun visit(externDecl: ExternDecl) {
+        error("not applicable")
+    }
+
 }

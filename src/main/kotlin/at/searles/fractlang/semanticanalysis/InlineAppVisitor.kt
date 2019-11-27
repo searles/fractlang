@@ -208,4 +208,11 @@ class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private v
             assignment.trace
         )
     }
+
+    override fun visit(externDecl: ExternDecl): Node {
+        throw SemanticAnalysisException(
+            "cannot use declaration as a function head",
+            externDecl.trace
+        )
+    }
 }

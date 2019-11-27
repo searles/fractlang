@@ -5,7 +5,8 @@ enum class Annot {
     Num,
     Str,
     Id,
-    Kw,
-    DeclKw,
-    Stmt
+    Keyword,
+    DefKeyword,
+    Stmt,
+    Block
 }

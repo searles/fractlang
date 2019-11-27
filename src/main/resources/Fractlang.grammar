@@ -71,16 +71,16 @@ grammar FractlangParser {
 
     app<Node>: atom (arguments >> `toApp` | '.' identifier >> `toQualified`)* ; // recursive because of eg "sin cos x"
 
-    ifExpr<Node>: 'if' @ `Annot.Kw` `CreateEmptyProperties`
+    ifExpr<Node>: 'if' @ `Annot.Keyword` `CreateEmptyProperties`
                         '(' expr >> `PutProperty("condition")` ')'
                         stmt >> `PutProperty("thenBranch")`
                         (
-							'else' @ `Annot.Kw` stmt >> `PutProperty("elseBranch")`
+							'else' @ `Annot.Keyword` stmt >> `PutProperty("elseBranch")`
 								`CreateObject<Node>(IfElse::class.java, true, "condition", "thenBranch", "elseBranch")`
 							| `CreateObject<Node>(If::class.java, true, "condition", "thenBranch")`
 						) ;
 
-	block: '{' stmts `toBlock` '}' ;
+	block: '{' stmts `toBlock` @ `Annot.Block` '}' ;
 
 	absExpr: '|' expr `toUnary(Abs)` '|' ;
 
@@ -117,50 +117,55 @@ grammar FractlangParser {
 
 	exprstmt: expr ('=' expr >> `toAssignment`)? ;
 
-	whilestmt: 'while' @ `Annot.Kw` `CreateEmptyProperties`
+	whilestmt: 'while' @ `Annot.Keyword` `CreateEmptyProperties`
 			   '(' expr >> `PutProperty("condition")` ')'
 			   (`stmt.or(createNop, true)`) >> `PutProperty("body")`
 			   `CreateObject<Node>(While::class.java, true, "condition", "body")` ;
 
-	forstmt: 'for' @ `Annot.Kw` `CreateEmptyProperties` '(' identifier >> `PutProperty("name")` 'in' expr >> `PutProperty("range")` ')' stmt  >> `PutProperty("body")`
+	forstmt: 'for' @ `Annot.Keyword` `CreateEmptyProperties` '(' identifier >> `PutProperty("name")` 'in' expr >> `PutProperty("range")` ')' stmt  >> `PutProperty("body")`
 			 `CreateObject<Node>(For::class.java, true, "name", "range", "body")`;
 
  	stmt<Node>: whilestmt | forstmt | exprstmt ;
 
-	vardecl: 'var' @ `Annot.DeclKw` `CreateEmptyProperties`
+	vardecl: 'var' @ `Annot.DefKeyword` `CreateEmptyProperties`
 	            identifier >> `PutProperty("name")`
 				(':' (identifier `ToType`) >> `PutProperty("varType")`)?
 				('=' expr >> `PutProperty("init")`)?
 				`CreateObject<Node>(VarDecl::class.java, true, "name", "varType", "init")` ;
 
-	valdecl: 'val' @ `Annot.DeclKw` `CreateEmptyProperties`
+	valdecl: 'val' @ `Annot.DefKeyword` `CreateEmptyProperties`
 	            identifier >> `PutProperty("name")`
 				('=' expr >> `PutProperty("init")`)
 				`CreateObject<Node>(ValDecl::class.java, true, "name", "init")` ;
 
-	parameter: 'var' @ `Annot.DeclKw` `CreateEmptyProperties` identifier >> `PutProperty("name")`
+	parameter: 'var' @ `Annot.DefKeyword` `CreateEmptyProperties` identifier >> `PutProperty("name")`
 	            (':' (identifier `ToType`) >> `PutProperty("varType")`)?
 	            `CreateObject<Node>(VarParameter::class.java, true, "name", "varType")`
 	            | idNode ;
 
 	parameters: `parameter.list(comma)` ;
 
-	fundecl: 'fun' @ `Annot.DeclKw` `CreateEmptyProperties` identifier >> `PutProperty("name")`
+	fundecl: 'fun' @ `Annot.DefKeyword` `CreateEmptyProperties` identifier >> `PutProperty("name")`
 				'(' parameters >> `PutProperty("parameters")` ')'
 				(block | '=' expr ) >> `PutProperty("body")`
 
 				`CreateObject<Node>(FunDecl::class.java, true, "name", "parameters", "body")` ;
 
-	classdecl: 'class' @ `Annot.DeclKw` `CreateEmptyProperties` identifier >> `PutProperty("name")`
+	classdecl: 'class' @ `Annot.DefKeyword` `CreateEmptyProperties` identifier >> `PutProperty("name")`
 				('(' parameters ')' | `CreateEmptyList()`) >> `PutProperty("parameters")`
 				block >> `PutProperty("body")`
 				`CreateObject<Node>(ClassDecl::class.java, true, "name", "parameters", "body")` ;
 
-	decl: vardecl | valdecl | fundecl | classdecl ;
+	externdecl: 'extern' @ `Annot.DefKeyword` `CreateEmptyProperties` identifier >> `PutProperty("name")`
+				':' stringNode >> `PutProperty("description")`
+				'=' stringNode >> `PutProperty("expr")`
+				`CreateObject<Node>(ExternDecl::class.java, true, "name", "description", "expr")` ;
+
+	decl: vardecl | valdecl | fundecl | classdecl | externdecl ;
 
     semicolon: ';' `Mapping.identity<Node>()` ;
 
-    stmtOrDecl: (decl | stmt) `semicolon.or(SkipSemicolon, true)` ;
+    stmtOrDecl: (decl | stmt) `semicolon.or(SkipSemicolon, true)` @ `Annot.Stmt`;
 	stmts<`List<Node>`>: `stmtOrDecl.list()` ;
 	program: stmts `toBlock` ;
 }

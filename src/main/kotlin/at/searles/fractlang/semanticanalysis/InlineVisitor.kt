@@ -352,4 +352,9 @@ class InlineVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<Str
 
 		return Assignment(assignment.trace, lhs, rhs)
 	}
+
+	override fun visit(externDecl: ExternDecl): Node {
+		table.declareExtern(externDecl.trace, externDecl.name, externDecl.description, externDecl.expr)
+		return Nop(externDecl.trace)
+	}
 }

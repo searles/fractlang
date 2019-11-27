@@ -168,4 +168,8 @@ class LinearizeBool(val code: LinearCode, val varNameGenerator: Iterator<String>
     override fun visit(assignment: Assignment) {
         error("not applicable")
     }
+
+    override fun visit(externDecl: ExternDecl) {
+        error("not applicable")
+    }
 }

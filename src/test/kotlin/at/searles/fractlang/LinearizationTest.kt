@@ -7,6 +7,7 @@ import at.searles.fractlang.parsing.FractlangParser
 import at.searles.fractlang.semanticanalysis.InlineVisitor
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.parsing.ParserStream
+import at.searles.parsing.Trace
 import org.junit.Assert
 import org.junit.Test
 
@@ -209,6 +210,10 @@ class LinearizationTest {
         val rootTable = object: SymbolTable {
             override fun get(id: String): Node? {
                 return null
+            }
+
+            override fun declareExtern(trace: Trace, name: String, description: String, expr: String) {
+                // ignore in this test
             }
         }
 

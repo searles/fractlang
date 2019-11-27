@@ -182,4 +182,8 @@ class LinearizeExpr(private val code: LinearCode, private val varNameGenerator: 
     override fun visit(assignment: Assignment): VmArg {
         error("not applicable")
     }
+
+    override fun visit(externDecl: ExternDecl): VmArg {
+        error("not applicable")
+    }
 }
