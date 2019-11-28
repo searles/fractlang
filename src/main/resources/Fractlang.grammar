@@ -13,9 +13,9 @@ import at.searles.fractlang.nodes.*
 
 }}}
 
-// TODO Add extern!
-
 grammar FractlangParser {
+    regex eof: `Regex.eof()` ;
+
     regex ws: [\x09\x0b\r \xa0\u1680\u2000-\u200a\u202f\u205f\u3000]+ ;
 	regex nl: "\r\n" | "\n" | "\x0c" | "\x85" | "\u2028" | "\u2029" ; // keep newlines separated for formatting.
     regex slComment: ('/*' .* '*/')! ;
