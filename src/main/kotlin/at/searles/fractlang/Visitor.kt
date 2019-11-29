@@ -29,4 +29,5 @@ interface Visitor<T> {
     fun visit(valDecl: ValDecl): T
     fun visit(assignment: Assignment): T
     fun visit(externDecl: ExternDecl): T
+    fun visit(externNode: ExternNode): T
 }

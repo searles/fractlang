@@ -13,7 +13,7 @@ repositories {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     testCompile group: 'junit', name: 'junit', version: '4.12'
-    implementation 'com.github.searles:parsing:aad9e02a9df528f77599076e82942032e59c44ba'
+    implementation 'com.github.searles:parsing:1883d20ff2a2548bea02b0b1fb70e689fe9114ac'
     implementation 'com.github.searles:parsingtools:fd3f14947c918fdfeabb900d6d22aa25de1f311a'
     implementation 'com.github.searles.utils:math:0.2'
 }

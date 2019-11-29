@@ -4,7 +4,7 @@ import at.searles.commons.math.Cplx
 import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.Visitor
 import at.searles.fractlang.vm.VmArg
-import at.searles.fractlang.vm.VmCode
+import at.searles.fractlang.vm.VmCodeAssembler
 import at.searles.parsing.Trace
 
 class CplxNode(trace: Trace, val value: Cplx) : Node(trace), NumValue, VmArg.Num {
@@ -16,8 +16,8 @@ class CplxNode(trace: Trace, val value: Cplx) : Node(trace), NumValue, VmArg.Num
         return visitor.visit(this)
     }
 
-    override fun addToVmCode(vmCode: VmCode) {
-        vmCode.add(value)
+    override fun addToVmCode(vmCodeAssembler: VmCodeAssembler) {
+        vmCodeAssembler.add(value)
     }
 
     override fun isZero(): Boolean {

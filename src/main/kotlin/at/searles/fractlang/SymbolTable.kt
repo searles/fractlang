@@ -4,7 +4,7 @@ import at.searles.fractlang.nodes.Node
 import at.searles.parsing.Trace
 
 interface SymbolTable {
-    operator fun get(id: String): Node?
+    operator fun get(trace: Trace, id: String): Node?
 
     fun fork(): Mutable {
         return Mutable(this)
@@ -15,8 +15,8 @@ interface SymbolTable {
     class Mutable(private val parent: SymbolTable): SymbolTable {
         private val map: MutableMap<String, Node> = HashMap()
 
-        override fun get(id: String): Node? {
-            return map[id] ?: parent[id]
+        override fun get(trace: Trace, id: String): Node? {
+            return map[id] ?: parent.get(trace, id)
         }
 
         override fun declareExtern(trace: Trace, name: String, description: String, expr: String) {

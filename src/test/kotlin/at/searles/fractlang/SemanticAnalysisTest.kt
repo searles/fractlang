@@ -2,7 +2,7 @@ package at.searles.fractlang
 
 import at.searles.fractlang.nodes.Node
 import at.searles.fractlang.parsing.FractlangParser
-import at.searles.fractlang.semanticanalysis.InlineVisitor
+import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.parsing.ParserStream
 import at.searles.parsing.Trace
@@ -304,20 +304,11 @@ class SemanticAnalysisTest {
     }
 
     private fun actInline() {
-        val rootTable = object: SymbolTable {
-            override fun get(id: String): Node? {
-                return null
-            }
-
-            override fun declareExtern(trace: Trace, name: String, description: String, expr: String) {
-                // ignore in this test
-            }
-        }
-
+        val rootTable = RootSymbolTable(emptyMap(), emptyMap())
         val varNameGenerator = generateSequence(1) { it + 1 }.map { "_$it" }.iterator()
 
         inlined = ast.accept(
-            InlineVisitor(
+            SemanticAnalysisVisitor(
                 rootTable,
                 varNameGenerator
             )

@@ -1,13 +1,12 @@
 package at.searles.fractlang
 
-import at.searles.fractlang.linear.LinearCode
+import at.searles.fractlang.linear.LinearizedCode
 import at.searles.fractlang.linear.LinearizeStmt
 import at.searles.fractlang.nodes.Node
 import at.searles.fractlang.parsing.FractlangParser
-import at.searles.fractlang.semanticanalysis.InlineVisitor
+import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.parsing.ParserStream
-import at.searles.parsing.Trace
 import org.junit.Assert
 import org.junit.Test
 
@@ -191,7 +190,7 @@ class LinearizationTest {
     }
 
     private lateinit var output: String
-    private lateinit var linearized: LinearCode
+    private lateinit var linearized: LinearizedCode
     private lateinit var inlined: Node
     private lateinit var ast: Node
     private lateinit var stream: ParserStream
@@ -201,26 +200,18 @@ class LinearizationTest {
     }
 
     private fun actLinearize() {
-        linearized = LinearCode()
+        linearized = LinearizedCode()
         val varNameGenerator = generateSequence(1) { it + 1 }.map { "R$it" }.iterator()
         inlined.accept(LinearizeStmt(linearized, varNameGenerator))
     }
 
     private fun actInline() {
-        val rootTable = object: SymbolTable {
-            override fun get(id: String): Node? {
-                return null
-            }
-
-            override fun declareExtern(trace: Trace, name: String, description: String, expr: String) {
-                // ignore in this test
-            }
-        }
+        val rootTable = RootSymbolTable(emptyMap(), emptyMap())
 
         val varNameGenerator = generateSequence(1) { it + 1 }.map { "\$$it" }.iterator()
 
         inlined = ast.accept(
-            InlineVisitor(
+            SemanticAnalysisVisitor(
                 rootTable,
                 varNameGenerator
             )

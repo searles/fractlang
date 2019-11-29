@@ -7,6 +7,9 @@ import at.searles.fractlang.ops.Op
 import at.searles.fractlang.ops.HasSpecialSyntax
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.parsing.*
+import at.searles.regexparser.CodePointStream
+import at.searles.regexparser.EscStringParser
+import at.searles.regexparser.RegexParserException
 
 val toInt = {s: CharSequence -> s.toString().toInt()}
 val toHex = {s: CharSequence -> s.toString().toBigInteger(16).toInt()}
@@ -81,11 +84,15 @@ object toQualified: Fold<Node, String, Node> {
 
 object toEscString: Mapping<CharSequence, String> {
     override fun parse(stream: ParserStream, left: CharSequence): String? {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        try {
+            return EscStringParser.parse(CodePointStream(left.toString()))
+        } catch(e: RegexParserException) {
+            return null
+        }
     }
 
     override fun left(result: String): CharSequence? {
-        return null
+        return EscStringParser.unparse(result)
     }
 }
 

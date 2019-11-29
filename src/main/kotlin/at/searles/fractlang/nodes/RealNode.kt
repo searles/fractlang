@@ -3,7 +3,7 @@ package at.searles.fractlang.nodes
 import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.Visitor
 import at.searles.fractlang.vm.VmArg
-import at.searles.fractlang.vm.VmCode
+import at.searles.fractlang.vm.VmCodeAssembler
 import at.searles.parsing.Trace
 
 class RealNode(trace: Trace, val value: Double) : Node(trace), NumValue, VmArg.Num {
@@ -15,8 +15,8 @@ class RealNode(trace: Trace, val value: Double) : Node(trace), NumValue, VmArg.N
         return visitor.visit(this)
     }
 
-    override fun addToVmCode(vmCode: VmCode) {
-        vmCode.add(value)
+    override fun addToVmCode(vmCodeAssembler: VmCodeAssembler) {
+        vmCodeAssembler.add(value)
     }
 
     override fun isZero(): Boolean {

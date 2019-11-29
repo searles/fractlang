@@ -9,7 +9,7 @@ import at.searles.fractlang.ops.Jump
 import at.searles.fractlang.vm.VmArg
 import at.searles.fractlang.vm.VmInstruction
 
-class LinearizeExpr(private val code: LinearCode, private val varNameGenerator: Iterator<String>, private val optTargetNode: IdNode?): Visitor<VmArg> {
+class LinearizeExpr(private val code: LinearizedCode, private val varNameGenerator: Iterator<String>, private val optTargetNode: IdNode?): Visitor<VmArg> {
 
     override fun visit(app: App): VmArg {
         val op = (app.head as OpNode).op as BaseOp
@@ -60,7 +60,9 @@ class LinearizeExpr(private val code: LinearCode, private val varNameGenerator: 
     }
 
     override fun visit(block: Block): VmArg {
+        require(block.stmts.isNotEmpty())
         if(block.stmts.isEmpty()) {
+            // FIXME shouldn't this be caught before?
             throw SemanticAnalysisException(
                 "not an expression",
                 block.trace
@@ -184,6 +186,10 @@ class LinearizeExpr(private val code: LinearCode, private val varNameGenerator: 
     }
 
     override fun visit(externDecl: ExternDecl): VmArg {
+        error("not applicable")
+    }
+
+    override fun visit(externNode: ExternNode): VmArg {
         error("not applicable")
     }
 }

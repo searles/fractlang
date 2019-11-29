@@ -8,13 +8,13 @@ import at.searles.parsing.Trace
 /**
  * args are not inlined
  */
-class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private val parentVisitor: InlineVisitor):
+class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private val parentVisitor: SemanticAnalysisVisitor):
     Visitor<Node> {
     private val inlinedArgs: List<Node> by lazy {
 		args.map { it.accept(parentVisitor) }
 	}
 
-    private fun defineArgs(parameters: List<Node>, innerVisitor: InlineVisitor) {
+    private fun defineArgs(parameters: List<Node>, innerVisitor: SemanticAnalysisVisitor) {
         parameters.zip(inlinedArgs).forEach {
 
             val parameter = it.first
@@ -42,7 +42,7 @@ class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private v
 
         defineArgs(funEnv.decl.parameters, parentVisitor)
 
-        val innerVisitor = InlineVisitor(
+        val innerVisitor = SemanticAnalysisVisitor(
             funEnv.table,
             parentVisitor.varNameGenerator
         )
@@ -53,7 +53,7 @@ class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private v
     override fun visit(classEnv: ClassEnv): Node {
         checkArity(trace, classEnv.decl.parameters.size)
 
-        val innerVisitor = InlineVisitor(
+        val innerVisitor = SemanticAnalysisVisitor(
             classEnv.table,
             parentVisitor.varNameGenerator
         )
@@ -214,5 +214,9 @@ class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private v
             "cannot use declaration as a function head",
             externDecl.trace
         )
+    }
+
+    override fun visit(externNode: ExternNode): Node {
+        error("externs should be inlined in SemanticAnalysisVisitor")
     }
 }

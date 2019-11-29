@@ -2,28 +2,12 @@ package at.searles.fractlang.semanticanalysis
 
 import at.searles.fractlang.*
 import at.searles.fractlang.nodes.*
+import at.searles.fractlang.parsing.FractlangParser
+import at.searles.parsing.ParserLookaheadException
+import at.searles.parsing.ParserStream
 import at.searles.parsing.Trace
 
-
-// returns a new varDecl: var $0: Type.
-// Init will be an assignment before, to allow reuse of unused value
-// no need to reserve the space before the actual assignment.
-
-// Example for unit test:
-
-// maintain a sorted set 'activeVars' by offset position. Remove var that is not used anymore.
-// Always use max value for efficiency.
-// defragmentation :D
-
-// algorithm:
-// map<string, integer> varOffsets // keep all here.
-// map<integer, string> activeVars
-
-// run backwards
-// Every node receives an offset for its value. If it is a bool or a unit, well, don't care because size is 0.
-
-
-class InlineVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<String>):
+class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<String>):
     Visitor<Node> {
 	val block = ArrayList<Node>()
     val table = parentTable.fork()
@@ -140,15 +124,19 @@ class InlineVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<Str
     }
 
     override fun visit(idNode: IdNode): Node {
-		// FIXME find others
-        return table[idNode.id] ?: throw SemanticAnalysisException(
-			"undefined",
-			idNode.trace
-		)
-    }
+		val node = table[idNode.trace, idNode.id]
+			?: throw SemanticAnalysisException("${idNode.id} is undefined", idNode.trace)
+
+		// Injected value?
+		if(node is ExternNode) {
+			return node.accept(this)
+		}
+
+		return node
+	}
 
     override fun visit(block: Block): Node {
-        val innerVisitor = InlineVisitor(table, varNameGenerator)
+        val innerVisitor = SemanticAnalysisVisitor(table, varNameGenerator)
 		
 		block.stmts.forEach {
 			innerVisitor.addStmt(it.accept(innerVisitor))
@@ -356,5 +344,24 @@ class InlineVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<Str
 	override fun visit(externDecl: ExternDecl): Node {
 		table.declareExtern(externDecl.trace, externDecl.name, externDecl.description, externDecl.expr)
 		return Nop(externDecl.trace)
+	}
+
+	override fun visit(externNode: ExternNode): Node {
+		try {
+			// FIXME is extern a bad word? inject a: "Some value" = 12 better?
+			val stream = ParserStream.fromString(externNode.expr)
+			val exprAst = FractlangParser.expr.parse(stream)
+				?: throw SemanticAnalysisException("Could not parse extern value", externNode.trace)
+
+			if(!FractlangParser.eof.recognize(stream)) {
+				throw SemanticAnalysisException("Extern value not fully parsed", externNode.trace)
+			}
+
+			return exprAst.accept(SemanticAnalysisVisitor(AllowImplicitExternsFacade(externNode.id, this), varNameGenerator))
+		} catch(e: ParserLookaheadException) {
+			throw SemanticAnalysisException("Parser error in extern value: ${e.message}", externNode.trace)
+		} catch (e: SemanticAnalysisException) {
+			throw SemanticAnalysisException("Semantic error in extern value: ${e.message}", externNode.trace)
+		}
 	}
 }

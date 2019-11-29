@@ -18,8 +18,8 @@ grammar FractlangParser {
 
     regex ws: [\x09\x0b\r \xa0\u1680\u2000-\u200a\u202f\u205f\u3000]+ ;
 	regex nl: "\r\n" | "\n" | "\x0c" | "\x85" | "\u2028" | "\u2029" ; // keep newlines separated for formatting.
-    regex slComment: ('/*' .* '*/')! ;
-    regex mlComment: '//' ([^\n] | [^\r])* ;
+    regex mlComment: ('/*' .* '*/')! ;
+    regex slComment: '//' [^\n]* ; // FIXME!!!
 
 {{{    init {
         tokenizer.addSkipped(ws.tokenId)
@@ -157,8 +157,8 @@ grammar FractlangParser {
 				`CreateObject<Node>(ClassDecl::class.java, true, "name", "parameters", "body")` ;
 
 	externdecl: 'extern' @ `Annot.DefKeyword` `CreateEmptyProperties` identifier >> `PutProperty("name")`
-				':' stringNode >> `PutProperty("description")`
-				'=' stringNode >> `PutProperty("expr")`
+				':' str >> `PutProperty("description")`
+				'=' str >> `PutProperty("expr")`
 				`CreateObject<Node>(ExternDecl::class.java, true, "name", "description", "expr")` ;
 
 	decl: vardecl | valdecl | fundecl | classdecl | externdecl ;

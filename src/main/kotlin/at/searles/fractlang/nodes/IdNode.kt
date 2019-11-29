@@ -2,7 +2,7 @@ package at.searles.fractlang.nodes
 
 import at.searles.fractlang.Visitor
 import at.searles.fractlang.vm.VmArg
-import at.searles.fractlang.vm.VmCode
+import at.searles.fractlang.vm.VmCodeAssembler
 import at.searles.parsing.Trace
 class IdNode(trace: Trace, val id: String): Node(trace), VmArg {
     override fun <T> accept(visitor: Visitor<T>): T {
@@ -13,8 +13,8 @@ class IdNode(trace: Trace, val id: String): Node(trace), VmArg {
         return 1
     }
 
-    override fun addToVmCode(vmCode: VmCode) {
-        vmCode.add(id)
+    override fun addToVmCode(vmCodeAssembler: VmCodeAssembler) {
+        vmCodeAssembler.add(id)
     }
 
     override fun toString(): String {

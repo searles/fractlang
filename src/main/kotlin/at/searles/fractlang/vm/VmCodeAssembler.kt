@@ -2,7 +2,7 @@ package at.searles.fractlang.vm
 
 import at.searles.commons.math.Cplx
 import at.searles.fractlang.linear.Alloc
-import at.searles.fractlang.linear.LinearCode
+import at.searles.fractlang.linear.LinearizedCode
 import at.searles.fractlang.nodes.IdNode
 import at.searles.fractlang.ops.BaseOp
 import java.util.*
@@ -10,7 +10,7 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.collections.LinkedHashMap
 
-class VmCode(private val linearCode: LinearCode, instructions: List<BaseOp>) {
+class VmCodeAssembler(private val linearizedCode: LinearizedCode, instructions: Collection<BaseOp>) {
 
 	// FIXME Currently there are sometimes instructions like $0 = $0.
 	// FIXME Eg in var a = 1; var c = a;
@@ -18,11 +18,11 @@ class VmCode(private val linearCode: LinearCode, instructions: List<BaseOp>) {
 	private val instructionOffsets = createInstructionOffsets(instructions)
 	private val memoryOffsets = HashMap<String, Int>()
 	
-	val vmCode = ArrayList<Int>(linearCode.offset)
+	val vmCode = ArrayList<Int>(linearizedCode.offset)
 	
 	init {
 		initializeMemoryOffsets()
-		linearCode.code.filterIsInstance<VmInstruction>().forEach { it.addToVmCode(this) }
+		linearizedCode.code.filterIsInstance<VmInstruction>().forEach { it.addToVmCode(this) }
 	}
 
 	fun add(code: Int) {
@@ -64,7 +64,7 @@ class VmCode(private val linearCode: LinearCode, instructions: List<BaseOp>) {
 	private fun initializeMemoryOffsets() {
 		val actives = TreeMap<Int, IdNode>()
 
-		linearCode.code.reversed().forEach { stmt ->
+		linearizedCode.code.reversed().forEach { stmt ->
 			if (stmt is VmInstruction) {
 				stmt.args.filterIsInstance<IdNode>().forEach { arg ->
 					if (!memoryOffsets.containsKey(arg.id)) {
@@ -94,7 +94,7 @@ class VmCode(private val linearCode: LinearCode, instructions: List<BaseOp>) {
 	}
 
 	companion object {
-		fun createInstructionOffsets(instructions: List<BaseOp>): Map<BaseOp, Int> {
+		fun createInstructionOffsets(instructions: Collection<BaseOp>): Map<BaseOp, Int> {
 			val retMap = LinkedHashMap<BaseOp, Int>()
 
 			instructions.fold(0) { offset, op ->

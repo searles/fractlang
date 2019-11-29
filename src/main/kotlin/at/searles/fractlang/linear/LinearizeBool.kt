@@ -6,7 +6,7 @@ import at.searles.fractlang.ops.*
 import at.searles.fractlang.vm.VmInstruction
 import java.lang.IllegalArgumentException
 
-class LinearizeBool(val code: LinearCode, val varNameGenerator: Iterator<String>, val trueLabel: Label, val falseLabel: Label): Visitor<Unit> {
+class LinearizeBool(val code: LinearizedCode, val varNameGenerator: Iterator<String>, val trueLabel: Label, val falseLabel: Label): Visitor<Unit> {
     override fun visit(boolNode: BoolNode) {
         throw IllegalArgumentException("should have been inlined")
     }
@@ -67,6 +67,8 @@ class LinearizeBool(val code: LinearCode, val varNameGenerator: Iterator<String>
     }
 
     override fun visit(block: Block) {
+        require(block.stmts.isNotEmpty())
+
         block.stmts.dropLast(1).forEach {
             it.accept(LinearizeStmt(code, varNameGenerator))
         }
@@ -170,6 +172,10 @@ class LinearizeBool(val code: LinearCode, val varNameGenerator: Iterator<String>
     }
 
     override fun visit(externDecl: ExternDecl) {
+        error("not applicable")
+    }
+
+    override fun visit(externNode: ExternNode) {
         error("not applicable")
     }
 }

@@ -7,7 +7,7 @@ import at.searles.fractlang.ops.BaseOp
 import at.searles.fractlang.ops.Jump
 import at.searles.fractlang.vm.VmInstruction
 
-class LinearizeStmt(val code: LinearCode, val varNameGenerator: Iterator<String>): Visitor<Unit> {
+class LinearizeStmt(val code: LinearizedCode, val varNameGenerator: Iterator<String>): Visitor<Unit> {
 
     override fun visit(app: App) {
         // FIXME Are there any?
@@ -51,10 +51,7 @@ class LinearizeStmt(val code: LinearCode, val varNameGenerator: Iterator<String>
     }
 
     override fun visit(idNode: IdNode) {
-        throw SemanticAnalysisException(
-            "not a stmt",
-            idNode.trace
-        )
+        error("should be caught during semantic analysis")
     }
 
     override fun visit(forStmt: For) {
@@ -175,4 +172,7 @@ class LinearizeStmt(val code: LinearCode, val varNameGenerator: Iterator<String>
         error("not applicable")
     }
 
+    override fun visit(externNode: ExternNode) {
+        error("not applicable")
+    }
 }

@@ -2,7 +2,7 @@ package at.searles.fractlang.linear
 
 import at.searles.fractlang.vm.VmInstruction
 
-class LinearCode {
+class LinearizedCode {
 	val code = ArrayList<CodeLine>()
 
 	var offset: Int = 0
