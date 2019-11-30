@@ -28,8 +28,19 @@ class CompilerInstance(private val sourceCodeStream: ParserStream,
     val externValues: Map<String, String>
             get() = symbolTable.externValues
 
-    fun analyze() {
+    fun analyzeExpr() {
         val ast = FractlangParser.expr.parse(sourceCodeStream)
+            ?: throw SemanticAnalysisException("Could not parse program", sourceCodeStream.createTrace())
+
+        if(!FractlangParser.eof.recognize(sourceCodeStream)) {
+            throw SemanticAnalysisException("Program not fully parsed", sourceCodeStream.createTrace())
+        }
+
+        typedAst = ast.accept(SemanticAnalysisVisitor(symbolTable, varNameGenerator))
+    }
+
+    fun analyze() {
+        val ast = FractlangParser.program.parse(sourceCodeStream)
             ?: throw SemanticAnalysisException("Could not parse program", sourceCodeStream.createTrace())
 
         if(!FractlangParser.eof.recognize(sourceCodeStream)) {

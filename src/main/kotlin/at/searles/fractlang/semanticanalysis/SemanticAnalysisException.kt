@@ -3,6 +3,4 @@ package at.searles.fractlang.semanticanalysis
 import at.searles.parsing.Trace
 import java.lang.RuntimeException
 
-class SemanticAnalysisException(msg: String, trace: Trace) : RuntimeException(
-    msg + "@${trace.start}-${trace.end}"
-)
+class SemanticAnalysisException(message: String, val trace: Trace) : RuntimeException(message)
