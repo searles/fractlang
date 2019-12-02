@@ -1,3 +1,5 @@
+package generators
+
 import at.searles.buf.ReaderCharStream
 import at.searles.lexer.TokenStream
 import at.searles.parsing.ParserStream

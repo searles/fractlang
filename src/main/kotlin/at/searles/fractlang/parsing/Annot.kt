@@ -8,5 +8,6 @@ enum class Annot {
     Keyword,
     DefKeyword,
     Stmt,
-    Block
+    Intent,
+    Newline
 }

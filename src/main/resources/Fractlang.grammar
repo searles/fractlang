@@ -55,7 +55,7 @@ grammar FractlangParser {
     comma: ',' @ `Annot.Comma` ;
     exprList: `expr.list(comma)` ;
 
-    vectorNode: '[' exprList `toVectorNode` ']' ;
+    vectorNode: '[' exprList @ `Annot.Intent` `toVectorNode` ']' ;
 
     atom: intNode     @ `Annot.Num`
         | realNode    @ `Annot.Num`
@@ -63,7 +63,7 @@ grammar FractlangParser {
         | boolNode    @ `Annot.Num`
         | idNode      @ `Annot.Id`
         | vectorNode
-        | '(' expr ')' ;
+        | '(' expr @ `Annot.Intent` ')' ;
 
     argumentsInParentheses: '(' exprList ')' (app >> `listApply`)? ;
     singleArgument: app `CreateSingletonList()` ;
@@ -80,7 +80,7 @@ grammar FractlangParser {
 							| `CreateObject<Node>(If::class.java, true, "condition", "thenBranch")`
 						) ;
 
-	block: '{' stmts `toBlock` @ `Annot.Block` '}' ;
+	block: '{' @ `Annot.Newline` stmts @ `Annot.Intent` `toBlock` @ `Annot.Newline` '}' ;
 
 	absExpr: '|' expr `toUnary(Abs)` '|' ;
 
