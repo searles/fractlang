@@ -6,46 +6,46 @@ import at.searles.fractlang.ops.*
 import at.searles.fractlang.vm.VmInstruction
 import java.lang.IllegalArgumentException
 
-class LinearizeBool(val code: LinearizedCode, val varNameGenerator: Iterator<String>, val trueLabel: Label, val falseLabel: Label): Visitor<Unit> {
+class LinearizeBool(private val code: ArrayList<CodeLine>, private val nameGenerator: Iterator<String>, private val trueLabel: Label, private val falseLabel: Label): Visitor<Unit> {
     override fun visit(boolNode: BoolNode) {
         throw IllegalArgumentException("should have been inlined")
     }
 
     private fun visitAnd(args: List<Node>) {
-        val midLabel = Label()
-        args[0].accept(LinearizeBool(code, varNameGenerator, midLabel, falseLabel))
-        code.addLabel(midLabel)
-        args[1].accept(LinearizeBool(code, varNameGenerator, trueLabel, falseLabel))
+        val midLabel = Label(nameGenerator.next())
+        args[0].accept(LinearizeBool(code, nameGenerator, midLabel, falseLabel))
+        code.add(midLabel)
+        args[1].accept(LinearizeBool(code, nameGenerator, trueLabel, falseLabel))
     }
 
     private fun visitOr(args: List<Node>) {
-        val midLabel = Label()
-        args[0].accept(LinearizeBool(code, varNameGenerator, trueLabel, midLabel))
-        code.addLabel(midLabel)
-        args[1].accept(LinearizeBool(code, varNameGenerator, trueLabel, falseLabel))
+        val midLabel = Label(nameGenerator.next())
+        args[0].accept(LinearizeBool(code, nameGenerator, trueLabel, midLabel))
+        code.add(midLabel)
+        args[1].accept(LinearizeBool(code, nameGenerator, trueLabel, falseLabel))
     }
 
     private fun visitXor(args: List<Node>) {
-        val midTrueLabel = Label()
-        val midFalseLabel = Label()
-        args[0].accept(LinearizeBool(code, varNameGenerator, midTrueLabel, midFalseLabel))
-        code.addLabel(midTrueLabel)
-        args[1].accept(LinearizeBool(code, varNameGenerator, falseLabel, trueLabel))
-        code.addLabel(midFalseLabel)
-        args[1].accept(LinearizeBool(code, varNameGenerator, trueLabel, falseLabel))
+        val midTrueLabel = Label(nameGenerator.next())
+        val midFalseLabel = Label(nameGenerator.next())
+        args[0].accept(LinearizeBool(code, nameGenerator, midTrueLabel, midFalseLabel))
+        code.add(midTrueLabel)
+        args[1].accept(LinearizeBool(code, nameGenerator, falseLabel, trueLabel))
+        code.add(midFalseLabel)
+        args[1].accept(LinearizeBool(code, nameGenerator, trueLabel, falseLabel))
     }
 
     private fun visitNot(args: List<Node>) {
-        args[0].accept(LinearizeBool(code, varNameGenerator, falseLabel, trueLabel))
+        args[0].accept(LinearizeBool(code, nameGenerator, falseLabel, trueLabel))
     }
 
     private fun visitExpr(op: BaseOp, args: List<Node>) {
         val index = op.getArgKindOffset(args)
         val linearizedArgs = args.map {
-            it.accept(LinearizeExpr(code, varNameGenerator, null))
+            it.accept(LinearizeExpr(code, nameGenerator, null))
         }
 
-        code.addInstruction(
+        code.add(
             VmInstruction(
                 op,
                 index,
@@ -62,7 +62,7 @@ class LinearizeBool(val code: LinearizedCode, val varNameGenerator: Iterator<Str
             is Or -> visitOr(app.args)
             is Xor -> visitXor(app.args)
             is Not -> visitNot(app.args)
-            else -> visitExpr(app.head.op as BaseOp, app.args)
+            else -> visitExpr(app.head.op, app.args)
         }
     }
 
@@ -70,20 +70,20 @@ class LinearizeBool(val code: LinearizedCode, val varNameGenerator: Iterator<Str
         require(block.stmts.isNotEmpty())
 
         block.stmts.dropLast(1).forEach {
-            it.accept(LinearizeStmt(code, varNameGenerator))
+            it.accept(LinearizeStmt(code, nameGenerator))
         }
 
         return block.stmts.last().accept(this)
     }
 
     override fun visit(ifElse: IfElse) {
-        val condTrueLabel = Label()
-        val condFalseLabel = Label()
+        val condTrueLabel = Label(nameGenerator.next())
+        val condFalseLabel = Label(nameGenerator.next())
 
-        ifElse.condition.accept(LinearizeBool(code, varNameGenerator, condTrueLabel, condFalseLabel))
-        code.addLabel(condTrueLabel)
+        ifElse.condition.accept(LinearizeBool(code, nameGenerator, condTrueLabel, condFalseLabel))
+        code.add(condTrueLabel)
         ifElse.thenBranch.accept(this)
-        code.addLabel(condFalseLabel)
+        code.add(condFalseLabel)
         ifElse.elseBranch.accept(this)
     }
 

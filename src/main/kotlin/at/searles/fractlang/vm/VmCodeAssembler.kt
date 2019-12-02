@@ -2,27 +2,40 @@ package at.searles.fractlang.vm
 
 import at.searles.commons.math.Cplx
 import at.searles.fractlang.linear.Alloc
-import at.searles.fractlang.linear.LinearizedCode
+import at.searles.fractlang.linear.CodeLine
+import at.searles.fractlang.linear.Label
 import at.searles.fractlang.nodes.IdNode
+import at.searles.fractlang.ops.Assign
 import at.searles.fractlang.ops.BaseOp
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.collections.LinkedHashMap
 
-class VmCodeAssembler(private val linearizedCode: LinearizedCode, instructions: Collection<BaseOp>) {
-
-	// FIXME Currently there are sometimes instructions like $0 = $0.
-	// FIXME Eg in var a = 1; var c = a;
+class VmCodeAssembler(private val linearizedCode: ArrayList<CodeLine>, instructions: Collection<BaseOp>) {
 
 	private val instructionOffsets = createInstructionOffsets(instructions)
+
 	private val memoryOffsets = HashMap<String, Int>()
-	
-	val vmCode = ArrayList<Int>(linearizedCode.offset)
+
+	private val labelOffsets = HashMap<String, Int>()
+
+	val vmCode = ArrayList<Int>()
 	
 	init {
 		initializeMemoryOffsets()
-		linearizedCode.code.filterIsInstance<VmInstruction>().forEach { it.addToVmCode(this) }
+		linearizedCode.removeIf { isSelfAssignment(it) }
+		initializeLabelOffsets()
+		linearizedCode.filterIsInstance<VmInstruction>().forEach { it.addToVmCode(this) }
+	}
+
+	private fun isSelfAssignment(line: CodeLine): Boolean {
+		if(line is VmInstruction && line.op == Assign && line.args[1] is IdNode) {
+			require(memoryOffsets.contains((line.args[0] as IdNode).id))
+			return memoryOffsets[(line.args[0] as IdNode).id] == memoryOffsets[(line.args[1] as IdNode).id]
+		}
+
+		return false
 	}
 
 	fun add(code: Int) {
@@ -41,8 +54,23 @@ class VmCodeAssembler(private val linearizedCode: LinearizedCode, instructions: 
 		add(cplx.im())
 	}
 	
-	fun add(id: String) {
+	fun addVar(id: String) {
 		add(memoryOffsets[id] ?: error("not in memory: $id"))
+	}
+
+	fun addLabel(id: String) {
+		add(labelOffsets[id] ?: error("label not assigned: $id"))
+	}
+
+	private fun initializeLabelOffsets() {
+		var offset = 0
+		linearizedCode.forEach {
+			if(it is VmInstruction) {
+				offset += it.vmCodeSize()
+			} else if(it is Label) {
+				labelOffsets[it.id] = offset
+			}
+		}
 	}
 
 	private fun addToMemoryOffsets(id: String, actives: TreeMap<Int, IdNode>): Int {
@@ -64,7 +92,7 @@ class VmCodeAssembler(private val linearizedCode: LinearizedCode, instructions: 
 	private fun initializeMemoryOffsets() {
 		val actives = TreeMap<Int, IdNode>()
 
-		linearizedCode.code.reversed().forEach { stmt ->
+		linearizedCode.reversed().forEach { stmt ->
 			if (stmt is VmInstruction) {
 				stmt.args.filterIsInstance<IdNode>().forEach { arg ->
 					if (!memoryOffsets.containsKey(arg.id)) {
@@ -84,12 +112,11 @@ class VmCodeAssembler(private val linearizedCode: LinearizedCode, instructions: 
 		}
 	}
 
-
 	/**
 	 * Adds fn call
 	 */
 	fun add(op: BaseOp, index: Int) {
-		val opIndex = instructionOffsets[op] ?: error("missing ${op}")
+		val opIndex = instructionOffsets[op] ?: error("missing $op")
 		add(opIndex + index)
 	}
 

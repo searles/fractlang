@@ -1,6 +1,6 @@
 package at.searles.fractlang
 
-import at.searles.fractlang.linear.LinearizedCode
+import at.searles.fractlang.linear.CodeLine
 import at.searles.fractlang.linear.LinearizeStmt
 import at.searles.fractlang.nodes.Node
 import at.searles.fractlang.parsing.FractlangParser
@@ -109,14 +109,7 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "[" +
-                    "Assign[1] [\$1, 1], " +
-                    "alloc \$1: Int, " +
-                    "Equal[2] [\$1, 1, @14, @21], " +
-                    "@14, " +
-                    "Add[1] [1, \$1, \$1], " +
-                    "@21" +
-                    "]", output)
+            "[Assign[1] [\$1, 1], alloc \$1: Int, Equal[2] [\$1, 1, @R1, @R2], @R1, Add[1] [1, \$1, \$1], @R2]", output)
     }
 
     @Test
@@ -130,14 +123,7 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "[" +
-                    "Assign[1] [\$1, 1], " +
-                    "alloc \$1: Int, " +
-                    "Equal[2] [\$1, 1, @14, @21], " +
-                    "@14, " +
-                    "Add[1] [1, \$1, \$1], " +
-                    "@21" +
-                    "]", output)
+            "[Assign[1] [\$1, 1], alloc \$1: Int, Equal[2] [\$1, 1, @R1, @R2], @R1, Add[1] [1, \$1, \$1], @R2]", output)
     }
 
     @Test
@@ -151,19 +137,17 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "[" +
-                    "Assign[1] [\$1, 1], " +
+            "[Assign[1] [\$1, 1], " +
                     "alloc \$1: Int, " +
-                    "Equal[2] [\$1, 1, @14, @22], " +
-                    "@14, " +
+                    "Equal[2] [\$1, 1, @R2, @R3], " +
+                    "@R2, " +
                     "Assign[1] [R1, 1], " +
-                    "Jump[0] [@28], " +
-                    "@22, " +
+                    "Jump[0] [@R4], " +
+                    "@R3, " +
                     "Assign[1] [R1, 2], " +
-                    "@28, " +
+                    "@R4, " +
                     "alloc R1: Int, " +
-                    "Add[0] [\$1, R1, \$1]" +
-                    "]", output)
+                    "Add[0] [\$1, R1, \$1]]", output)
     }
 
     @Test
@@ -177,30 +161,21 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "[" +
-                    "Assign[1] [\$1, 1], " +
-                    "alloc \$1: Int, " +
-                    "@6, " +
-                    "Less[2] [\$1, 10, @14, @23], " +
-                    "@14, " +
-                    "Add[1] [1, \$1, \$1], " +
-                    "Jump[0] [@6], " +
-                    "@23" +
-                    "]", output)
+            "[Assign[1] [\$1, 1], alloc \$1: Int, @R1, Less[2] [\$1, 10, @R2, @R3], @R2, Add[1] [1, \$1, \$1], Jump[0] [@R1], @R3]", output)
     }
 
     private lateinit var output: String
-    private lateinit var linearized: LinearizedCode
+    private lateinit var linearized: ArrayList<CodeLine>
     private lateinit var inlined: Node
     private lateinit var ast: Node
     private lateinit var stream: ParserStream
 
     private fun actPrint() {
-        output = linearized.code.toString()
+        output = linearized.toString()
     }
 
     private fun actLinearize() {
-        linearized = LinearizedCode()
+        linearized = ArrayList()
         val varNameGenerator = generateSequence(1) { it + 1 }.map { "R$it" }.iterator()
         inlined.accept(LinearizeStmt(linearized, varNameGenerator))
     }

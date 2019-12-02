@@ -1,6 +1,6 @@
 package at.searles.fractlang
 
-import at.searles.fractlang.linear.LinearizedCode
+import at.searles.fractlang.linear.CodeLine
 import at.searles.fractlang.linear.LinearizeStmt
 import at.searles.fractlang.vm.VmCodeAssembler
 import at.searles.fractlang.nodes.Node
@@ -21,7 +21,7 @@ class VmCodeTest {
         actLinearize()
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(0), vmCode)
+        Assert.assertEquals(listOf(30, 0, 99), vmCode)
     }
 
     @Test
@@ -33,7 +33,7 @@ class VmCodeTest {
         actLinearize()
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(0), vmCode)
+        Assert.assertEquals(listOf(30, 0, 50, 30, 1, 25, 0, 0, 1, 0), vmCode)
     }
 
     @Test
@@ -45,7 +45,7 @@ class VmCodeTest {
         actLinearize()
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(0), vmCode)
+        Assert.assertEquals(listOf(30, 0, 50, 1, 25, 0, 0), vmCode)
     }
 
     @Test
@@ -57,11 +57,11 @@ class VmCodeTest {
         actLinearize()
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(0), vmCode)
+        Assert.assertEquals(listOf(32, 0, 0, 1078525952, 32, 2, 0, 1077477376, 2, 0, 2, 0), vmCode)
     }
 
     @Test
-    fun testIfElse() {
+    fun testIfElseAndSelfAssignmentRemoval() {
         withSource("var a = 1; var b = 2; var c = if(a>b) a else b;")
 
         actParse()
@@ -69,24 +69,24 @@ class VmCodeTest {
         actLinearize()
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(0), vmCode)
+        Assert.assertEquals(listOf(30, 1, 1, 30, 0, 2, 38, 0, 1, 11, 16, 29, 0, 1, 35, 16), vmCode)
     }
 
 
     private lateinit var vmCode: List<Int>
-    private lateinit var linearized: LinearizedCode
+    private lateinit var linearized: ArrayList<CodeLine>
     private lateinit var inlined: Node
     private lateinit var ast: Node
     private lateinit var stream: ParserStream
 
-    val instructions = listOf<BaseOp>(Add, Sub, Mul, Div, Mod, Neg, Assign, Jump, Equal, Less)
+    private val instructions = listOf<BaseOp>(Add, Sub, Mul, Div, Mod, Neg, Assign, Jump, Equal, Less)
 
     private fun actCreateVmCode() {
         vmCode = VmCodeAssembler(linearized, instructions).vmCode
     }
 
     private fun actLinearize() {
-        linearized = LinearizedCode()
+        linearized = ArrayList()
         val varNameGenerator = generateSequence(1) { it + 1 }.map { "R$it" }.iterator()
         inlined.accept(LinearizeStmt(linearized, varNameGenerator))
     }

@@ -7,7 +7,7 @@ import at.searles.fractlang.ops.BaseOp
 import at.searles.fractlang.ops.Jump
 import at.searles.fractlang.vm.VmInstruction
 
-class LinearizeStmt(val code: LinearizedCode, val varNameGenerator: Iterator<String>): Visitor<Unit> {
+class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGenerator: Iterator<String>): Visitor<Unit> {
 
     override fun visit(app: App) {
         // FIXME Are there any?
@@ -16,8 +16,8 @@ class LinearizeStmt(val code: LinearizedCode, val varNameGenerator: Iterator<Str
 
         val op: BaseOp = app.head.op
 
-        val linearizedArgs = app.args.map { it.accept(LinearizeExpr(code, varNameGenerator, null))}
-        code.addInstruction(
+        val linearizedArgs = app.args.map { it.accept(LinearizeExpr(code, nameGenerator, null))}
+        code.add(
             VmInstruction(
                 op,
                 op.getArgKindOffset(app.args),
@@ -28,7 +28,7 @@ class LinearizeStmt(val code: LinearizedCode, val varNameGenerator: Iterator<Str
 
     override fun visit(assignment: Assignment) {
         require(assignment.lhs is IdNode)
-        assignment.rhs.accept(LinearizeExpr(code, varNameGenerator, assignment.lhs))
+        assignment.rhs.accept(LinearizeExpr(code, nameGenerator, assignment.lhs))
     }
 
     override fun visit(block: Block) {
@@ -47,7 +47,7 @@ class LinearizeStmt(val code: LinearizedCode, val varNameGenerator: Iterator<Str
             )
         }
 
-        code.alloc(Alloc(varDecl.name, varDecl.varType!!))
+        code.add(Alloc(varDecl.name, varDecl.varType))
     }
 
     override fun visit(idNode: IdNode) {
@@ -62,47 +62,47 @@ class LinearizeStmt(val code: LinearizedCode, val varNameGenerator: Iterator<Str
     }
 
     override fun visit(ifStmt: If) {
-        val trueLabel = Label()
-        val falseLabel = Label()
+        val trueLabel = Label(nameGenerator.next())
+        val falseLabel = Label(nameGenerator.next())
 
-        ifStmt.condition.accept(LinearizeBool(code, varNameGenerator, trueLabel, falseLabel))
-        code.addLabel(trueLabel)
+        ifStmt.condition.accept(LinearizeBool(code, nameGenerator, trueLabel, falseLabel))
+        code.add(trueLabel)
         ifStmt.thenBranch.accept(this)
-        code.addLabel(falseLabel)
+        code.add(falseLabel)
     }
 
     override fun visit(ifElse: IfElse) {
-        val trueLabel = Label()
-        val falseLabel = Label()
-        val endLabel = Label()
+        val trueLabel = Label(nameGenerator.next())
+        val falseLabel = Label(nameGenerator.next())
+        val endLabel = Label(nameGenerator.next())
 
-        ifElse.condition.accept(LinearizeBool(code, varNameGenerator, trueLabel, falseLabel))
-        code.addLabel(trueLabel)
+        ifElse.condition.accept(LinearizeBool(code, nameGenerator, trueLabel, falseLabel))
+        code.add(trueLabel)
         ifElse.thenBranch.accept(this)
-        code.addInstruction(VmInstruction(Jump, 0, listOf(endLabel)))
-        code.addLabel(falseLabel)
+        code.add(VmInstruction(Jump, 0, listOf(endLabel)))
+        code.add(falseLabel)
         ifElse.elseBranch.accept(this)
-        code.addLabel(endLabel)
+        code.add(endLabel)
     }
 
     override fun visit(whileStmt: While) {
-        val startLabel = Label()
-        val trueLabel = Label()
-        val falseLabel = Label()
+        val startLabel = Label(nameGenerator.next())
+        val trueLabel = Label(nameGenerator.next())
+        val falseLabel = Label(nameGenerator.next())
 
-        code.addLabel(startLabel)
+        code.add(startLabel)
         whileStmt.condition.accept(
             LinearizeBool(
                 code,
-                varNameGenerator,
+                nameGenerator,
                 trueLabel,
                 falseLabel
             )
         )
-        code.addLabel(trueLabel)
+        code.add(trueLabel)
         whileStmt.body.accept(this)
-        code.addInstruction(VmInstruction(Jump, 0, listOf(startLabel)))
-        code.addLabel(falseLabel)
+        code.add(VmInstruction(Jump, 0, listOf(startLabel)))
+        code.add(falseLabel)
     }
 
     override fun visit(intNode: IntNode) {

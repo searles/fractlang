@@ -1,6 +1,6 @@
 package at.searles.fractlang
 
-import at.searles.fractlang.linear.LinearizedCode
+import at.searles.fractlang.linear.CodeLine
 import at.searles.fractlang.linear.LinearizeStmt
 import at.searles.fractlang.nodes.Node
 import at.searles.fractlang.ops.BaseOp
@@ -19,7 +19,7 @@ class CompilerInstance(private val sourceCodeStream: ParserStream,
     private val varNameGenerator = generateSequence(0) { it + 1 }.map { "\$$it" }.iterator()
 
     private lateinit var typedAst: Node
-    private lateinit var linearizedCode: LinearizedCode
+    private lateinit var linearizedCode: ArrayList<CodeLine>
     private lateinit var vmCodeAssembler: VmCodeAssembler
 
     val vmCode: List<Int>
@@ -52,7 +52,7 @@ class CompilerInstance(private val sourceCodeStream: ParserStream,
 
     fun compile() {
         analyze()
-        linearizedCode = LinearizedCode()
+        linearizedCode = ArrayList()
         typedAst.accept(LinearizeStmt(linearizedCode, varNameGenerator))
         vmCodeAssembler = VmCodeAssembler(linearizedCode, instructions.values.filterIsInstance<BaseOp>())
     }

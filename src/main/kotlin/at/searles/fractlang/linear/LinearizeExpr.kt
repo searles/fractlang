@@ -9,7 +9,7 @@ import at.searles.fractlang.ops.Jump
 import at.searles.fractlang.vm.VmArg
 import at.searles.fractlang.vm.VmInstruction
 
-class LinearizeExpr(private val code: LinearizedCode, private val varNameGenerator: Iterator<String>, private val optTargetNode: IdNode?): Visitor<VmArg> {
+class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGenerator: Iterator<String>, private val optTargetNode: IdNode?): Visitor<VmArg> {
 
     override fun visit(app: App): VmArg {
         val op = (app.head as OpNode).op as BaseOp
@@ -19,41 +19,41 @@ class LinearizeExpr(private val code: LinearizedCode, private val varNameGenerat
         val linearizedArgs = app.args.map { it.accept(
             LinearizeExpr(
                 code,
-                varNameGenerator,
+                nameGenerator,
                 null
             )
         )}
 
-        val target = optTargetNode ?: IdNode(app.trace, varNameGenerator.next()).apply { type = app.type }
+        val target = optTargetNode ?: IdNode(app.trace, nameGenerator.next()).apply { type = app.type }
 
         // last argument is the target.
-        code.addInstruction(VmInstruction(op, index, linearizedArgs + target))
+        code.add(VmInstruction(op, index, linearizedArgs + target))
 
         if(optTargetNode == null) {
-            code.alloc(Alloc(target.id, target.type))
+            code.add(Alloc(target.id, target.type))
         }
 
         return target
     }
 
     override fun visit(ifElse: IfElse): VmArg {
-        val targetNode = optTargetNode ?: IdNode(ifElse.trace, varNameGenerator.next()).apply { type = ifElse.type }
+        val targetNode = optTargetNode ?: IdNode(ifElse.trace, nameGenerator.next()).apply { type = ifElse.type }
 
         // last argument is the target.
-        val trueLabel = Label()
-        val falseLabel = Label()
-        val endLabel = Label()
+        val trueLabel = Label(nameGenerator.next())
+        val falseLabel = Label(nameGenerator.next())
+        val endLabel = Label(nameGenerator.next())
 
-        ifElse.condition.accept(LinearizeBool(code, varNameGenerator, trueLabel, falseLabel))
-        code.addLabel(trueLabel)
-        ifElse.thenBranch.accept(LinearizeExpr(code, varNameGenerator, targetNode))
-        code.addInstruction(VmInstruction(Jump, 0, listOf(endLabel)))
-        code.addLabel(falseLabel)
-        ifElse.elseBranch.accept(LinearizeExpr(code, varNameGenerator, targetNode))
-        code.addLabel(endLabel)
+        ifElse.condition.accept(LinearizeBool(code, nameGenerator, trueLabel, falseLabel))
+        code.add(trueLabel)
+        ifElse.thenBranch.accept(LinearizeExpr(code, nameGenerator, targetNode))
+        code.add(VmInstruction(Jump, 0, listOf(endLabel)))
+        code.add(falseLabel)
+        ifElse.elseBranch.accept(LinearizeExpr(code, nameGenerator, targetNode))
+        code.add(endLabel)
 
         if(optTargetNode == null) {
-            code.alloc(Alloc(targetNode.id, targetNode.type))
+            code.add(Alloc(targetNode.id, targetNode.type))
         }
 
         return targetNode
@@ -70,7 +70,7 @@ class LinearizeExpr(private val code: LinearizedCode, private val varNameGenerat
         }
 
         block.stmts.dropLast(1).forEach {
-            it.accept(LinearizeStmt(code, varNameGenerator))
+            it.accept(LinearizeStmt(code, nameGenerator))
         }
 
         return block.stmts.last().accept(this)
@@ -88,7 +88,7 @@ class LinearizeExpr(private val code: LinearizedCode, private val varNameGenerat
         if(optTargetNode != null) {
             val args =  listOf(optTargetNode, arg)
             @Suppress("UNCHECKED_CAST")
-            code.addInstruction(
+            code.add(
                 VmInstruction(
                     Assign,
                     Assign.getArgKindOffset(args as List<Node>),
