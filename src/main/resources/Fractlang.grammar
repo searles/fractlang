@@ -16,14 +16,12 @@ import at.searles.fractlang.nodes.*
 grammar FractlangParser {
     regex eof: `Regex.eof()` ;
 
-    regex ws: [\x09\x0b\r \xa0\u1680\u2000-\u200a\u202f\u205f\u3000]+ ;
-	regex nl: "\r\n" | "\n" | "\x0c" | "\x85" | "\u2028" | "\u2029" ; // keep newlines separated for formatting.
+    regex ws: [\t\x0b\r\n\x0c \x85\xa0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]+ ;
     regex mlComment: ('/*' .* '*/')! ;
-    regex slComment: '//' [^\n]* ; // FIXME!!!
+    regex slComment: '//' [^\n]* ;
 
 {{{    init {
         tokenizer.addSkipped(ws.tokenId)
-        tokenizer.addSkipped(nl.tokenId)
         tokenizer.addSkipped(slComment.tokenId)
         tokenizer.addSkipped(mlComment.tokenId)
     }

@@ -32,6 +32,6 @@ class GenerateParser {
     }
 
     companion object {
-        val createFiles = true // switch to create parser-file
+        const val createFiles = false // switch to create parser-file
     }
 }
