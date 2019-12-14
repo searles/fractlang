@@ -72,6 +72,17 @@ class VmCodeTest {
         Assert.assertEquals(listOf(30, 1, 1, 30, 0, 2, 38, 0, 1, 11, 16, 29, 0, 1, 35, 16), vmCode)
     }
 
+    @Test
+    fun testPointAndSetResult() {
+        withSource("var a = point(); setResult(1, 2 : 3, 4);")
+
+        actParse()
+        actInline()
+        actLinearize()
+        actCreateVmCode()
+
+        Assert.assertEquals(listOf(42, 0, 50, 1, 0, 1073741824, 0, 1074266112, 0, 1074790400), vmCode)
+    }
 
     private lateinit var vmCode: List<Int>
     private lateinit var linearized: ArrayList<CodeLine>
@@ -79,7 +90,7 @@ class VmCodeTest {
     private lateinit var ast: Node
     private lateinit var stream: ParserStream
 
-    private val instructions = listOf<BaseOp>(Add, Sub, Mul, Div, Mod, Neg, Assign, Jump, Equal, Less)
+    private val instructions = listOf<BaseOp>(Add, Sub, Mul, Div, Mod, Neg, Assign, Jump, Equal, Less, Point, SetResult)
 
     private fun actCreateVmCode() {
         vmCode = VmCodeAssembler(linearized, instructions).vmCode
@@ -92,7 +103,7 @@ class VmCodeTest {
     }
 
     private fun actInline() {
-        val rootTable = RootSymbolTable(emptyMap(), emptyMap())
+        val rootTable = RootSymbolTable(mapOf("point" to Point, "setResult" to SetResult), emptyMap())
 
         val varNameGenerator = generateSequence(1) { it + 1 }.map { "\$$it" }.iterator()
 

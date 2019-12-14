@@ -1,6 +1,5 @@
 package at.searles.fractlang.linear
 
-import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.fractlang.Visitor
 import at.searles.fractlang.nodes.*
 import at.searles.fractlang.ops.Assign
@@ -61,13 +60,6 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
 
     override fun visit(block: Block): VmArg {
         require(block.stmts.isNotEmpty())
-        if(block.stmts.isEmpty()) {
-            // FIXME shouldn't this be caught before?
-            throw SemanticAnalysisException(
-                "not an expression",
-                block.trace
-            )
-        }
 
         block.stmts.dropLast(1).forEach {
             it.accept(LinearizeStmt(code, nameGenerator))
@@ -113,6 +105,10 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
         return assignIfTargetNode(cplxNode)
     }
 
+    override fun visit(opNode: OpNode): VmArg {
+        return visit(App(opNode.trace, opNode, emptyList()))
+    }
+
     override fun visit(boolNode: BoolNode): VmArg {
         error("not applicable")
     }
@@ -138,10 +134,6 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(funEnv: FunEnv): VmArg {
-        error("not applicable")
-    }
-
-    override fun visit(opNode: OpNode): VmArg {
         error("not applicable")
     }
 

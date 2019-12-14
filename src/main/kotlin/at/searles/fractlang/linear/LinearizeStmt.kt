@@ -5,13 +5,12 @@ import at.searles.fractlang.Visitor
 import at.searles.fractlang.nodes.*
 import at.searles.fractlang.ops.BaseOp
 import at.searles.fractlang.ops.Jump
+import at.searles.fractlang.vm.VmArg
 import at.searles.fractlang.vm.VmInstruction
 
 class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGenerator: Iterator<String>): Visitor<Unit> {
 
     override fun visit(app: App) {
-        // FIXME Are there any?
-        error("test")
         require(app.head is OpNode && app.head.op is BaseOp)
 
         val op: BaseOp = app.head.op
@@ -105,6 +104,10 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
         code.add(falseLabel)
     }
 
+    override fun visit(opNode: OpNode) {
+        return visit(App(opNode.trace, opNode, emptyList()))
+    }
+
     override fun visit(intNode: IntNode) {
         error("not applicable")
     }
@@ -122,10 +125,6 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(boolNode: BoolNode) {
-        error("not applicable")
-    }
-
-    override fun visit(opNode: OpNode) {
         error("not applicable")
     }
 

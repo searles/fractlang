@@ -6,10 +6,29 @@ import at.searles.fractlang.ops.*
 object VmGenerator {
 
 	private val header = """
-int main() {
-	int pc = 0;
+#include "complex.rsh"
+
+static float3 createResult(int layer, double2 value, double height) {
+    float2 fValue = convert_float2(value);
+
+    fValue = fValue - floor(fValue);
+
+    return (float3) {
+        (float) (fValue.x + layer),
+        (float) fValue.y,
+        (float) height
+    };
+}
+
+int *code;
+uint32_t codeSize;
+
+static float3 valueAt(double2 pt) {
+	uint32_t pc = 0;
 	
-	int data[1024];
+	int data[256];
+	
+	float3 result;
 	
 	while(pc < codeSize) {
 		switch(code[pc]) {
@@ -18,6 +37,8 @@ int main() {
 	private val footer = """
 		}
 	}
+	
+	return result;
 }
 	""".trimIndent()
 
@@ -108,7 +129,8 @@ int main() {
 			is Mul -> generateMul(offset, args, ret)
 			is Div -> generateDiv(offset, args, ret)
 			is Mod -> "$ret = ${args[0]} % ${args[1]}; "
-			is Neg -> "$ret = -${args[0]};"
+			is Neg -> "$ret = -${args[0]}; "
+			is Point -> "$ret = pt; "
 			else -> throw IllegalArgumentException("not implemented: $op")
 		}
 		
@@ -131,6 +153,7 @@ int main() {
 		return when(op) {
 			is Jump -> "pc = ${args[0]}; "
 			is Assign -> "${args[0]} = ${args[1]}; pc += $relativeOffset; "
+			is SetResult -> "result = createResult(${args[0]}, ${args[1]}, ${args[2]}); "
 			// TODO relative jump: return "pc = code[pc + relativeOffset + ${args[0]}]"
 			else -> throw IllegalArgumentException("not implemented: $op")
 		}

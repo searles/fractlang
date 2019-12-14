@@ -6,6 +6,9 @@ import at.searles.fractlang.Type
 import at.searles.fractlang.nodes.App
 import at.searles.parsing.Trace
 
+/**
+ * These operations are directly executed in the Vm.
+ */
 abstract class BaseOp(vararg val signatures: Signature) : Op {
 
     override fun apply(trace: Trace, args: List<Node>): Node {

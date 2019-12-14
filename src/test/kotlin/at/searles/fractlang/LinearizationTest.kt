@@ -3,6 +3,8 @@ package at.searles.fractlang
 import at.searles.fractlang.linear.CodeLine
 import at.searles.fractlang.linear.LinearizeStmt
 import at.searles.fractlang.nodes.Node
+import at.searles.fractlang.ops.Point
+import at.searles.fractlang.ops.SetResult
 import at.searles.fractlang.parsing.FractlangParser
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
@@ -164,6 +166,20 @@ class LinearizationTest {
             "[Assign[1] [\$1, 1], alloc \$1: Int, @R1, Less[2] [\$1, 10, @R2, @R3], @R2, Add[1] [1, \$1, \$1], Jump[0] [@R1], @R3]", output)
     }
 
+    @Test
+    fun testPointSetResult() {
+        withSource("var a = point; setResult(1, a, 2)")
+
+        actParse()
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals(
+            "[Point[0] [\$1], alloc \$1: Cplx, SetResult[5] [1, \$1, 2.0]]", output)
+    }
+
     private lateinit var output: String
     private lateinit var linearized: ArrayList<CodeLine>
     private lateinit var inlined: Node
@@ -181,7 +197,7 @@ class LinearizationTest {
     }
 
     private fun actInline() {
-        val rootTable = RootSymbolTable(emptyMap(), emptyMap())
+        val rootTable = RootSymbolTable(mapOf("point" to Point, "setResult" to SetResult), emptyMap())
 
         val varNameGenerator = generateSequence(1) { it + 1 }.map { "\$$it" }.iterator()
 
