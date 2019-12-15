@@ -57,11 +57,11 @@ class CompilerInstance(private val sourceCodeStream: ParserStream,
         analyze()
         linearizedCode = ArrayList()
         typedAst.accept(LinearizeStmt(linearizedCode, varNameGenerator))
-        vmCodeAssembler = VmCodeAssembler(linearizedCode, instructions.values.filterIsInstance<BaseOp>())
+        vmCodeAssembler = VmCodeAssembler(linearizedCode, vmInstructions)
     }
 
     companion object {
-        val instructions = listOf(Add, Sub, Mul, Div, Mod, Neg, Reciprocal, Abs, Assign, Jump, Equal, Less, RealPart, ImaginaryPart, Point, SetResult)
+        val vmInstructions = listOf(Add, Sub, Mul, Div, Mod, Neg, Reciprocal, Abs, Assign, Jump, Equal, Less, RealPart, ImaginaryPart, Point, SetResult)
         val namedInstructions = mapOf(
             "abs" to Abs,
             "neg" to Neg,

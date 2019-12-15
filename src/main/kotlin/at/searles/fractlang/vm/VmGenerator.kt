@@ -62,8 +62,8 @@ static float3 valueAt(double2 pt) {
 		
 		return when(config.type) {
 			BaseTypes.Int -> intAccess
-			BaseTypes.Real -> "*((double*) (&$intAccess))"
-			BaseTypes.Cplx -> "*((double2*) (&$intAccess))"
+			BaseTypes.Real -> "(*((double*) (&$intAccess)))"
+			BaseTypes.Cplx -> "(*((double2*) (&$intAccess)))"
 			else -> error("must be a base type")
 		}
 	}
