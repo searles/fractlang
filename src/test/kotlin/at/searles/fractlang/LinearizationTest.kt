@@ -115,6 +115,28 @@ class LinearizationTest {
     }
 
     @Test
+    fun testSetResult() {
+        withSource("setResult(0, 1 / point, re(point));")
+
+        actParse()
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals(
+            "[Point[0] [R1], " +
+                    "alloc R1: Cplx, " +
+                    "Reciprocal[1] [R1, R2], " +
+                    "alloc R2: Cplx, " +
+                    "Point[0] [R3], " +
+                    "alloc R3: Cplx, " +
+                    "RealPart[0] [R3, R4], " +
+                    "alloc R4: Real, " +
+                    "SetResult[1] [0, R2, R4]]", output)
+    }
+
+    @Test
     fun testIfElseStmt() {
         withSource("var a = 1; if(a == 1) a = a + 1; else a = a + 2")
 
@@ -197,7 +219,7 @@ class LinearizationTest {
     }
 
     private fun actInline() {
-        val rootTable = RootSymbolTable(mapOf("point" to Point, "setResult" to SetResult), emptyMap())
+        val rootTable = RootSymbolTable(CompilerInstance.namedInstructions, emptyMap())
 
         val varNameGenerator = generateSequence(1) { it + 1 }.map { "\$$it" }.iterator()
 

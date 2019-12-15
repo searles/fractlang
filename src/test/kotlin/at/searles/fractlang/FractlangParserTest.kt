@@ -74,6 +74,24 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
     }
 
     @Test
+    fun testAbsVar() {
+        val input = ParserStream.fromString("var a = |1|")
+        val ast = FractlangParser.program.parse(input)
+        val source = FractlangParser.program.print(ast)
+
+        Assert.assertEquals("vara=|1|;", source?.toString())
+    }
+
+    @Test
+    fun testAbsAdd() {
+        val input = ParserStream.fromString("var a = |1|+|2-|3||")
+        val ast = FractlangParser.program.parse(input)
+        val source = FractlangParser.program.print(ast)
+
+        Assert.assertEquals("vara=|1|+|2-|3||;", source?.toString())
+    }
+
+    @Test
     fun testTypedVar() {
         val input = ParserStream.fromString("var a: Int")
         val ast = FractlangParser.program.parse(input)

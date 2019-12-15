@@ -157,7 +157,7 @@ object FractlangParser {
 
     // position 3084-3209
     init {
-        literal.set(context.text("-").then(literal).then(toUnary(Neg)).or(context.text("/").then(literal).then(toUnary(Recip))).or(term))
+        literal.set(context.text("-").then(literal).then(toUnary(Neg)).or(context.text("/").then(literal).then(toUnary(Reciprocal))).or(term))
     }
 
     // position 3240-3288

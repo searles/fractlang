@@ -341,7 +341,7 @@ object Optimizer {
 		}
 
 		// //x ->
-		if(isOp(args[0], Recip)) return (args[0] as App).args[0]
+		if(isOp(args[0], Reciprocal)) return (args[0] as App).args[0]
 
 		// /(x / y) -> y / x
 		if(isOp(
@@ -353,6 +353,20 @@ object Optimizer {
             listOf((args[0] as App).args[1], (args[0] as App).args[0])
         )
 
-		return createApp(trace, Neg, args)
+		return createApp(trace, Reciprocal, args)
 	}
+
+    fun re(trace: Trace, args: List<Node>): Node {
+        return when(args[0]) {
+            is CplxNode -> RealNode(trace, (args[0] as CplxNode).value.re())
+            else -> createApp(trace, RealPart, args)
+        }
+    }
+
+    fun im(trace: Trace, args: List<Node>): Node {
+        return when(args[0]) {
+            is CplxNode -> RealNode(trace, (args[0] as CplxNode).value.im())
+            else -> createApp(trace, RealPart, args)
+        }
+    }
 }

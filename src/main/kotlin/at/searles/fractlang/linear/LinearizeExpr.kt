@@ -106,7 +106,11 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(opNode: OpNode): VmArg {
-        return visit(App(opNode.trace, opNode, emptyList()))
+        return visit(App(opNode.trace, opNode, emptyList()).apply { type = (opNode.op as BaseOp).signatures[0].returnType })
+    }
+
+    override fun visit(qualifiedNode: QualifiedNode): VmArg {
+        error("not applicable")
     }
 
     override fun visit(boolNode: BoolNode): VmArg {
@@ -154,10 +158,6 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(funDecl: FunDecl): VmArg {
-        error("not applicable")
-    }
-
-    override fun visit(qualifiedNode: QualifiedNode): VmArg {
         error("not applicable")
     }
 

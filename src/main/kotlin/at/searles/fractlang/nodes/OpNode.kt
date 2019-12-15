@@ -9,10 +9,10 @@ import at.searles.parsing.Trace
 class OpNode(trace: Trace, val op: Op) : Node(trace) {
 
     init {
-        if(op is BaseOp && op.signatures.size == 1 && op.signatures[0].argTypes.isEmpty()) {
-            type = op.signatures[0].returnType
+        type = if(op is BaseOp && op.signatures.size == 1 && op.signatures[0].argTypes.isEmpty()) {
+            op.signatures[0].returnType
         } else {
-            type = BaseTypes.Unit
+            BaseTypes.Unit
         }
     }
 

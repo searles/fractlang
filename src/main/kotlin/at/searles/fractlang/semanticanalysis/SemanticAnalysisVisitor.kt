@@ -84,14 +84,15 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
     override fun visit(qualifiedNode: QualifiedNode): Node {
         val instance = qualifiedNode.instance.accept(this)
 
-        if(instance !is HasMembers) {
-            throw SemanticAnalysisException(
-				"node does not allow members",
-				qualifiedNode.trace
-			)
-        }
+        if(instance is ObjectNode) {
+			// It is an object or a complex number
+			return instance.getMember(qualifiedNode.trace, qualifiedNode.qualifier)
+		}
 
-        return instance.getMember(qualifiedNode.trace, qualifiedNode.qualifier)
+		throw SemanticAnalysisException(
+			"not an object",
+			qualifiedNode.trace
+		)
     }
 
 	override fun visit(valDecl: ValDecl): Node {

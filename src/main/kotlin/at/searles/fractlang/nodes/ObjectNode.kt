@@ -5,12 +5,12 @@ import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.fractlang.Visitor
 import at.searles.parsing.Trace
 
-class ObjectNode(trace: Trace, private val table: Map<String, Node>) : HasMembers, Node(trace) {
+class ObjectNode(trace: Trace, private val table: Map<String, Node>) : Node(trace) {
     init {
         type = BaseTypes.Obj
     }
 
-    override fun getMember(trace: Trace, memberId: String): Node {
+    fun getMember(trace: Trace, memberId: String): Node {
         return table[memberId] ?: throw SemanticAnalysisException(
             "no such member",
             trace

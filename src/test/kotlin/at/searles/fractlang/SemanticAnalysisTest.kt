@@ -304,7 +304,7 @@ class SemanticAnalysisTest {
     }
 
     private fun actInline() {
-        val rootTable = RootSymbolTable(emptyMap(), emptyMap())
+        val rootTable = RootSymbolTable(CompilerInstance.namedInstructions, emptyMap())
         val varNameGenerator = generateSequence(1) { it + 1 }.map { "_$it" }.iterator()
 
         inlined = ast.accept(

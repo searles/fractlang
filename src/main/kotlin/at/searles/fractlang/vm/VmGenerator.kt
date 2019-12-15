@@ -130,7 +130,11 @@ static float3 valueAt(double2 pt) {
 			is Div -> generateDiv(offset, args, ret)
 			is Mod -> "$ret = ${args[0]} % ${args[1]}; "
 			is Neg -> "$ret = -${args[0]}; "
+			is Reciprocal -> generateRecip(offset, args[0], ret)
 			is Point -> "$ret = pt; "
+			is RealPart -> "$ret = ${args[0]}.x; "
+			is ImaginaryPart -> "$ret = ${args[0]}.y; "
+			is Abs -> generateAbs(offset, args[0], ret)
 			else -> throw IllegalArgumentException("not implemented: $op")
 		}
 		
@@ -176,6 +180,26 @@ static float3 valueAt(double2 pt) {
 			"$ret = cdiv(${args[0]}, ${args[1]}); "
 		} else {
 			"$ret = ${args[0]} / ${args[1]}; "
+		}
+	}
+
+	private fun generateRecip(offset: Int, arg: String, ret: String): String {
+		val signature = Reciprocal.getSignatureAt(offset)
+
+		return if(signature.returnType == BaseTypes.Cplx) {
+			"$ret = cdiv((double2) {1., 0.}, $arg); "
+		} else {
+			"$ret = 1.0 / $arg; "
+		}
+	}
+
+	private fun generateAbs(offset: Int, arg: String, ret: String): String {
+		val signature = Abs.getSignatureAt(offset)
+
+		return if(signature.returnType == BaseTypes.Cplx) {
+			"$ret = cabs($arg); "
+		} else {
+			"if($arg < 0) $ret = -$arg; else $ret = $arg; "
 		}
 	}
 }

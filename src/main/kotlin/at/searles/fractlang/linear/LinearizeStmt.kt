@@ -105,7 +105,7 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(opNode: OpNode) {
-        return visit(App(opNode.trace, opNode, emptyList()))
+        return visit(App(opNode.trace, opNode, emptyList()).apply { type = (opNode.op as BaseOp).signatures[0].returnType })
     }
 
     override fun visit(intNode: IntNode) {

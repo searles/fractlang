@@ -1,6 +1,7 @@
 package at.searles.fractlang.vm
 
 import at.searles.commons.math.Cplx
+import at.searles.fractlang.Type
 import at.searles.fractlang.linear.Alloc
 import at.searles.fractlang.linear.CodeLine
 import at.searles.fractlang.linear.Label
