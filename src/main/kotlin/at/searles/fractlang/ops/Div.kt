@@ -6,7 +6,6 @@ import at.searles.fractlang.nodes.Node
 import at.searles.parsing.Trace
 
 object Div: HasSpecialSyntax, StandardOp (
-    Signature(BaseTypes.Int, BaseTypes.Int, BaseTypes.Int),
     Signature(BaseTypes.Real, BaseTypes.Real, BaseTypes.Real),
     Signature(BaseTypes.Cplx, BaseTypes.Cplx, BaseTypes.Cplx)
 ) {

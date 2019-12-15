@@ -9,7 +9,7 @@ import java.io.File
 class GenerateVm {
     @Test
     fun test() {
-        val vm = VmGenerator.generateVm(CompilerInstance.instructions)
+        val vm = VmGenerator.generateVm(CompilerInstance.vmInstructions)
 
         File("generated/vm.rsh").writeText(vm)
     }

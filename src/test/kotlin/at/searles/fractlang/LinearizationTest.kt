@@ -201,15 +201,14 @@ class LinearizationTest {
         Assert.assertEquals(
             "[Assign[1] [\$1, 1], " +
                     "alloc \$1: Int, " +
-                    "Equal[2] [\$1, 1, @R2, @R3], " +
-                    "@R2, " +
-                    "Assign[1] [R1, 1], " +
-                    "Jump[0] [@R4], " +
-                    "@R3, " +
-                    "Assign[1] [R1, 2], " +
-                    "@R4, " +
-                    "alloc R1: Int, " +
-                    "Add[0] [\$1, R1, \$1]]", output)
+                    "ToReal[0] [\$1, R1], " +
+                    "alloc R1: Real, " +
+                    "Mul[3] [0.5, R1, \$2], " +
+                    "alloc \$2: Real, " +
+                    "ToReal[0] [\$1, R2], " +
+                    "alloc R2: Real, " +
+                    "Div[1] [2.0, R2, \$3], " +
+                    "alloc \$3: Real]", output)
     }
 
     @Test
