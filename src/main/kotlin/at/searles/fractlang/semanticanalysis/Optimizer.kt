@@ -269,7 +269,7 @@ object Optimizer {
 	}
 
 	fun div(trace: Trace, args: List<Node>): Node {
-		// N - N -> N
+		// N / N -> N
 		if(isAllNum(args)) {
 			return when(val arg0 = args[0]) {
 				is IntNode -> IntNode(trace, arg0.value / (args[1] as IntNode).value)

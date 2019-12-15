@@ -175,6 +175,44 @@ class LinearizationTest {
     }
 
     @Test
+    fun testModExpr() {
+        withSource("var a = 1; var b = a % 2; var c = 2 % a;")
+
+        actParse()
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals(
+            "[Assign[1] [\$1, 1], alloc \$1: Int, Mod[1] [\$1, 2, \$2], alloc \$2: Int, Mod[0] [2, \$1, \$3], alloc \$3: Int]", output)
+    }
+
+    @Test
+    fun testDivExpr() {
+        withSource("var a = 1; var b = a / 2; var c = 2 / a;")
+
+        actParse()
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals(
+            "[Assign[1] [\$1, 1], " +
+                    "alloc \$1: Int, " +
+                    "Equal[2] [\$1, 1, @R2, @R3], " +
+                    "@R2, " +
+                    "Assign[1] [R1, 1], " +
+                    "Jump[0] [@R4], " +
+                    "@R3, " +
+                    "Assign[1] [R1, 2], " +
+                    "@R4, " +
+                    "alloc R1: Int, " +
+                    "Add[0] [\$1, R1, \$1]]", output)
+    }
+
+    @Test
     fun testWhileStmt() {
         withSource("var a = 1; while(a < 10) a = a + 1")
 
