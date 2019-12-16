@@ -135,6 +135,16 @@ static float3 valueAt(double2 pt) {
 			is RealPart -> "$ret = ${args[0]}.x; "
 			is ImaginaryPart -> "$ret = ${args[0]}.y; "
 			is Abs -> generateAbs(offset, args[0], ret)
+			is Sqrt -> "$ret = sqrt(${args[0]}); "
+			is Exp -> "$ret = exp(${args[0]}); "
+			is Log -> "$ret = log(${args[0]}); "
+			is Sin -> "$ret = sin(${args[0]}); "
+			is Cos -> "$ret = cos(${args[0]}); "
+			is Sinh -> "$ret = sinh(${args[0]}); "
+			is Cosh -> "$ret = cosh(${args[0]}); "
+			is Pow -> "$ret = pow(${args[0]}, ${args[1]}); "
+			is Rad -> "$ret = rad(${args[0]}); "
+			is Arc -> "$ret = arc(${args[0]}); "
 			else -> throw IllegalArgumentException("not implemented: $op")
 		}
 		
@@ -148,7 +158,7 @@ static float3 valueAt(double2 pt) {
 		return when(op) {
 			is Equal -> "if(${args[0]} == ${args[1]}) pc = $trueLabel; else pc = $falseLabel;"
 			is Less -> "if(${args[0]} < ${args[1]}) pc = $trueLabel; else pc = $falseLabel;"
-			// TODO is Next -> "if(++${args[0]} < ${args[1]}) pc = $trueLabel; else pc = $falseLabel;"
+			is Next -> "if(++${args[0]} < ${args[1]}) pc = $trueLabel; else pc = $falseLabel;"
 			else -> throw IllegalArgumentException("not implemented: $op")
 		}
 	}
@@ -157,7 +167,7 @@ static float3 valueAt(double2 pt) {
 		return when(op) {
 			is Jump -> "pc = ${args[0]}; "
 			is Assign -> "${args[0]} = ${args[1]}; pc += $relativeOffset; "
-			is SetResult -> "result = createResult(${args[0]}, ${args[1]}, ${args[2]}); "
+			is SetResult -> "result = createResult(${args[0]}, ${args[1]}, ${args[2]}); pc += $relativeOffset; "
 			// TODO relative jump: return "pc = code[pc + relativeOffset + ${args[0]}]"
 			else -> throw IllegalArgumentException("not implemented: $op")
 		}
