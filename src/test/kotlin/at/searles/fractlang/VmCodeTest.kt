@@ -51,11 +51,11 @@ class VmCodeTest {
 
     @Test
     fun testPointAndSetResult() {
-        withSource("setResult(0, 1 / point, re(point * point));")
+        withSource("setResult(0, 0.5, 0);")
 
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(48, 0, 29, 0, 0, 48, 4, 46, 4, 4, 48, 6, 46, 6, 6, 14, 4, 6, 4, 50, 0, 0, 4), vmCode)
+        Assert.assertEquals(listOf(0), vmCode)
     }
 
     private lateinit var ci: CompilerInstance
