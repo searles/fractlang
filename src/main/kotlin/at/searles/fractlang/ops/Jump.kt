@@ -10,7 +10,7 @@ object Jump: HasSpecialSyntax, BaseOp(
     Signature(BaseTypes.Unit, BaseTypes.Int)
 ) {
     override fun evaluate(trace: Trace, args: List<Node>): Node {
-        return app(trace, args)
+        return createTypedApp(trace, args)
     }
 
     override fun countArgKinds(): Int {

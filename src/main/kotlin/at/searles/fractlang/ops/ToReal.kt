@@ -12,7 +12,7 @@ object ToReal: StandardOp(
     override fun evaluate(trace: Trace, args: List<Node>): Node {
         return when(val arg = args[0]) {
             is IntNode -> RealNode(trace, arg.value.toDouble())
-            else -> app(trace, args)
+            else -> createTypedApp(trace, args)
         }
     }
 }

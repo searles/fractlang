@@ -10,6 +10,6 @@ object Not: HasSpecialSyntax, StandardOp(
 ) {
     override fun evaluate(trace: Trace, args: List<Node>): Node {
         if(args[0] is BoolNode) return BoolNode(trace, !(args[0] as BoolNode).value)
-        return app(trace, args)
+        return createTypedApp(trace, args)
     }
 }

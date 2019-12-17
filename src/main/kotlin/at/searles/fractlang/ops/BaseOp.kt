@@ -23,7 +23,7 @@ abstract class BaseOp(vararg val signatures: Signature) : Op {
         return evaluate(trace, typedArgs)
     }
 
-    protected fun app(trace: Trace, args: List<Node>): Node {
+    protected fun createTypedApp(trace: Trace, args: List<Node>): Node {
         val returnType = signatures.find { it.matches(args) }?.returnType
 
         require(returnType != null) { "optimizer returned weird arguments for $this: $args" }

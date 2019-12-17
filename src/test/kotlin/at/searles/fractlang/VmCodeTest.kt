@@ -58,6 +58,15 @@ class VmCodeTest {
         Assert.assertEquals(listOf(0), vmCode)
     }
 
+    @Test
+    fun testCons() {
+        withSource("setResult(0, sin rad point, 0);")
+
+        actCreateVmCode()
+
+        Assert.assertEquals(listOf(0), vmCode)
+    }
+
     private lateinit var ci: CompilerInstance
     private lateinit var source: String
     private lateinit var vmCode: List<Int>

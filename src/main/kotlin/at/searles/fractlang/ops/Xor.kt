@@ -18,6 +18,6 @@ object Xor: HasSpecialSyntax, StandardOp(
             }
         }
 
-        return app(trace, args)
+        return createTypedApp(trace, args)
     }
 }

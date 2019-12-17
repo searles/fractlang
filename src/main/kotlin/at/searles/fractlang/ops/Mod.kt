@@ -1,7 +1,6 @@
 package at.searles.fractlang.ops
 
 import at.searles.fractlang.BaseTypes
-import at.searles.fractlang.nodes.App
 import at.searles.fractlang.nodes.IntNode
 import at.searles.fractlang.nodes.Node
 import at.searles.parsing.Trace
@@ -19,7 +18,7 @@ object Mod: HasSpecialSyntax, BaseOp(
             return IntNode(trace, imod((args[0] as IntNode).value, (args[1] as IntNode).value))
         }
 
-        return App(trace, this, args).apply { type = BaseTypes.Int }
+        return createTypedApp(trace, args)
     }
 
     override fun countArgKinds(): Int {

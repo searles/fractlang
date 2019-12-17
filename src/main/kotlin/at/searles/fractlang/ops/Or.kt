@@ -18,6 +18,6 @@ object Or: HasSpecialSyntax, StandardOp(
             }
         }
 
-        return app(trace, args)
+        return createTypedApp(trace, args)
     }
 }

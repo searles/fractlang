@@ -14,6 +14,6 @@ object Equal: HasSpecialSyntax, StandardOp(
             return BoolNode(trace, (args[0] as IntNode).value == (args[1] as IntNode).value)
         }
 
-        return app(trace, args)
+        return createTypedApp(trace, args)
     }
 }
