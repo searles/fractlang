@@ -20,7 +20,7 @@ class RootSymbolTable(private val instructions: Map<String, Op>, private val def
         }
 
         if(instructions.containsKey(id)) {
-            return OpNode(trace, instructions.getValue(id))
+            return instructions.getValue(id).toNode(trace)
         }
 
         return null

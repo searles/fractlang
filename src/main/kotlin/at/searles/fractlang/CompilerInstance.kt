@@ -1,8 +1,11 @@
 package at.searles.fractlang
 
+import at.searles.commons.math.Cplx
 import at.searles.fractlang.linear.CodeLine
 import at.searles.fractlang.linear.LinearizeStmt
+import at.searles.fractlang.nodes.CplxNode
 import at.searles.fractlang.nodes.Node
+import at.searles.fractlang.nodes.RealNode
 import at.searles.fractlang.ops.*
 import at.searles.fractlang.ops.BaseOp
 import at.searles.fractlang.ops.Op
@@ -83,7 +86,12 @@ class CompilerInstance(private val sourceCodeStream: ParserStream,
             "rad" to Rad,
             "arc" to Arc,
             "point" to Point,
-            "setResult" to SetResult
+            "setResult" to SetResult,
+            "toRead" to ToReal,
+            "pi" to ConstOp { RealNode(it, Math.PI) },
+            "tau" to ConstOp { RealNode(it, 2 * Math.PI) },
+            "e" to ConstOp { RealNode(it, Math.E) },
+            "i" to ConstOp { CplxNode(it, Cplx(0.0, 1.0)) }
         )
     }
 }

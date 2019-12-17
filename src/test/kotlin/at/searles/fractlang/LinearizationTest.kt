@@ -15,6 +15,21 @@ import org.junit.Test
 class LinearizationTest {
 
     @Test
+    fun testConsts() {
+        withSource("var a = pi + e + i;")
+
+        actParse()
+
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals("Assign[5] [\$1, 5.859874482048838:1.0]\n" +
+                "Allocate \$1: Cplx", output)
+    }
+
+    @Test
     fun avoidSameAssignment() {
         withSource("var b = 1; b = b")
 
