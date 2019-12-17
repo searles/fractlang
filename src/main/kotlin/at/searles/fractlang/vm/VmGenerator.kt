@@ -42,14 +42,14 @@ static float3 valueAt(double2 pt) {
 }
 	""".trimIndent()
 
-	fun generateVm(ops: List<BaseOp>): String {
+	fun generateVm(ops: List<VmBaseOp>): String {
 		val sb = StringBuilder(header).append("\n")
 
 		var offset = 0
 
 		ops.forEach {
 			sb.append(generateOp(it, offset))
-			offset += it.countArgKinds()
+			offset += it.countArgKinds
 		}
 
 		sb.append(footer)
@@ -68,10 +68,10 @@ static float3 valueAt(double2 pt) {
 		}
 	}
 	
-	fun generateOp(op: BaseOp, offset: Int): String {
+	fun generateOp(op: VmBaseOp, offset: Int): String {
 		val sb = StringBuilder().append("            // === $op ===\n")
 
-		for(index in 0 until op.countArgKinds()) {
+		for(index in 0 until op.countArgKinds) {
 			val config = op.getArgKindAt(index)
 			
 			var relativeOffset = 1 // 0 is the instruction code
@@ -117,7 +117,7 @@ static float3 valueAt(double2 pt) {
 		return sb.toString()
 	}
 
-	private fun generateExprCall(op: BaseOp, offset: Int, args: List<String>, relativeOffset: Int): String {
+	private fun generateExprCall(op: VmBaseOp, offset: Int, args: List<String>, relativeOffset: Int): String {
 		val ret = access(
 			relativeOffset,
 			BaseOp.ArgKind(op.getSignatureAt(offset).returnType, false)
@@ -146,6 +146,7 @@ static float3 valueAt(double2 pt) {
 			is Rad -> "$ret = rad(${args[0]}); "
 			is Arc -> "$ret = arc(${args[0]}); "
 			is Cons -> "$ret = (double2) {${args[0]}, ${args[1]}}; "
+			is ToReal -> "$ret = (double) ${args[0]}; "
 			else -> throw IllegalArgumentException("not implemented: $op")
 		}
 		

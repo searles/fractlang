@@ -4,57 +4,45 @@ import at.searles.fractlang.nodes.ConstValue
 import at.searles.fractlang.nodes.Node
 
 /**
- * As opposed to SystemOps like jumps.
+ * Order of configuration is
+ *    * reg, reg, ..., reg.
+ *    * val, reg, ..., reg
+ *    * reg, val, ..., reg
+ *    ...
+ *    * val, val ...., val (like binary)
  */
-abstract class StandardOp(vararg signatures: Signature): BaseOp(*signatures) {
-    init {
-        require(signatures.all { it.argTypes.size == signatures[0].argTypes.size })
-    }
-
-    private val countConfigPerSignature = 1 shl signatures[0].argTypes.size - 1
-
-    override fun countArgKinds(): Int {
-        return countConfigPerSignature * signatures.size
-    }
+abstract class StandardOp(private val countConfigPerSignature: Int, vararg signatures: Signature): VmBaseOp(*signatures) {
+    override val countArgKinds: Int = countConfigPerSignature * signatures.size
 
     override fun getArgKindAt(offset: Int): List<ArgKind> {
-        val parameterConfiguration = ArrayList<ArgKind>()
-
         val signature = getSignatureAt(offset)
-        var i = offset % countConfigPerSignature
+        val index = offset % countConfigPerSignature
 
-        for(type in signature.argTypes) {
-            parameterConfiguration.add(ArgKind(type, (i % 2) == 1))
-            i /= 2
+        require(index < countConfigPerSignature)
+
+        val argKinds = ArrayList<ArgKind>(argsCount)
+
+        for(i in 0 until argsCount) {
+            val isConst = ((1 shl i) and index != 0)
+            argKinds.add(ArgKind(signature.argTypes[i], isConst))
         }
 
-        require(i == 0)
-
-        return parameterConfiguration
+        return argKinds
     }
 
     override fun getArgKindOffset(args: List<Node>): Int {
-        val sigIndex = getSignatureIndex(args)
         var index = 0
 
-        for(i in signatures[sigIndex].argTypes.indices.reversed()) {
-            index *= 2
-
+        for(i in 0 until argsCount) {
             if(args[i] is ConstValue) {
-                index += 1
+                index = index or (1 shl i)
             }
         }
-
-        index += sigIndex * countConfigPerSignature
 
         return index
     }
 
     override fun getSignatureAt(offset: Int): Signature {
-        val index = offset / countConfigPerSignature
-
-        require(0 <= index && index < signatures.size) { "bad call: $this[$offset]" }
-
-        return signatures[index]
+        return signatures[offset / countConfigPerSignature]
     }
 }

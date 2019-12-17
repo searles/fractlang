@@ -5,7 +5,7 @@ import at.searles.fractlang.nodes.BoolNode
 import at.searles.fractlang.nodes.Node
 import at.searles.parsing.Trace
 
-object And: HasSpecialSyntax, StandardOp(
+object And: HasSpecialSyntax, BaseOp(
     Signature(BaseTypes.Bool, BaseTypes.Bool, BaseTypes.Bool)
 ) {
     override fun evaluate(trace: Trace, args: List<Node>): Node {
@@ -18,6 +18,6 @@ object And: HasSpecialSyntax, StandardOp(
             }
         }
 
-        return createTypedApp(trace, args)
+        return createApp(trace, args)
     }
 }

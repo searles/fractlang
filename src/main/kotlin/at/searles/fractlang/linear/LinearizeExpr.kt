@@ -5,13 +5,14 @@ import at.searles.fractlang.nodes.*
 import at.searles.fractlang.ops.Assign
 import at.searles.fractlang.ops.BaseOp
 import at.searles.fractlang.ops.Jump
+import at.searles.fractlang.ops.VmBaseOp
 import at.searles.fractlang.vm.VmArg
 import at.searles.fractlang.vm.VmInstruction
 
 class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGenerator: Iterator<String>, private val optTargetNode: IdNode?): Visitor<VmArg> {
 
     override fun visit(app: App): VmArg {
-        val op = (app.head as OpNode).op as BaseOp
+        val op = (app.head as OpNode).op as VmBaseOp
 
         val index = op.getArgKindOffset(app.args)
 

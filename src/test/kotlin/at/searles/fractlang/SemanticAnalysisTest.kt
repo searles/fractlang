@@ -241,7 +241,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;if(_1==1)_1=2else_1=3;", output)
+        Assert.assertEquals("_1=1;var_1:Int;if(1==_1)_1=2else_1=3;", output)
     }
 
     @Test
@@ -253,7 +253,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_1=if(_1==1)2else3;", output)
+        Assert.assertEquals("_1=1;var_1:Int;_1=if(1==_1)2else3;", output)
     }
 
     @Test
@@ -265,7 +265,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;if(if(_1==1)falseelsetrue)_1=2else_1=3;", output)
+        Assert.assertEquals("_1=1;var_1:Int;if(if(1==_1)falseelsetrue)_1=2else_1=3;", output)
     }
 
     @Test

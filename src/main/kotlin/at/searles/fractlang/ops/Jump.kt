@@ -6,26 +6,21 @@ import at.searles.fractlang.nodes.IntNode
 import at.searles.fractlang.nodes.Node
 import at.searles.parsing.Trace
 
-object Jump: HasSpecialSyntax, BaseOp(
+object Jump: HasSpecialSyntax, VmBaseOp(
     Signature(BaseTypes.Unit, BaseTypes.Int)
 ) {
     override fun evaluate(trace: Trace, args: List<Node>): Node {
-        return createTypedApp(trace, args)
+        return createApp(trace, args)
     }
 
-    override fun countArgKinds(): Int {
-        return 1
-    }
+    override val countArgKinds = 1
 
     override fun getArgKindAt(offset: Int): List<ArgKind> {
         return listOf(ArgKind(BaseTypes.Int, true))
     }
 
     override fun getArgKindOffset(args: List<Node>): Int {
-        if(args[0] !is IntNode) {
-            return -1
-        }
-
+        require(args[0] is IntNode)
         return 0
     }
 

@@ -6,13 +6,13 @@ import at.searles.fractlang.nodes.Node
 import at.searles.fractlang.nodes.RealNode
 import at.searles.parsing.Trace
 
-object ToReal: StandardOp(
+object ToReal: StandardOp(1,
     Signature(BaseTypes.Real, BaseTypes.Int)
 ) {
     override fun evaluate(trace: Trace, args: List<Node>): Node {
         return when(val arg = args[0]) {
             is IntNode -> RealNode(trace, arg.value.toDouble())
-            else -> createTypedApp(trace, args)
+            else -> createApp(trace, args)
         }
     }
 }

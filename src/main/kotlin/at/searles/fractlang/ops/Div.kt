@@ -5,7 +5,7 @@ import at.searles.fractlang.semanticanalysis.Optimizer
 import at.searles.fractlang.nodes.Node
 import at.searles.parsing.Trace
 
-object Div: HasSpecialSyntax, StandardOp (
+object Div: HasSpecialSyntax, StandardOp (2,
     Signature(BaseTypes.Real, BaseTypes.Real, BaseTypes.Real),
     Signature(BaseTypes.Cplx, BaseTypes.Cplx, BaseTypes.Cplx)
 ) {

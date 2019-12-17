@@ -1,17 +1,13 @@
 package at.searles.fractlang.semanticanalysis
 
 import at.searles.commons.math.Cplx
+import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.nodes.*
 import at.searles.fractlang.ops.*
 import at.searles.parsing.Trace
+import kotlin.math.pow
 
 object Optimizer {
-
-	private fun createApp(trace: Trace, op: BaseOp, args: List<Node>): App {
-		return App(trace, OpNode(trace, op), args).apply {
-			this.type = op.signatures.first { it.matches(args) }.returnType
-		}
-	}
 
 	private fun isAllNum(nodes: List<Node>): Boolean {
 		return nodes.all {it is NumValue }
@@ -92,7 +88,7 @@ object Optimizer {
             listOf(args[1], (args[0] as App).args[0])
         )
 		
-		return createApp(trace, Add, args)
+		return Add.createApp(trace, args)
 	}
 
 	fun sub(trace: Trace, args: List<Node>): Node {
@@ -173,7 +169,7 @@ object Optimizer {
             listOf(args[0], (args[1] as App).args[0])
         )
 		
-		return createApp(trace, Sub, args)
+		return Sub.createApp(trace, args)
 	}
 
 	fun neg(trace: Trace, args: List<Node>): Node {
@@ -200,7 +196,7 @@ object Optimizer {
             listOf((args[0] as App).args[1], (args[0] as App).args[0])
         )
 
-		return createApp(trace, Neg, args)
+		return Neg.createApp(trace, args)
 	}
 
     fun abs(trace: Trace, args: List<Node>): Node {
@@ -208,7 +204,7 @@ object Optimizer {
 			is IntNode -> IntNode(trace, kotlin.math.abs(arg.value))
 			is RealNode -> RealNode(trace, kotlin.math.abs(arg.value))
 			is CplxNode -> CplxNode(trace, Cplx().abs(arg.value))
-			else -> createApp(trace, Abs, args)
+			else -> Abs.createApp(trace, args)
 		}
     }
 
@@ -265,7 +261,7 @@ object Optimizer {
             )
         )
 
-		return createApp(trace, Mul, args)
+		return Mul.createApp(trace, args)
 	}
 
 	fun div(trace: Trace, args: List<Node>): Node {
@@ -327,7 +323,7 @@ object Optimizer {
             )
         )
 
-		return createApp(trace, Div, args)
+		return Div.createApp(trace, args)
 	}
 
 	fun recip(trace: Trace, args: List<Node>): Node {
@@ -353,20 +349,67 @@ object Optimizer {
             listOf((args[0] as App).args[1], (args[0] as App).args[0])
         )
 
-		return createApp(trace, Reciprocal, args)
+		return Reciprocal.createApp(trace, args)
 	}
 
     fun re(trace: Trace, args: List<Node>): Node {
         return when(args[0]) {
             is CplxNode -> RealNode(trace, (args[0] as CplxNode).value.re())
-            else -> createApp(trace, RealPart, args)
+            else -> RealPart.createApp(trace, args)
         }
     }
 
     fun im(trace: Trace, args: List<Node>): Node {
         return when(args[0]) {
             is CplxNode -> RealNode(trace, (args[0] as CplxNode).value.im())
-            else -> createApp(trace, RealPart, args)
+            else -> RealPart.createApp(trace, args)
         }
+    }
+
+    fun pow(trace: Trace, args: List<Node>): Node {
+        if(isAllNum(args)) {
+            return when(val arg0 = args[0]) {
+                is RealNode ->
+                    when(val arg1 = args[1]) {
+                        is IntNode -> RealNode(trace, arg0.value.pow(arg1.value))
+                        is RealNode -> RealNode(trace, arg0.value.pow(arg1.value))
+                        else -> throw IllegalArgumentException()
+                    }
+                is CplxNode ->
+                    when(val arg1 = args[1]) {
+                        is IntNode -> CplxNode(trace, Cplx().powInt(arg0.value, arg1.value))
+                        is RealNode -> CplxNode(trace, Cplx().pow(arg0.value, Cplx(arg1.value)))
+                        is CplxNode -> CplxNode(trace, Cplx().pow(arg0.value, arg1.value))
+                        else -> throw IllegalArgumentException()
+                    }
+                else -> error("bug")
+            }
+        }
+
+        if(isZero(args[1])) {
+            return when(args[0].type) {
+                BaseTypes.Real -> RealNode(trace, 1.0)
+                BaseTypes.Cplx -> CplxNode(trace, Cplx(1.0))
+                else -> error("bug")
+            }
+        }
+
+        if(isOne(args[1])) {
+            return args[0]
+        }
+
+        if(isZero(args[0]) || isOne(args[1])) {
+            return args[0]
+        }
+
+        if(isOp(args[0], Pow)) {
+            val base = (args[0] as App).args[0]
+            val exp0 = (args[0] as App).args[1]
+            val exp1 = args[1]
+
+            return pow(trace, listOf(base, mul(trace, listOf(exp0, exp1))))
+        }
+
+        return Pow.createApp(trace, args)
     }
 }

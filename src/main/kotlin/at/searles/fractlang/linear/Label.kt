@@ -11,6 +11,6 @@ class Label(val id: String): VmArg, CodeLine {
 	}
 
 	override fun toString(): String {
-		return "@$id"
+		return "Label $id"
 	}
 }

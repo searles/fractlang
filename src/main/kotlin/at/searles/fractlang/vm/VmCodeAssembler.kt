@@ -1,19 +1,19 @@
 package at.searles.fractlang.vm
 
 import at.searles.commons.math.Cplx
-import at.searles.fractlang.Type
 import at.searles.fractlang.linear.Alloc
 import at.searles.fractlang.linear.CodeLine
 import at.searles.fractlang.linear.Label
 import at.searles.fractlang.nodes.IdNode
 import at.searles.fractlang.ops.Assign
 import at.searles.fractlang.ops.BaseOp
+import at.searles.fractlang.ops.VmBaseOp
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.collections.LinkedHashMap
 
-class VmCodeAssembler(private val linearizedCode: ArrayList<CodeLine>, instructions: Collection<BaseOp>) {
+class VmCodeAssembler(private val linearizedCode: ArrayList<CodeLine>, instructions: Collection<VmBaseOp>) {
 
 	private val instructionOffsets = createInstructionOffsets(instructions)
 
@@ -122,13 +122,13 @@ class VmCodeAssembler(private val linearizedCode: ArrayList<CodeLine>, instructi
 	}
 
 	companion object {
-		fun createInstructionOffsets(instructions: Collection<BaseOp>): Map<BaseOp, Int> {
-			val retMap = LinkedHashMap<BaseOp, Int>()
+		fun createInstructionOffsets(instructions: Collection<VmBaseOp>): Map<VmBaseOp, Int> {
+			val retMap = LinkedHashMap<VmBaseOp, Int>()
 
 			instructions.fold(0) { offset, op ->
 				run {
 					retMap[op] = offset
-					offset + op.countArgKinds()
+					offset + op.countArgKinds
 				}
 			}
 

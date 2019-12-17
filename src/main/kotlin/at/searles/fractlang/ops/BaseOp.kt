@@ -10,9 +10,15 @@ import at.searles.parsing.Trace
  * These operations are directly executed in the Vm.
  */
 abstract class BaseOp(vararg val signatures: Signature) : Op {
+    init {
+        require(signatures.all { it.argTypes.size == signatures[0].argTypes.size })
+    }
+
+    val argsCount = signatures[0].argTypes.size
 
     override fun apply(trace: Trace, args: List<Node>): Node {
         val signature = signatures.find { it.matches(args) } ?:
+
         throw SemanticAnalysisException(
             "no matching signature",
             trace
@@ -23,7 +29,7 @@ abstract class BaseOp(vararg val signatures: Signature) : Op {
         return evaluate(trace, typedArgs)
     }
 
-    protected fun createTypedApp(trace: Trace, args: List<Node>): Node {
+    fun createApp(trace: Trace, args: List<Node>): Node {
         val returnType = signatures.find { it.matches(args) }?.returnType
 
         require(returnType != null) { "optimizer returned weird arguments for $this: $args" }
@@ -32,39 +38,11 @@ abstract class BaseOp(vararg val signatures: Signature) : Op {
     }
 
     /**
-     * Returns the index of the matching signature
-     * @return -1 if there is no match.
-     */
-    fun getSignatureIndex(args: List<Node>): Int {
-        return signatures.indexOfFirst { it.matches(args) }
-    }
-
-    /**
      * Creates a node representing an application of this to args.
+     * This one must be properly typed.
      */
     abstract fun evaluate(trace: Trace, args: List<Node>): Node
 
-    /**
-     * Returns the count of possible argument combinations consisting
-     * of Type/IsConst
-     */
-    abstract fun countArgKinds(): Int
-
-    /**
-     * Returns the concrete parameter configuration for the given offset.
-     */
-	abstract fun getArgKindAt(offset: Int): List<ArgKind>
-
-    /**
-     * Inverse of getParameterConfiguration
-     */
-	abstract fun getArgKindOffset(args: List<Node>): Int
-
-    /**
-     * Returns the signature that is used for the parameter configuration
-     * of the given index.
-     */
-    abstract fun getSignatureAt(offset: Int): Signature
 
     override fun toString(): String {
         return javaClass.simpleName

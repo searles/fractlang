@@ -9,6 +9,6 @@ class Alloc(val id: String, val type: Type): CodeLine {
 
     // purely a marker to properly handle var assignments.
     override fun toString(): String {
-        return "alloc $id: $type"
+        return "Allocate $id: $type"
     }
 }

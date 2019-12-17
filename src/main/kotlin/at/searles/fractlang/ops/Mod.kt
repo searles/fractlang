@@ -5,7 +5,7 @@ import at.searles.fractlang.nodes.IntNode
 import at.searles.fractlang.nodes.Node
 import at.searles.parsing.Trace
 
-object Mod: HasSpecialSyntax, BaseOp(
+object Mod: HasSpecialSyntax, StandardOp(3,
     Signature(BaseTypes.Int, BaseTypes.Int, BaseTypes.Int)
 ) {
     private fun imod(a: Int, b: Int): Int {
@@ -18,35 +18,6 @@ object Mod: HasSpecialSyntax, BaseOp(
             return IntNode(trace, imod((args[0] as IntNode).value, (args[1] as IntNode).value))
         }
 
-        return createTypedApp(trace, args)
-    }
-
-    override fun countArgKinds(): Int {
-        return 3
-    }
-
-    override fun getArgKindAt(offset: Int): List<ArgKind> {
-        return when(offset) {
-            0 -> listOf(ArgKind(BaseTypes.Int, true), ArgKind(BaseTypes.Int, false))
-            1 -> listOf(ArgKind(BaseTypes.Int, false), ArgKind(BaseTypes.Int, true))
-            2 -> listOf(ArgKind(BaseTypes.Int, false), ArgKind(BaseTypes.Int, false))
-            else -> error("out of bounds")
-        }
-    }
-
-    override fun getArgKindOffset(args: List<Node>): Int {
-        if(args[0] is IntNode) {
-            return 0
-        }
-
-        if(args[1] is IntNode) {
-            return 1
-        }
-
-        return 2
-    }
-
-    override fun getSignatureAt(offset: Int): Signature {
-        return signatures[0]
+        return createApp(trace, args)
     }
 }

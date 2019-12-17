@@ -25,7 +25,8 @@ class LinearizationTest {
 
         actPrint()
 
-        Assert.assertEquals("[Assign[1] [\$1, 1], alloc \$1: Int]", output)
+        Assert.assertEquals("Assign[1] [\$1, 1]\n" +
+                "Allocate \$1: Int", output)
     }
 
     @Test
@@ -53,7 +54,8 @@ class LinearizationTest {
 
         actPrint()
 
-        Assert.assertEquals("[Assign[1] [\$1, 1], alloc \$1: Int]", output)
+        Assert.assertEquals("Assign[1] [\$1, 1]\n" +
+                "Allocate \$1: Int", output)
     }
 
     @Test
@@ -67,16 +69,14 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "[" +
-                    "Assign[1] [\$1, 1], " +
-                    "alloc \$1: Int, " +
-                    "Assign[1] [\$2, 2], " +
-                    "alloc \$2: Int, " +
-                    "Add[1] [3, \$1, R1], " +
-                    "alloc R1: Int, " +
-                    "Add[0] [R1, \$2, \$3], " +
-                    "alloc \$3: Int" +
-                    "]", output)
+            "Assign[1] [\$1, 1]\n" +
+                    "Allocate \$1: Int\n" +
+                    "Assign[1] [\$2, 2]\n" +
+                    "Allocate \$2: Int\n" +
+                    "Add[1] [3, \$1, R1]\n" +
+                    "Allocate R1: Int\n" +
+                    "Add[0] [R1, \$2, \$3]\n" +
+                    "Allocate \$3: Int", output)
     }
 
     @Test
@@ -90,14 +90,12 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "[" +
-                    "Assign[1] [\$1, 2], " +
-                    "alloc \$1: Int, " +
-                    "Add[1] [3, \$1, R1], " +
-                    "alloc R1: Int, " +
-                    "Add[1] [1, R1, \$2], " +
-                    "alloc \$2: Int" +
-                    "]", output)
+            "Assign[1] [\$1, 2]\n" +
+                    "Allocate \$1: Int\n" +
+                    "Add[1] [3, \$1, R1]\n" +
+                    "Allocate R1: Int\n" +
+                    "Add[1] [1, R1, \$2]\n" +
+                    "Allocate \$2: Int", output)
     }
 
     @Test
@@ -111,7 +109,12 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "[Assign[1] [\$1, 1], alloc \$1: Int, Equal[2] [\$1, 1, @R1, @R2], @R1, Add[1] [1, \$1, \$1], @R2]", output)
+            "Assign[1] [\$1, 1]\n" +
+                    "Allocate \$1: Int\n" +
+                    "Equal[1] [1, \$1, Label R1, Label R2]\n" +
+                    "Label R1\n" +
+                    "Add[1] [1, \$1, \$1]\n" +
+                    "Label R2", output)
     }
 
     @Test
@@ -125,20 +128,20 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "[Point[0] [R1], " +
-                    "alloc R1: Cplx, " +
-                    "Reciprocal[1] [R1, R2], " +
-                    "alloc R2: Cplx, " +
-                    "Point[0] [R3], " +
-                    "alloc R3: Cplx, " +
-                    "RealPart[0] [R3, R4], " +
-                    "alloc R4: Real, " +
-                    "SetResult[1] [0, R2, R4]]", output)
+            "Point[0] [R1]\n" +
+                    "Allocate R1: Cplx\n" +
+                    "Reciprocal[0] [R1, R2]\n" +
+                    "Allocate R2: Cplx\n" +
+                    "Point[0] [R3]\n" +
+                    "Allocate R3: Cplx\n" +
+                    "RealPart[0] [R3, R4]\n" +
+                    "Allocate R4: Real\n" +
+                    "SetResult[1] [0, R2, R4]", output)
     }
 
     @Test
     fun testIfElseStmt() {
-        withSource("var a = 1; if(a == 1) a = a + 1; else a = a + 2")
+        withSource("var a = 1; if(a == 1) a = a + 1 else a = a + 2")
 
         actParse()
         actInline()
@@ -147,12 +150,20 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "[Assign[1] [\$1, 1], alloc \$1: Int, Equal[2] [\$1, 1, @R1, @R2], @R1, Add[1] [1, \$1, \$1], @R2]", output)
+            "Assign[1] [\$1, 1]\n" +
+                    "Allocate \$1: Int\n" +
+                    "Equal[1] [1, \$1, Label R1, Label R2]\n" +
+                    "Label R1\n" +
+                    "Add[1] [1, \$1, \$1]\n" +
+                    "Jump[0] [Label R3]\n" +
+                    "Label R2\n" +
+                    "Add[1] [2, \$1, \$1]\n" +
+                    "Label R3", output)
     }
 
     @Test
     fun testIfElseExpr() {
-        withSource("var a = 1; a = a + if(a == 1) 1 else 2")
+        withSource("var a = 1; a = if(a == 1) 1 else 2")
 
         actParse()
         actInline()
@@ -161,17 +172,37 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "[Assign[1] [\$1, 1], " +
-                    "alloc \$1: Int, " +
-                    "Equal[2] [\$1, 1, @R2, @R3], " +
-                    "@R2, " +
-                    "Assign[1] [R1, 1], " +
-                    "Jump[0] [@R4], " +
-                    "@R3, " +
-                    "Assign[1] [R1, 2], " +
-                    "@R4, " +
-                    "alloc R1: Int, " +
-                    "Add[0] [\$1, R1, \$1]]", output)
+            "Assign[1] [\$1, 1]\n" +
+                    "Allocate \$1: Int\n" +
+                    "Equal[1] [1, \$1, Label R1, Label R2]\n" +
+                    "Label R1\n" +
+                    "Assign[1] [\$1, 1]\n" +
+                    "Jump[0] [Label R3]\n" +
+                    "Label R2\n" +
+                    "Assign[1] [\$1, 2]\n" +
+                    "Label R3", output)
+    }
+
+    @Test
+    fun testIfElseLessExpr() {
+        withSource("var a = 1; a = if(a < 1) 1 else 2")
+
+        actParse()
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals(
+            "Assign[1] [\$1, 1]\n" +
+                    "Allocate \$1: Int\n" +
+                    "Less[2] [\$1, 1, Label R1, Label R2]\n" +
+                    "Label R1\n" +
+                    "Assign[1] [\$1, 1]\n" +
+                    "Jump[0] [Label R3]\n" +
+                    "Label R2\n" +
+                    "Assign[1] [\$1, 2]\n" +
+                    "Label R3", output)
     }
 
     @Test
@@ -185,7 +216,12 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "[Assign[1] [\$1, 1], alloc \$1: Int, Mod[1] [\$1, 2, \$2], alloc \$2: Int, Mod[0] [2, \$1, \$3], alloc \$3: Int]", output)
+            "Assign[1] [\$1, 1]\n" +
+                    "Allocate \$1: Int\n" +
+                    "Mod[2] [\$1, 2, \$2]\n" +
+                    "Allocate \$2: Int\n" +
+                    "Mod[1] [2, \$1, \$3]\n" +
+                    "Allocate \$3: Int", output)
     }
 
     @Test
@@ -199,16 +235,16 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "[Assign[1] [\$1, 1], " +
-                    "alloc \$1: Int, " +
-                    "ToReal[0] [\$1, R1], " +
-                    "alloc R1: Real, " +
-                    "Mul[3] [0.5, R1, \$2], " +
-                    "alloc \$2: Real, " +
-                    "ToReal[0] [\$1, R2], " +
-                    "alloc R2: Real, " +
-                    "Div[1] [2.0, R2, \$3], " +
-                    "alloc \$3: Real]", output)
+            "Assign[1] [\$1, 1]\n" +
+                    "Allocate \$1: Int\n" +
+                    "ToReal[0] [\$1, R1]\n" +
+                    "Allocate R1: Real\n" +
+                    "Mul[1] [0.5, R1, \$2]\n" +
+                    "Allocate \$2: Real\n" +
+                    "ToReal[0] [\$1, R2]\n" +
+                    "Allocate R2: Real\n" +
+                    "Div[1] [2.0, R2, \$3]\n" +
+                    "Allocate \$3: Real", output)
     }
 
     @Test
@@ -222,7 +258,14 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "[Assign[1] [\$1, 1], alloc \$1: Int, @R1, Less[2] [\$1, 10, @R2, @R3], @R2, Add[1] [1, \$1, \$1], Jump[0] [@R1], @R3]", output)
+            "Assign[1] [\$1, 1]\n" +
+                    "Allocate \$1: Int\n" +
+                    "Label R1\n" +
+                    "Less[2] [\$1, 10, Label R2, Label R3]\n" +
+                    "Label R2\n" +
+                    "Add[1] [1, \$1, \$1]\n" +
+                    "Jump[0] [Label R1]\n" +
+                    "Label R3", output)
     }
 
     @Test
@@ -236,7 +279,9 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "[Point[0] [\$1], alloc \$1: Cplx, SetResult[5] [1, \$1, 2.0]]", output)
+            "Point[0] [\$1]\n" +
+                    "Allocate \$1: Cplx\n" +
+                    "SetResult[5] [1, \$1, 2.0]", output)
     }
 
     private lateinit var output: String
@@ -246,7 +291,7 @@ class LinearizationTest {
     private lateinit var stream: ParserStream
 
     private fun actPrint() {
-        output = linearized.toString()
+        output = linearized.joinToString("\n")
     }
 
     private fun actLinearize() {

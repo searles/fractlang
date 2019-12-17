@@ -3,11 +3,10 @@ package at.searles.fractlang.ops
 import at.searles.commons.math.Cplx
 import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.nodes.*
-import at.searles.fractlang.semanticanalysis.Optimizer
 import at.searles.parsing.Trace
 import kotlin.math.ln
 
-object Log: HasSpecialSyntax, StandardOp (
+object Log: HasSpecialSyntax, StandardOp (1,
     Signature(BaseTypes.Real, BaseTypes.Real),
     Signature(BaseTypes.Cplx, BaseTypes.Cplx)
 ) {

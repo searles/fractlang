@@ -39,7 +39,7 @@ class LinearizeBool(private val code: ArrayList<CodeLine>, private val nameGener
         args[0].accept(LinearizeBool(code, nameGenerator, falseLabel, trueLabel))
     }
 
-    private fun visitExpr(op: BaseOp, args: List<Node>) {
+    private fun visitExpr(op: VmBaseOp, args: List<Node>) {
         val index = op.getArgKindOffset(args)
         val linearizedArgs = args.map {
             it.accept(LinearizeExpr(code, nameGenerator, null))
@@ -55,7 +55,7 @@ class LinearizeBool(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(app: App) {
-        require(app.head is OpNode && app.head.op is BaseOp)
+        require(app.head is OpNode && app.head.op is VmBaseOp)
 
         when(app.head.op) {
             is And -> visitAnd(app.args)

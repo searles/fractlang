@@ -7,7 +7,7 @@ import at.searles.fractlang.nodes.IdNode
 import at.searles.fractlang.nodes.Node
 import at.searles.parsing.Trace
 
-object Assign: HasSpecialSyntax, BaseOp(
+object Assign: HasSpecialSyntax, VmBaseOp(
     Signature(BaseTypes.Unit, BaseTypes.Int, BaseTypes.Int),
     Signature(BaseTypes.Unit, BaseTypes.Real, BaseTypes.Real),
     Signature(BaseTypes.Unit, BaseTypes.Cplx, BaseTypes.Cplx)
@@ -28,23 +28,18 @@ object Assign: HasSpecialSyntax, BaseOp(
     }
 
     override fun evaluate(trace: Trace, args: List<Node>): Node {
-        return createTypedApp(trace, args)
+        return createApp(trace, args)
     }
 
-    override fun countArgKinds(): Int {
-        return signatures.size * 2
-    }
-
-    /**
-     * Returns a pair
-     */
+    override val countArgKinds = signatures.size * 2
+    
     override fun getArgKindAt(offset: Int): List<ArgKind> {
-        val signature = getSignatureAt(offset)
-        return listOf(ArgKind(signature.argTypes[0], false), ArgKind(signature.argTypes[1], offset % 2 == 1))
+        return with(getSignatureAt(offset)) {
+            listOf(ArgKind(argTypes[0], false), ArgKind(argTypes[1], offset % 2 == 1))
+        }
     }
 
     override fun getArgKindOffset(args: List<Node>): Int {
-        return 2 * getSignatureIndex(args) + if(args[1] is ConstValue) 1 else 0
+        return 2 * signatures.indexOfFirst { it.matches(args) } + if(args[1] is ConstValue) 1 else 0
     }
-
 }
