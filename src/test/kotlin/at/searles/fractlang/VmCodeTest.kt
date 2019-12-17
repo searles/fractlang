@@ -14,6 +14,15 @@ class VmCodeTest {
     }
 
     @Test
+    fun testSimpleMultiplicationError() {
+        withSource("var a = 5 point;")
+
+        actCreateVmCode()
+
+        Assert.assertEquals(listOf(30, 0, 99), vmCode)
+    }
+
+    @Test
     fun testAddition() {
         withSource("var a = 50; var b = 25; var c = a + b;")
 
