@@ -160,7 +160,7 @@ static float3 valueAt(double2 pt) {
 		return when(op) {
 			is Equal -> "if(${args[0]} == ${args[1]}) pc = $trueLabel; else pc = $falseLabel;"
 			is Less -> "if(${args[0]} < ${args[1]}) pc = $trueLabel; else pc = $falseLabel;"
-			is Next -> "if(++${args[0]} < ${args[1]}) pc = $trueLabel; else pc = $falseLabel;"
+			is Next -> "if(++${args[1]} < ${args[0]}) pc = $trueLabel; else pc = $falseLabel;"
 			else -> throw IllegalArgumentException("not implemented: $op")
 		}
 	}
