@@ -2,6 +2,9 @@ package at.searles.fractlang.semanticanalysis
 
 import at.searles.fractlang.*
 import at.searles.fractlang.nodes.*
+import at.searles.fractlang.ops.And
+import at.searles.fractlang.ops.Not
+import at.searles.fractlang.ops.Or
 import at.searles.fractlang.parsing.FractlangParser
 import at.searles.parsing.ParserLookaheadException
 import at.searles.parsing.ParserStream
@@ -144,7 +147,11 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 		}
 
 		val stmts = innerVisitor.block
-		
+
+		if(stmts.size == 1 && stmts.last().type != BaseTypes.Unit) {
+			return stmts.last()
+		}
+
 		return Block(block.trace, stmts.filter { it !is Nop }).apply {
 			type = if(stmts.isEmpty()) BaseTypes.Unit else stmts.last().type
 		}
@@ -208,7 +215,46 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 				"incompatible types in if-else statement",
 				ifElse.trace
 			)
-			
+
+		if(inlinedCondition is BoolNode) {
+			return if(inlinedCondition.value) {
+				inlinedThenBranch
+			} else {
+				inlinedElseBranch
+			}
+		}
+
+		if(inlinedThenBranch is BoolNode) {
+			/*
+			 * if(a) true else b = a and b.
+			 */
+
+			return if(inlinedThenBranch.value) {
+				And.createApp(ifElse.trace, listOf(inlinedCondition, inlinedElseBranch))
+			} else {
+				And.createApp(ifElse.trace, listOf(
+					Not.createApp(ifElse.trace, listOf(inlinedCondition)),
+					inlinedElseBranch)
+				)
+			}
+		}
+
+		if(inlinedElseBranch is BoolNode) {
+			/*
+			 * if(a) b else true  ==  not a or b
+			 * if(a) b else false ==  a or b
+			 */
+			return if(inlinedElseBranch.value) {
+				Or.createApp(ifElse.trace, listOf(
+					Not.createApp(ifElse.trace, listOf(inlinedCondition)),
+					inlinedThenBranch)
+				)
+			} else {
+				Or.createApp(ifElse.trace, listOf(inlinedCondition, inlinedThenBranch))
+			}
+		}
+
+
 		return IfElse(
 			ifElse.trace,
 			inlinedCondition,
@@ -276,20 +322,20 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 				)
 			}
 			
-			return Nop(whileStmt.trace)
+			return Block(whileStmt.trace, listOf()).apply { type = BaseTypes.Unit }
 		}
 		
 		return While(whileStmt.trace, inlinedCondition, inlinedBody)
     }
 
+	override fun visit(nop: Nop): Node {
+		return Block(nop.trace, listOf()).apply { type = BaseTypes.Unit }
+	}
+
 	override fun visit(objectNode: ObjectNode): Node {
 		// TODO is it?
 		throw IllegalArgumentException("unreachable")
 	}
-
-	override fun visit(nop: Nop): Node {
-		throw IllegalArgumentException("unreachable")
-    }
 
     override fun visit(vectorNode: VectorNode): Node {
 		if(vectorNode.items.isEmpty()) {

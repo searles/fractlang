@@ -8,7 +8,11 @@ import java.lang.IllegalArgumentException
 
 class LinearizeBool(private val code: ArrayList<CodeLine>, private val nameGenerator: Iterator<String>, private val trueLabel: Label, private val falseLabel: Label): Visitor<Unit> {
     override fun visit(boolNode: BoolNode) {
-        throw IllegalArgumentException("should have been inlined")
+        if(boolNode.value) {
+            code.add(VmInstruction(Jump, 0, listOf(trueLabel)))
+        } else {
+            code.add(VmInstruction(Jump, 0, listOf(falseLabel)))
+        }
     }
 
     private fun visitAnd(args: List<Node>) {
@@ -55,14 +59,17 @@ class LinearizeBool(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(app: App) {
-        require(app.head is OpNode && app.head.op is VmBaseOp)
+        require(app.head is OpNode && app.head.op is BaseOp)
 
         when(app.head.op) {
             is And -> visitAnd(app.args)
             is Or -> visitOr(app.args)
             is Xor -> visitXor(app.args)
             is Not -> visitNot(app.args)
-            else -> visitExpr(app.head.op, app.args)
+            else -> {
+                require(app.head.op is VmBaseOp)
+                visitExpr(app.head.op, app.args)
+            }
         }
     }
 

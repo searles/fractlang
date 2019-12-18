@@ -14,6 +14,50 @@ class VmCodeTest {
     }
 
     @Test
+    fun testMandelbrot() {
+        withSource("val z0 = 0:0;\n" +
+                "var c = point;\n" +
+                "var n = 0;\n" +
+                "\n" +
+                "var z = z0;\n" +
+                "\n" +
+                "val bailoutValue = 64;\n" +
+                "val maxExponent = 2;\n" +
+                "val maxIterationCount = 1024;\n" +
+                "\n" +
+                "while ({\n" +
+                "\tz = z^maxExponent + c;\n" +
+                "\t\n" +
+                "\tvar radZ = rad z;\n" +
+                "\t\n" +
+                "\tif(radZ > bailoutValue) {\n" +
+                "\t\tvar continuousAddend = -log(radZ / log bailoutValue) / log maxExponent;\n" +
+                "\t\tvar continuousN = n + continuousAddend;\n" +
+                "\t\tsetResult(1, log (1 + continuousN), continuousN);\n" +
+                "\t\tfalse\n" +
+                "\t} else if(not next(maxIterationCount, n)) {\n" +
+                "\t\tsetResult(0, arc z / 2 pi, log radZ);\n" +
+                "\t\tfalse\n" +
+                "\t} else {\n" +
+                "\t\ttrue\n" +
+                "\t}\n" +
+                "})")
+
+        actCreateVmCode()
+
+        Assert.assertEquals(listOf(30, 0, 99), vmCode)
+    }
+
+    @Test
+    fun testIfBoolBlock() {
+        withSource("var a = 1; if(if(a == 1) { a = a + 1; false } else { true }) a = a + 2;")
+
+        actCreateVmCode()
+
+        Assert.assertEquals(listOf(30, 0, 99), vmCode)
+    }
+
+    @Test
     fun testSimpleMultiplicationError() {
         withSource("var a = 5 point;")
 
