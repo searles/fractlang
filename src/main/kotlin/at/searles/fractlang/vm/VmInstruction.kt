@@ -6,7 +6,7 @@ import at.searles.fractlang.ops.VmBaseOp
 class VmInstruction(val op: VmBaseOp, private val index: Int, val args: List<VmArg>): CodeLine {
 
 	init {
-		require(0 <= index && index < op.countArgKinds) { "failed for $op" }
+		require(0 <= index && index < op.countArgKinds) { "failed for $op and $index" }
 	}
 
 	fun vmCodeSize(): Int {

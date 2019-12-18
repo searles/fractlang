@@ -12,4 +12,10 @@ class Signature(val returnType: Type, vararg val argTypes: Type) {
     fun matches(args: List<Node>): Boolean {
         return argTypes.size <= args.size && argTypes.zip(args).all { it.first.canConvert(it.second) }
     }
+
+    fun matchesExact(args: List<Node>): Boolean {
+        return argTypes.size == args.size && argTypes.zip(args).all {
+            it.first == it.second.type
+        }
+    }
 }

@@ -40,6 +40,10 @@ object Assign: HasSpecialSyntax, VmBaseOp(
     }
 
     override fun getArgKindOffset(args: List<Node>): Int {
-        return 2 * signatures.indexOfFirst { it.matches(args) } + if(args[1] is ConstValue) 1 else 0
+        val signatureIndex = signatures.indexOfFirst { it.matches(args) }
+
+        require(signatures[signatureIndex].matchesExact(args))
+
+        return 2 * signatureIndex + if(args[1] is ConstValue) 1 else 0
     }
 }
