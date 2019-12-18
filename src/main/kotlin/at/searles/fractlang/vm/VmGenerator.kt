@@ -57,10 +57,18 @@ static float3 valueAt(double2 pt) {
 		return sb.toString()
 	}
 
-	fun access(relativeOffset: Int, config: BaseOp.ArgKind): String {
-		val intAccess = if(config.isConst) "code[pc + $relativeOffset]" else "data[code[pc + $relativeOffset]]"
+	fun access(relativeOffset: Int, argKind: BaseOp.ArgKind): String {
+		// special treatment for Intel CPUs.
+		if(argKind.isConst && argKind.type == BaseTypes.Cplx) {
+			val arg0 = access(relativeOffset, BaseOp.ArgKind(BaseTypes.Real, true))
+			val arg1 = access(relativeOffset + 2, BaseOp.ArgKind(BaseTypes.Real, true))
+
+			return "((double2) {$arg0, $arg1})"
+		}
+
+		val intAccess = if(argKind.isConst) "code[pc + $relativeOffset]" else "data[code[pc + $relativeOffset]]"
 		
-		return when(config.type) {
+		return when(argKind.type) {
 			BaseTypes.Int -> intAccess
 			BaseTypes.Real -> "(*((double*) (&$intAccess)))"
 			BaseTypes.Cplx -> "(*((double2*) (&$intAccess)))"
