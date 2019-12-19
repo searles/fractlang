@@ -80,6 +80,10 @@ class LinearizeBool(private val code: ArrayList<CodeLine>, private val nameGener
             it.accept(LinearizeStmt(code, nameGenerator))
         }
 
+        code.add(VarBound(block.stmts.dropLast(1).filterIsInstance<VarDecl>().map {
+            IdNode(it.trace, it.name).apply { type = it.varType!! }
+        }))
+
         return block.stmts.last().accept(this)
     }
 

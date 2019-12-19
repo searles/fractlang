@@ -29,29 +29,21 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
         assignment.rhs.accept(LinearizeExpr(code, nameGenerator, assignment.lhs))
     }
 
-    private val allocatedVariablesInBlock = ArrayList<IdNode>()
-
     override fun visit(block: Block) {
-        val allocationOffset = allocatedVariablesInBlock.size
-
         block.stmts.forEach {
             it.accept(this)
         }
 
-        val blockVariablesCount = allocatedVariablesInBlock.size - allocationOffset
+        // FIXME it should be enough to do this outside of loops.
 
-        for(i in 0 until blockVariablesCount) {
-            allocatedVariablesInBlock.removeAt(allocatedVariablesInBlock.size - 1)
-        }
-
-        require(allocatedVariablesInBlock.size == allocationOffset)
+        code.add(VarBound(block.stmts.filterIsInstance<VarDecl>().map {
+            IdNode(it.trace, it.name).apply { type = it.varType!! }
+        }))
     }
 
     override fun visit(varDecl: VarDecl) {
         require(varDecl.init == null && varDecl.varType != null && varDecl.varType.vmCodeSize() > 0)
-
         code.add(Alloc(varDecl.name, varDecl.varType))
-        allocatedVariablesInBlock.add(IdNode(varDecl.trace, varDecl.name).apply { type = varDecl.varType })
     }
 
     override fun visit(idNode: IdNode) {
@@ -107,8 +99,6 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
         whileStmt.body.accept(this)
         code.add(VmInstruction(Jump, 0, listOf(startLabel)))
         code.add(falseLabel)
-
-        code.add(VarBound(allocatedVariablesInBlock.toList()))
     }
 
     override fun visit(opNode: OpNode) {

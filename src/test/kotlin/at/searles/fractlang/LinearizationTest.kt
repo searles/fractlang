@@ -68,7 +68,8 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals("Assign[1] [\$1, 1]\n" +
-                "Allocate \$1: Int", output)
+                "Allocate \$1: Int\n" +
+                "VarBound [\$1]", output)
     }
 
     @Test
@@ -89,7 +90,8 @@ class LinearizationTest {
                     "Add[1] [3, \$1, R1]\n" +
                     "Allocate R1: Int\n" +
                     "Add[0] [R1, \$2, \$3]\n" +
-                    "Allocate \$3: Int", output)
+                    "Allocate \$3: Int\n" +
+                    "VarBound [\$1, \$2, \$3]", output)
     }
 
     @Test
@@ -105,10 +107,12 @@ class LinearizationTest {
         Assert.assertEquals(
             "Assign[1] [\$1, 2]\n" +
                     "Allocate \$1: Int\n" +
+                    "VarBound [\$1]\n" +
                     "Add[1] [3, \$1, R1]\n" +
                     "Allocate R1: Int\n" +
                     "Add[1] [1, R1, \$2]\n" +
-                    "Allocate \$2: Int", output)
+                    "Allocate \$2: Int\n" +
+                    "VarBound [\$2]", output)
     }
 
     @Test
@@ -255,6 +259,22 @@ class LinearizationTest {
                     "RealPart[0] [\$1, R1]\n" +
                     "Allocate R1: Real\n" +
                     "Cons[2] [R1, 0.0, \$1]", output)
+    }
+
+    @Test
+    fun testInlineMulWithId() {
+        withSource("var c = point; c = c c;\n")
+
+        actParse()
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals(
+            "Point[0] [\$1]\n" +
+                    "Allocate \$1: Cplx\n" +
+                    "Mul[4] [\$1, \$1, \$1]", output)
     }
 
     @Test

@@ -180,7 +180,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("{_1=1;var_1:Int;}_2=_1;var_2:Int;", output)
+        Assert.assertEquals("_1=1;var_1:Int;_2=_1;var_2:Int;", output)
     }
 
     @Test
@@ -192,7 +192,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("{_1=1;var_1:Int;}_2=_1;var_2:Int;", output)
+        Assert.assertEquals("_1=1;var_1:Int;_2=_1;var_2:Int;", output)
     }
 
     @Test
@@ -204,7 +204,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("{_1=1.1;var_1:Real;}_2=_1;var_2:Real;", output)
+        Assert.assertEquals("_1=1.1;var_1:Real;_2=_1;var_2:Real;", output)
     }
 
     @Test
@@ -228,7 +228,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("{_1=1.0;var_1:Real;_2=_1;var_2:Real;}_3=_2;var_3:Real;", output)
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=_1;var_2:Real;_3=_2;var_3:Real;", output)
     }
 
     @Test
@@ -341,12 +341,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=2;var_1:Int;" +
-                "{" +
-                "{_2=3;var_2:Int;" +
-                "_3=1+_2*_1;var_3:Int;" +
-                "}_4=_3;var_4:Int;" +
-                "}", output)
+        Assert.assertEquals("_1=2;var_1:Int;{_2=3;var_2:Int;_3=1+_2*_1;var_3:Int;_4=_3;var_4:Int;}", output)
     }
 
     private lateinit var palettes: List<PaletteData>

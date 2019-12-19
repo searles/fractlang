@@ -64,7 +64,12 @@ class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private v
             innerVisitor.addStmt(it.accept(innerVisitor))
         }
 
-        parentVisitor.addStmt(Block(classEnv.trace, innerVisitor.block))
+        // FIXME Check. This was a quick fix.
+        innerVisitor.block.forEach {
+            parentVisitor.addStmt(it)
+        }
+
+        // parentVisitor.addStmt(Block(classEnv.trace, innerVisitor.block))
 
         return ObjectNode(trace, innerVisitor.table.top())
     }
@@ -114,6 +119,10 @@ class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private v
 		return createImplicit(cplxNode)
     }
 
+    override fun visit(idNode: IdNode): Node {
+        return createImplicit(idNode)
+    }
+
     override fun visit(app: App): Node {
 		// for example (sin x) y?
         return createImplicit(app)
@@ -137,10 +146,6 @@ class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private v
 
     override fun visit(valDecl: ValDecl): Node {
         throw IllegalArgumentException("val declaration should have been inlined")
-    }
-
-    override fun visit(idNode: IdNode): Node {
-		throw IllegalArgumentException("id should have been inlined")
     }
 
     override fun visit(qualifiedNode: QualifiedNode): Node {
