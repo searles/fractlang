@@ -4,6 +4,7 @@ import at.searles.commons.math.Cplx
 import at.searles.fractlang.linear.Alloc
 import at.searles.fractlang.linear.CodeLine
 import at.searles.fractlang.linear.Label
+import at.searles.fractlang.linear.VarBound
 import at.searles.fractlang.nodes.IdNode
 import at.searles.fractlang.ops.Assign
 import at.searles.fractlang.ops.BaseOp
@@ -109,6 +110,13 @@ class VmCodeAssembler(private val linearizedCode: ArrayList<CodeLine>, instructi
 				val varName = stmt.id
 				val removedEntry = actives.remove(memoryOffsets[varName]!!)
 				require(removedEntry == null || varName == removedEntry.id)
+			} else if (stmt is VarBound) {
+				stmt.vars.forEach {
+					if (!memoryOffsets.containsKey(it.id)) {
+						val offset = addToMemoryOffsets(it.id, actives)
+						actives[offset] = it
+					}
+				}
 			}
 		}
 	}

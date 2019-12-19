@@ -39,7 +39,7 @@ abstract class StandardOp(private val countConfigPerSignature: Int, vararg signa
             }
         }
 
-        return index + countConfigPerSignature * signatures.indices.find { signatures[it].matches(args) }!!
+        return index + countConfigPerSignature * signatures.indices.find { signatures[it].matchesExact(args) }!!
     }
 
     override fun getSignatureAt(offset: Int): Signature {

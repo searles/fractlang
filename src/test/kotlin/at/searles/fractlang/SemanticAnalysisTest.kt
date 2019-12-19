@@ -169,7 +169,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_2={2+_1;};var_2:Int;", output)
+        Assert.assertEquals("_1=1;var_1:Int;_2=2+_1;var_2:Int;", output)
     }
 
     @Test
@@ -265,7 +265,8 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;if(if(1==_1)falseelsetrue)_1=2else_1=3;", output)
+        // FIXME improve
+        Assert.assertEquals("_1=1;var_1:Int;if(not1==_1andtrue)_1=2else_1=3;", output)
     }
 
     @Test

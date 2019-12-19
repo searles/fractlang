@@ -88,18 +88,13 @@ class VmCodeTest {
     fun testMandelbrotBug1() {
         withSource("var n = 0;\n" +
                 "var c = point;\n" +
-                "c = re c;\n" + // This one is ignored.
                 "var z = 0:0;\n" +
                 "\n" +
                 "while ({\n" +
-                "\tz = z^2 + c;\n" +  // And this calculation is wrong.
-                "\n" +
+                "\tz = z*z + c;\n" + // here is a problem, probably an overlap of variables.
                 "\tvar radZ = rad z;\n" +
-                "\n" +
                 "\tif(radZ > 4) {\n" +
-                "\t\tvar continuousAddend = 1.0 - radZ;\n" +
-                "\n" +
-                "\t\tsetResult(0, n / 9.9, 0);\n" +
+                "\t\tsetResult(0, n * 0.1, 0);\n" +
                 "\t\tfalse\n" +
                 "\t} else if(not next(10, n)) {\n" +
                 "\t\tsetResult(1, 0, 0);\n" +

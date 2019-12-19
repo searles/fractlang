@@ -145,7 +145,7 @@ class LinearizationTest {
         Assert.assertEquals(
             "Point[0] [R1]\n" +
                     "Allocate R1: Cplx\n" +
-                    "Reciprocal[0] [R1, R2]\n" +
+                    "Reciprocal[1] [R1, R2]\n" +
                     "Allocate R2: Cplx\n" +
                     "Point[0] [R3]\n" +
                     "Allocate R3: Cplx\n" +
@@ -254,7 +254,7 @@ class LinearizationTest {
                     "Allocate \$1: Int\n" +
                     "ToReal[0] [\$1, R1]\n" +
                     "Allocate R1: Real\n" +
-                    "Mul[1] [0.5, R1, \$2]\n" +
+                    "Mul[3] [0.5, R1, \$2]\n" +
                     "Allocate \$2: Real\n" +
                     "ToReal[0] [\$1, R2]\n" +
                     "Allocate R2: Real\n" +
@@ -280,7 +280,8 @@ class LinearizationTest {
                     "Label R2\n" +
                     "Add[1] [1, \$1, \$1]\n" +
                     "Jump[0] [Label R1]\n" +
-                    "Label R3", output)
+                    "Label R3\n" +
+                    "VarBound [\$1]", output)
     }
 
     @Test

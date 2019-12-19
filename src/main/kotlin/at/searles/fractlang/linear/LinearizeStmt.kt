@@ -6,7 +6,6 @@ import at.searles.fractlang.nodes.*
 import at.searles.fractlang.ops.BaseOp
 import at.searles.fractlang.ops.Jump
 import at.searles.fractlang.ops.VmBaseOp
-import at.searles.fractlang.vm.VmArg
 import at.searles.fractlang.vm.VmInstruction
 
 class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGenerator: Iterator<String>): Visitor<Unit> {
@@ -31,16 +30,29 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
         assignment.rhs.accept(LinearizeExpr(code, nameGenerator, assignment.lhs))
     }
 
+    private val allocatedVariablesInBlock = ArrayList<IdNode>()
+
     override fun visit(block: Block) {
+        val allocationOffset = allocatedVariablesInBlock.size
+
         block.stmts.forEach {
             it.accept(this)
         }
+
+        val blockVariablesCount = allocatedVariablesInBlock.size - allocationOffset
+
+        for(i in 0 until blockVariablesCount) {
+            allocatedVariablesInBlock.removeAt(allocatedVariablesInBlock.size - 1)
+        }
+
+        require(allocatedVariablesInBlock.size == allocationOffset)
     }
 
     override fun visit(varDecl: VarDecl) {
         require(varDecl.init == null && varDecl.varType != null)
 
         if(varDecl.varType.vmCodeSize() == 0) {
+            // FIXME is this possible?
             throw SemanticAnalysisException(
                 "not an assignable expression",
                 varDecl.trace
@@ -48,6 +60,7 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
         }
 
         code.add(Alloc(varDecl.name, varDecl.varType))
+        allocatedVariablesInBlock.add(IdNode(varDecl.trace, varDecl.name).apply { type = varDecl.varType })
     }
 
     override fun visit(idNode: IdNode) {
@@ -86,11 +99,13 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(whileStmt: While) {
+
         val startLabel = Label(nameGenerator.next())
         val trueLabel = Label(nameGenerator.next())
         val falseLabel = Label(nameGenerator.next())
 
         code.add(startLabel)
+
         whileStmt.condition.accept(
             LinearizeBool(
                 code,
@@ -99,10 +114,13 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
                 falseLabel
             )
         )
+
         code.add(trueLabel)
         whileStmt.body.accept(this)
         code.add(VmInstruction(Jump, 0, listOf(startLabel)))
         code.add(falseLabel)
+
+        code.add(VarBound(allocatedVariablesInBlock.toList()))
     }
 
     override fun visit(opNode: OpNode) {
