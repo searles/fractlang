@@ -404,7 +404,7 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 	}
 
 	override fun visit(externDecl: ExternDecl): Node {
-		table.declareExtern(externDecl.trace, externDecl.name, externDecl.description, externDecl.expr)
+		table.addExternValue(externDecl.trace, externDecl.name, externDecl.description, externDecl.expr)
 		return Nop(externDecl.trace)
 	}
 

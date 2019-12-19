@@ -5,12 +5,15 @@ import at.searles.fractlang.ops.Op
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.parsing.Trace
 
-class RootSymbolTable(private val instructions: Map<String, Op>, private val definedExternValues: Map<String, String>): SymbolTable {
+class RootSymbolTable(private val namedInstructions: Map<String, Op>, private val parameters: Map<String, String>): SymbolTable {
 
-    private val externValueMap = HashMap<String, ExternNode>()
+    /**
+     * Content is added to th
+     */
+    private val parameterMap = HashMap<String, ExternNode>()
 
-    val externValues: Map<String, String>
-        get() = externValueMap.mapValues { it.value.expr }
+    val activeParameters: Map<String, String>
+        get() = parameterMap.mapValues { it.value.expr }
 
     var scale: DoubleArray? = null
         private set
@@ -18,12 +21,12 @@ class RootSymbolTable(private val instructions: Map<String, Op>, private val def
     val palettes = ArrayList<PaletteData>()
 
     override fun get(trace: Trace, id: String): Node? {
-        if(externValueMap.containsKey(id)) {
-            return externValueMap[id]
+        if(parameterMap.containsKey(id)) {
+            return parameterMap[id]
         }
 
-        if(instructions.containsKey(id)) {
-            return instructions.getValue(id).toNode(trace)
+        if(namedInstructions.containsKey(id)) {
+            return namedInstructions.getValue(id).toNode(trace)
         }
 
         if(id == declareScale) { // TODO Special ops. Not the best design...
@@ -37,21 +40,20 @@ class RootSymbolTable(private val instructions: Map<String, Op>, private val def
         return null
     }
 
-    override fun declareExtern(trace: Trace, name: String, description: String, expr: String) {
-        if(externValueMap.containsKey(name)) {
+    override fun addExternValue(trace: Trace, name: String, description: String, expr: String) {
+        if(parameterMap.containsKey(name)) {
             throw SemanticAnalysisException("extern $name already defined", trace)
         }
 
-        val isDefault = !definedExternValues.containsKey(name)
+        val isDefault = !parameters.containsKey(name)
 
         val node = ExternNode(trace, name, description, isDefault,
-            if(isDefault) expr else definedExternValues.getValue(name))
+            if(isDefault) expr else parameters.getValue(name))
 
-        externValueMap[name] = node
+        parameterMap[name] = node
     }
 
     private inner class DeclareScale: Op {
-        // TODO Not a pretty design...
         override fun apply(trace: Trace, args: List<Node>): Node {
             if(scale != null) {
                 throw SemanticAnalysisException("scale already declared", trace)
@@ -65,8 +67,6 @@ class RootSymbolTable(private val instructions: Map<String, Op>, private val def
 
             return Nop(trace)
         }
-
-        // TODO override val usage: String = "declareScale(a, b, c, d, e, f)"
     }
 
     private inner class DeclarePalette: Op {
@@ -117,11 +117,7 @@ class RootSymbolTable(private val instructions: Map<String, Op>, private val def
 
             return Nop(trace)
         }
-
-        // TODO override val usage: String = "declarePalette(name, width, height, [x, y, color], ...)"
     }
-
-    class PaletteData(val name: String, val width: Int, val height: Int, val points: List<IntArray>)
 
     companion object {
         const val declarePalette = "declarePalette"

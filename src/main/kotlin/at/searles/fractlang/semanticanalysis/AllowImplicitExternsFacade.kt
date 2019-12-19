@@ -17,7 +17,7 @@ class AllowImplicitExternsFacade(val owner: String, val analyzer: SemanticAnalys
         return node
     }
 
-    override fun declareExtern(trace: Trace, name: String, description: String, expr: String) {
+    override fun addExternValue(trace: Trace, name: String, description: String, expr: String) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

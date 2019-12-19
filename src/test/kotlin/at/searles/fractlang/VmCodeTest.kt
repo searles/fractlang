@@ -216,17 +216,16 @@ class VmCodeTest {
         Assert.assertEquals(listOf(0), vmCode)
     }
 
-    private lateinit var ci: CompilerInstance
+    private lateinit var ci: FractlangProgram
     private lateinit var source: String
-    private lateinit var vmCode: List<Int>
+    private lateinit var vmCode: IntArray
 
     private fun actCreateVmCode() {
-        ci.compile()
+        ci = FractlangProgram(source, emptyMap())
         vmCode = ci.vmCode
     }
 
     private fun withSource(src: String) {
         source = src
-        ci = CompilerInstance(src,  emptyMap())
     }
 }

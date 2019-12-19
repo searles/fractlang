@@ -349,7 +349,7 @@ class SemanticAnalysisTest {
                 "}", output)
     }
 
-    private lateinit var palettes: List<RootSymbolTable.PaletteData>
+    private lateinit var palettes: List<PaletteData>
     private var scale: DoubleArray? = null
     private lateinit var output: String
     private lateinit var inlined: Node
@@ -361,7 +361,7 @@ class SemanticAnalysisTest {
     }
 
     private fun actInline() {
-        val rootTable = RootSymbolTable(CompilerInstance.namedInstructions, emptyMap())
+        val rootTable = RootSymbolTable(FractlangProgram.namedInstructions, emptyMap())
         val varNameGenerator = generateSequence(1) { it + 1 }.map { "_$it" }.iterator()
 
         inlined = ast.accept(

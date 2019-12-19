@@ -3,8 +3,6 @@ package at.searles.fractlang
 import at.searles.fractlang.linear.CodeLine
 import at.searles.fractlang.linear.LinearizeStmt
 import at.searles.fractlang.nodes.Node
-import at.searles.fractlang.ops.Point
-import at.searles.fractlang.ops.SetResult
 import at.searles.fractlang.parsing.FractlangParser
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
@@ -337,7 +335,7 @@ class LinearizationTest {
     }
 
     private fun actInline() {
-        val rootTable = RootSymbolTable(CompilerInstance.namedInstructions, emptyMap())
+        val rootTable = RootSymbolTable(FractlangProgram.namedInstructions, emptyMap())
 
         val varNameGenerator = generateSequence(1) { it + 1 }.map { "\$$it" }.iterator()
 

@@ -36,8 +36,8 @@ class ExternTest {
 
         Assert.assertEquals("_1=1;var_1:Int;_2=if(0<_1)0else4;var_2:Int;", output)
 
-        Assert.assertTrue(rootTable.externValues.containsKey("c"))
-        Assert.assertTrue(rootTable.externValues.containsKey("d"))
+        Assert.assertTrue(rootTable.activeParameters.containsKey("c"))
+        Assert.assertTrue(rootTable.activeParameters.containsKey("d"))
 
     }
 
@@ -55,8 +55,8 @@ class ExternTest {
 
         Assert.assertEquals("_1=1;var_1:Int;_2=if(0<_1)17else4;var_2:Int;", output)
 
-        Assert.assertTrue(rootTable.externValues.containsKey("c"))
-        Assert.assertTrue(rootTable.externValues.containsKey("f"))
+        Assert.assertTrue(rootTable.activeParameters.containsKey("c"))
+        Assert.assertTrue(rootTable.activeParameters.containsKey("f"))
 
     }
 

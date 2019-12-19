@@ -7,49 +7,41 @@ import at.searles.fractlang.nodes.CplxNode
 import at.searles.fractlang.nodes.Node
 import at.searles.fractlang.nodes.RealNode
 import at.searles.fractlang.ops.*
-import at.searles.fractlang.ops.BaseOp
-import at.searles.fractlang.ops.Op
 import at.searles.fractlang.parsing.FractlangParser
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
 import at.searles.fractlang.vm.VmCodeAssembler
 import at.searles.parsing.ParserStream
 
-class CompilerInstance(private val sourceCodeStream: ParserStream,
-                       instructions: Map<String, Op>,
-                       externValues: Map<String, String> = emptyMap()) {
-    constructor(sourceCode: String, externValues: Map<String, String>):
-            this(ParserStream.fromString(sourceCode), namedInstructions, externValues)
+class FractlangProgram(val sourceCode: String, parameters: Map<String, String>) {
 
-    private val symbolTable = RootSymbolTable(instructions, externValues)
+    private val symbolTable = RootSymbolTable(namedInstructions, parameters)
     private val varNameGenerator = generateSequence(0) { it + 1 }.map { "\$$it" }.iterator()
 
     private lateinit var typedAst: Node
     private lateinit var linearizedCode: ArrayList<CodeLine>
     private lateinit var vmCodeAssembler: VmCodeAssembler
 
-    val vmCode: List<Int>
-        get() = vmCodeAssembler.vmCode
+    val vmCode
+        get() = vmCodeAssembler.vmCode.toIntArray()
 
-    val externValues: Map<String, String>
-            get() = symbolTable.externValues
+    val scale
+            get() = symbolTable.scale
 
-    val scale = symbolTable.scale
+    val palettes
+            get() = symbolTable.palettes
 
-    val palettes = symbolTable.palettes
+    val activeParameters
+            get() = symbolTable.activeParameters
 
-    fun analyzeExpr() {
-        val ast = FractlangParser.expr.parse(sourceCodeStream)
-            ?: throw SemanticAnalysisException("Could not parse program", sourceCodeStream.createTrace())
-
-        if(!FractlangParser.eof.recognize(sourceCodeStream)) {
-            throw SemanticAnalysisException("Program not fully parsed", sourceCodeStream.createTrace())
-        }
-
-        typedAst = ast.accept(SemanticAnalysisVisitor(symbolTable, varNameGenerator))
+    init {
+        analyze()
+        compile()
     }
 
-    fun analyze() {
+    private fun analyze() {
+        val sourceCodeStream = ParserStream.fromString(sourceCode)
+
         val ast = FractlangParser.program.parse(sourceCodeStream)
             ?: throw SemanticAnalysisException("Could not parse program", sourceCodeStream.createTrace())
 
@@ -60,11 +52,12 @@ class CompilerInstance(private val sourceCodeStream: ParserStream,
         typedAst = ast.accept(SemanticAnalysisVisitor(symbolTable, varNameGenerator))
     }
 
-    fun compile() {
-        analyze()
+    private fun compile(): FractlangProgram {
         linearizedCode = ArrayList()
         typedAst.accept(LinearizeStmt(linearizedCode, varNameGenerator))
         vmCodeAssembler = VmCodeAssembler(linearizedCode, vmInstructions)
+
+        return this
     }
 
     companion object {

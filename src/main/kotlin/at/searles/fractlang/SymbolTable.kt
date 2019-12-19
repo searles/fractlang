@@ -10,7 +10,7 @@ interface SymbolTable {
         return Mutable(this)
     }
 
-    fun declareExtern(trace: Trace, name: String, description: String, expr: String)
+    fun addExternValue(trace: Trace, name: String, description: String, expr: String)
 
     class Mutable(private val parent: SymbolTable): SymbolTable {
         private val map: MutableMap<String, Node> = HashMap()
@@ -19,8 +19,8 @@ interface SymbolTable {
             return map[id] ?: parent.get(trace, id)
         }
 
-        override fun declareExtern(trace: Trace, name: String, description: String, expr: String) {
-            parent.declareExtern(trace, name, description, expr)
+        override fun addExternValue(trace: Trace, name: String, description: String, expr: String) {
+            parent.addExternValue(trace, name, description, expr)
         }
 
         fun set(id: String, value: Node): Boolean {
