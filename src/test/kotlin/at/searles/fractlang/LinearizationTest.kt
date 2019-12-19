@@ -24,7 +24,8 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals("Assign[5] [\$1, 5.859874482048838:1.0]\n" +
-                "Allocate \$1: Cplx", output)
+                "Allocate \$1: Cplx\n" +
+                "VarBound [\$1]", output)
     }
 
     @Test
@@ -39,7 +40,8 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals("Assign[1] [\$1, 1]\n" +
-                "Allocate \$1: Int", output)
+                "Allocate \$1: Int\n" +
+                "VarBound [\$1]", output)
     }
 
     @Test
@@ -131,7 +133,8 @@ class LinearizationTest {
                     "Equal[1] [1, \$1, Label R1, Label R2]\n" +
                     "Label R1\n" +
                     "Add[1] [1, \$1, \$1]\n" +
-                    "Label R2", output)
+                    "Label R2\n" +
+                    "VarBound [\$1]", output)
     }
 
     @Test
@@ -153,7 +156,8 @@ class LinearizationTest {
                     "Allocate R3: Cplx\n" +
                     "RealPart[0] [R3, R4]\n" +
                     "Allocate R4: Real\n" +
-                    "SetResult[1] [0, R2, R4]", output)
+                    "SetResult[1] [0, R2, R4]\n" +
+                    "VarBound []", output)
     }
 
     @Test
@@ -175,7 +179,8 @@ class LinearizationTest {
                     "Jump[0] [Label R3]\n" +
                     "Label R2\n" +
                     "Add[1] [2, \$1, \$1]\n" +
-                    "Label R3", output)
+                    "Label R3\n" +
+                    "VarBound [\$1]", output)
     }
 
     @Test
@@ -197,7 +202,8 @@ class LinearizationTest {
                     "Jump[0] [Label R3]\n" +
                     "Label R2\n" +
                     "Assign[1] [\$1, 2]\n" +
-                    "Label R3", output)
+                    "Label R3\n" +
+                    "VarBound [\$1]", output)
     }
 
     @Test
@@ -219,7 +225,8 @@ class LinearizationTest {
                     "Jump[0] [Label R3]\n" +
                     "Label R2\n" +
                     "Assign[1] [\$1, 2]\n" +
-                    "Label R3", output)
+                    "Label R3\n" +
+                    "VarBound [\$1]", output)
     }
 
     @Test
@@ -238,7 +245,8 @@ class LinearizationTest {
                     "Mod[2] [\$1, 2, \$2]\n" +
                     "Allocate \$2: Int\n" +
                     "Mod[1] [2, \$1, \$3]\n" +
-                    "Allocate \$3: Int", output)
+                    "Allocate \$3: Int\n" +
+                    "VarBound [\$1, \$2, \$3]", output)
     }
 
     @Test
@@ -258,7 +266,8 @@ class LinearizationTest {
                     "Allocate \$1: Cplx\n" +
                     "RealPart[0] [\$1, R1]\n" +
                     "Allocate R1: Real\n" +
-                    "Cons[2] [R1, 0.0, \$1]", output)
+                    "Cons[2] [R1, 0.0, \$1]\n" +
+                    "VarBound [\$1]", output)
     }
 
     @Test
@@ -274,7 +283,8 @@ class LinearizationTest {
         Assert.assertEquals(
             "Point[0] [\$1]\n" +
                     "Allocate \$1: Cplx\n" +
-                    "Mul[4] [\$1, \$1, \$1]", output)
+                    "Mul[4] [\$1, \$1, \$1]\n" +
+                    "VarBound [\$1]", output)
     }
 
     @Test
@@ -297,7 +307,8 @@ class LinearizationTest {
                     "ToReal[0] [\$1, R2]\n" +
                     "Allocate R2: Real\n" +
                     "Div[1] [2.0, R2, \$3]\n" +
-                    "Allocate \$3: Real", output)
+                    "Allocate \$3: Real\n" +
+                    "VarBound [\$1, \$2, \$3]", output)
     }
 
     @Test
@@ -335,7 +346,8 @@ class LinearizationTest {
         Assert.assertEquals(
             "Point[0] [\$1]\n" +
                     "Allocate \$1: Cplx\n" +
-                    "SetResult[5] [1, \$1, 2.0]", output)
+                    "SetResult[5] [1, \$1, 2.0]\n" +
+                    "VarBound [\$1]", output)
     }
 
     private lateinit var output: String
