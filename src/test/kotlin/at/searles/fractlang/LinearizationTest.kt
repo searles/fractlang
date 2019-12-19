@@ -252,8 +252,11 @@ class LinearizationTest {
         actPrint()
 
         Assert.assertEquals(
-            "Assign[5] [\$1, 1.0]\n" +
-                "Allocate \$1: Cplx", output)
+            "Point[0] [\$1]\n" +
+                    "Allocate \$1: Cplx\n" +
+                    "RealPart[0] [\$1, R1]\n" +
+                    "Allocate R1: Real\n" +
+                    "Cons[2] [R1, 0.0, \$1]", output)
     }
 
     @Test
