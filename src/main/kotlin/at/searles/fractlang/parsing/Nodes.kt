@@ -12,7 +12,7 @@ import at.searles.regexparser.EscStringParser
 import at.searles.regexparser.RegexParserException
 
 val toInt = {s: CharSequence -> s.toString().toInt()}
-val toHex = {s: CharSequence -> s.toString().toBigInteger(16).toInt()}
+val toHex = {s: CharSequence -> s.substring(1).toBigInteger(16).toInt()}
 val toReal = {s: CharSequence -> s.toString().toDouble()}
 val toIdString = {s: CharSequence -> s.toString()}
 
@@ -42,7 +42,7 @@ object toStringNode: Mapping<String, Node> {
     }
 
     override fun left(result: Node): String? {
-        return (result as? StringNode)?.string
+        return (result as? StringNode)?.value
     }
 }
 

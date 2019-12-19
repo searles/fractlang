@@ -5,7 +5,6 @@ import at.searles.fractlang.parsing.FractlangParser
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.parsing.ParserStream
-import at.searles.parsing.Trace
 import org.junit.Assert
 import org.junit.Test
 
@@ -300,14 +299,15 @@ class SemanticAnalysisTest {
 
     @Test
     fun testDeclareStuff() {
-        withSource("var a: Int = 1; __something(1, 2)")
+        withSource("declareScale(1, 2, 3, 4, 5, 6); " +
+                "declarePalette(\"Hi\", 1, 1, [0, 0, #ffff0000]);" +
+                "declarePalette(\"Hi\", 2, 2, [1, 1, #ffff00ff]);")
 
         actParse()
         actInline()
 
-        Assert.assertEquals(1, declaredItems.size)
-        Assert.assertEquals("something", declaredItems[0].first)
-        Assert.assertEquals(2, declaredItems[0].second.size)
+        Assert.assertNotNull(scale)
+        Assert.assertEquals(2, palettes.size)
     }
 
     @Test
@@ -349,7 +349,8 @@ class SemanticAnalysisTest {
                 "}", output)
     }
 
-    private lateinit var declaredItems: List<Pair<String, List<Node>>>
+    private lateinit var palettes: List<RootSymbolTable.PaletteData>
+    private var scale: DoubleArray? = null
     private lateinit var output: String
     private lateinit var inlined: Node
     private lateinit var ast: Node
@@ -370,7 +371,8 @@ class SemanticAnalysisTest {
             )
         )
 
-        declaredItems = rootTable.declaredItems
+        scale = rootTable.scale
+        palettes = rootTable.palettes
     }
 
     private fun actParse() {

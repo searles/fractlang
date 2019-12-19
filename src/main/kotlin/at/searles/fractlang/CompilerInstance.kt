@@ -34,8 +34,9 @@ class CompilerInstance(private val sourceCodeStream: ParserStream,
     val externValues: Map<String, String>
             get() = symbolTable.externValues
 
-    val declaredItems: List<Pair<String, List<Node>>>
-            get() = symbolTable.declaredItems
+    val scale = symbolTable.scale
+
+    val palettes = symbolTable.palettes
 
     fun analyzeExpr() {
         val ast = FractlangParser.expr.parse(sourceCodeStream)
