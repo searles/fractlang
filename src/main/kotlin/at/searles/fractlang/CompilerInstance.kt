@@ -69,8 +69,11 @@ class CompilerInstance(private val sourceCodeStream: ParserStream,
     companion object {
         val vmInstructions: List<VmBaseOp> = listOf(Add, Sub, Mul, Div, Mod, Pow, Neg,
             Reciprocal, Abs, Assign, Jump, Equal, Less, Next,
-            Cons, RealPart, ImaginaryPart, Point, SetResult,
-            Sqrt, Exp, Log, Sin, Cos, Sinh, Cosh, Rad, Arc, ToReal)
+            Sqrt, Exp, Log, Sin, Cos, Sinh, Cosh,
+            ToReal, Cons,
+            Rad, Arc, RealPart, ImaginaryPart, Conj, Rabs, Iabs,
+            Point, SetResult
+            )
 
         val namedInstructions = mapOf(
             "next" to Next,

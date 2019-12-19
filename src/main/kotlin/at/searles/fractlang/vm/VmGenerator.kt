@@ -222,7 +222,7 @@ static float3 valueAt(double2 pt) {
 		return if(signature.returnType == BaseTypes.Cplx) {
 			"$ret = cabs($arg); "
 		} else {
-			"if($arg < 0) $ret = -$arg; else $ret = $arg; "
+			"$ret = dabs($arg); "
 		}
 	}
 }
