@@ -141,6 +141,17 @@ class VmCodeTest {
         Assert.assertEquals(listOf(30, 0, 99), vmCode)
     }
 
+    @Test
+    fun testMandelbrotBug3() {
+        withSource(
+            "var c = point;\n" +
+                "c = re c;\n")
+
+        actCreateVmCode()
+
+        Assert.assertEquals(listOf(30, 0, 99), vmCode)
+    }
+
 
     @Test
     fun testSimpleMultiplicationError() {

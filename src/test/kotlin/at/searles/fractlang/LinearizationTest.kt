@@ -240,6 +240,23 @@ class LinearizationTest {
     }
 
     @Test
+    fun testAssignRealToCplx() {
+        withSource(
+            "var c = point;\n" +
+                    "c = re c;\n")
+
+        actParse()
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals(
+            "Assign[5] [\$1, 1.0]\n" +
+                "Allocate \$1: Cplx", output)
+    }
+
+    @Test
     fun testDivExpr() {
         withSource("var a = 1; var b = a / 2; var c = 2 / a;")
 

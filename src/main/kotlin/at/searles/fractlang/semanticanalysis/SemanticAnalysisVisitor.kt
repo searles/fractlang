@@ -385,7 +385,11 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 
 		val rhs = assignment.rhs.accept(this)
 
-		return Assignment(assignment.trace, lhs, rhs)
+		if(!lhs.type.canConvert(rhs)) {
+			throw SemanticAnalysisException("Cannot convert to ${lhs.type}", rhs.trace)
+		}
+
+		return Assignment(assignment.trace, lhs, lhs.type.convert(rhs))
 	}
 
 	override fun visit(externDecl: ExternDecl): Node {
