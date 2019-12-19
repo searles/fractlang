@@ -2,6 +2,7 @@ package at.searles.fractlang
 
 import at.searles.fractlang.nodes.ExternNode
 import at.searles.fractlang.nodes.Node
+import at.searles.fractlang.nodes.Nop
 import at.searles.fractlang.nodes.OpNode
 import at.searles.fractlang.ops.Op
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
@@ -14,6 +15,11 @@ class RootSymbolTable(private val instructions: Map<String, Op>, private val def
     val externValues: Map<String, String>
         get() = externValueMap.mapValues { it.value.expr }
 
+    val declaredItems: List<Pair<String, List<Node>>>
+        get() = internalDeclaredItems
+
+    private val internalDeclaredItems = ArrayList<Pair<String, List<Node>>>()
+
     override fun get(trace: Trace, id: String): Node? {
         if(externValueMap.containsKey(id)) {
             return externValueMap[id]
@@ -21,6 +27,10 @@ class RootSymbolTable(private val instructions: Map<String, Op>, private val def
 
         if(instructions.containsKey(id)) {
             return instructions.getValue(id).toNode(trace)
+        }
+
+        if(id.startsWith(innerDeclarationMarker)) {
+            return OpNode(trace, DeclareOp(id.substring(innerDeclarationMarker.length)))
         }
 
         return null
@@ -37,5 +47,16 @@ class RootSymbolTable(private val instructions: Map<String, Op>, private val def
             if(isDefault) expr else definedExternValues.getValue(name))
 
         externValueMap[name] = node
+    }
+
+    private inner class DeclareOp(val id: String): Op {
+        override fun apply(trace: Trace, args: List<Node>): Node {
+            internalDeclaredItems.add(Pair(id, args))
+            return Nop(trace)
+        }
+    }
+
+    companion object {
+        const val innerDeclarationMarker = "__"
     }
 }

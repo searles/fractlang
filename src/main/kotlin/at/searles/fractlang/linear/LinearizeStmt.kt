@@ -1,6 +1,5 @@
 package at.searles.fractlang.linear
 
-import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.fractlang.Visitor
 import at.searles.fractlang.nodes.*
 import at.searles.fractlang.ops.BaseOp
@@ -49,15 +48,7 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(varDecl: VarDecl) {
-        require(varDecl.init == null && varDecl.varType != null)
-
-        if(varDecl.varType.vmCodeSize() == 0) {
-            // FIXME is this possible?
-            throw SemanticAnalysisException(
-                "not an assignable expression",
-                varDecl.trace
-            )
-        }
+        require(varDecl.init == null && varDecl.varType != null && varDecl.varType.vmCodeSize() > 0)
 
         code.add(Alloc(varDecl.name, varDecl.varType))
         allocatedVariablesInBlock.add(IdNode(varDecl.trace, varDecl.name).apply { type = varDecl.varType })
@@ -68,10 +59,7 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(forStmt: For) {
-        throw SemanticAnalysisException(
-            "for not (yet) supported",
-            forStmt.trace
-        )
+        error("should be caught during semantic analysis")
     }
 
     override fun visit(ifStmt: If) {

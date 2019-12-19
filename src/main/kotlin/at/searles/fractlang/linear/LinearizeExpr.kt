@@ -79,9 +79,11 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
 
     private fun assignIfTargetNode(arg: VmArg): VmArg {
         if(optTargetNode != null) {
+            require(optTargetNode.type == (arg as Node).type)
+
             val convArg = optTargetNode.type.convert(arg as Node)
-            val args =  listOf(optTargetNode, convArg
-            )
+            val args =  listOf(optTargetNode, convArg)
+
             require(convArg is VmArg)
 
             @Suppress("UNCHECKED_CAST")

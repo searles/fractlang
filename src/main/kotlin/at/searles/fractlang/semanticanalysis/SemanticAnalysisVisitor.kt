@@ -43,6 +43,10 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 					varNode.trace
 				)
 
+		if(type.vmCodeSize() <= 0) {
+			throw SemanticAnalysisException("Cannot declare a variable of this type", trace)
+		}
+
 		val newVarName = varNameGenerator.next()
 		val newIdNode = IdNode(varNode.trace, newVarName).apply {
 			this.type = type
@@ -383,6 +387,13 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 			)
 		}
 
+		if(lhs.type.vmCodeSize() <= 0) {
+			throw SemanticAnalysisException(
+				"Not a variable",
+				lhs.trace
+			)
+		}
+
 		val rhs = assignment.rhs.accept(this)
 
 		if(!lhs.type.canConvert(rhs)) {
@@ -399,7 +410,6 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 
 	override fun visit(externNode: ExternNode): Node {
 		try {
-			// FIXME is extern a bad word? inject a: "Some value" = 12 better?
 			val stream = ParserStream.fromString(externNode.expr)
 			val exprAst = FractlangParser.expr.parse(stream)
 				?: throw SemanticAnalysisException("Could not parse extern value", externNode.trace)

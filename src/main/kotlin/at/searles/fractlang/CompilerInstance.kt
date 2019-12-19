@@ -16,7 +16,7 @@ import at.searles.fractlang.vm.VmCodeAssembler
 import at.searles.parsing.ParserStream
 
 class CompilerInstance(private val sourceCodeStream: ParserStream,
-                       private val instructions: Map<String, Op>,
+                       instructions: Map<String, Op>,
                        externValues: Map<String, String> = emptyMap()) {
     constructor(sourceCode: String, externValues: Map<String, String>):
             this(ParserStream.fromString(sourceCode), namedInstructions, externValues)
@@ -33,6 +33,9 @@ class CompilerInstance(private val sourceCodeStream: ParserStream,
 
     val externValues: Map<String, String>
             get() = symbolTable.externValues
+
+    val declaredItems: List<Pair<String, List<Node>>>
+            get() = symbolTable.declaredItems
 
     fun analyzeExpr() {
         val ast = FractlangParser.expr.parse(sourceCodeStream)
@@ -74,8 +77,6 @@ class CompilerInstance(private val sourceCodeStream: ParserStream,
             "abs" to Abs,
             "neg" to Neg,
             "rec" to Reciprocal,
-            "re" to RealPart,
-            "im" to ImaginaryPart,
             "sqrt" to Sqrt,
             "exp" to Exp,
             "log" to Log,
@@ -83,6 +84,11 @@ class CompilerInstance(private val sourceCodeStream: ParserStream,
             "cos" to Cos,
             "sinh" to Sinh,
             "cosh" to Cosh,
+            "conj" to Conj,
+            "rabs" to Rabs,
+            "iabs" to Iabs,
+            "re" to RealPart,
+            "im" to ImaginaryPart,
             "rad" to Rad,
             "arc" to Arc,
             "point" to Point,

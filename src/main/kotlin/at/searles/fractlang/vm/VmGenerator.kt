@@ -154,6 +154,9 @@ static float3 valueAt(double2 pt) {
 			is Rad -> "$ret = rad(${args[0]}); "
 			is Arc -> "$ret = arc(${args[0]}); "
 			is Cons -> "$ret = (double2) {${args[0]}, ${args[1]}}; "
+			is Rabs -> "$ret = rabs(${args[0]}); "
+			is Iabs -> "$ret = iabs(${args[0]}); "
+			is Conj -> "$ret = conj(${args[0]}); "
 			is ToReal -> "$ret = (double) ${args[0]}; "
 			else -> throw IllegalArgumentException("not implemented: $op")
 		}

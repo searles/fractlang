@@ -257,6 +257,60 @@ class SemanticAnalysisTest {
     }
 
     @Test
+    fun testErrorOnInconvertibleAssignment() {
+        withSource("var a: Int = 1; a = 3.2;")
+
+        actParse()
+
+        try {
+            actInline()
+            Assert.fail()
+        } catch(e: SemanticAnalysisException) {
+            e.printStackTrace()
+        }
+    }
+
+    @Test
+    fun testErrorOnInconvertibleParameter() {
+        withSource("fun f(var a: Int) { a + 1 }; var b = f(3.2);")
+
+        actParse()
+
+        try {
+            actInline()
+            Assert.fail()
+        } catch(e: SemanticAnalysisException) {
+            e.printStackTrace()
+        }
+    }
+
+    @Test
+    fun testErrorOnInconvertibleVarInit() {
+        withSource("var a: Int = 3.2;")
+
+        actParse()
+
+        try {
+            actInline()
+            Assert.fail()
+        } catch(e: SemanticAnalysisException) {
+            e.printStackTrace()
+        }
+    }
+
+    @Test
+    fun testDeclareStuff() {
+        withSource("var a: Int = 1; __something(1, 2)")
+
+        actParse()
+        actInline()
+
+        Assert.assertEquals(1, declaredItems.size)
+        Assert.assertEquals("something", declaredItems[0].first)
+        Assert.assertEquals(2, declaredItems[0].second.size)
+    }
+
+    @Test
     fun testIfElseBool() {
         withSource("var a = 1; if(if(a == 1) false else true) a = 2 else a = 3")
 
@@ -295,6 +349,7 @@ class SemanticAnalysisTest {
                 "}", output)
     }
 
+    private lateinit var declaredItems: List<Pair<String, List<Node>>>
     private lateinit var output: String
     private lateinit var inlined: Node
     private lateinit var ast: Node
@@ -314,6 +369,8 @@ class SemanticAnalysisTest {
                 varNameGenerator
             )
         )
+
+        declaredItems = rootTable.declaredItems
     }
 
     private fun actParse() {

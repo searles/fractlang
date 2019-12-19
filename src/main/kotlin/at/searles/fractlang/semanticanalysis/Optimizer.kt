@@ -353,17 +353,37 @@ object Optimizer {
 	}
 
     fun re(trace: Trace, args: List<Node>): Node {
-        return when(args[0]) {
-            is CplxNode -> RealNode(trace, (args[0] as CplxNode).value.re())
-            else -> RealPart.createApp(trace, args)
+        if(args[0] is CplxNode) {
+            return RealNode(trace, (args[0] as CplxNode).value.re())
         }
+
+        if(isOp(args[0], Cons)) {
+            val re = (args[0] as App).args[0]
+            val im = (args[0] as App).args[1]
+
+            if (isZero(im)) {
+                return re
+            }
+        }
+
+        return RealPart.createApp(trace, args)
     }
 
     fun im(trace: Trace, args: List<Node>): Node {
-        return when(args[0]) {
-            is CplxNode -> RealNode(trace, (args[0] as CplxNode).value.im())
-            else -> RealPart.createApp(trace, args)
+        if(args[0] is CplxNode) {
+            return RealNode(trace, (args[0] as CplxNode).value.im())
         }
+
+        if(isOp(args[0], Cons)) {
+            val re = (args[0] as App).args[0]
+            val im = (args[0] as App).args[1]
+
+            if (isZero(re)) {
+                return im
+            }
+        }
+
+        return ImaginaryPart.createApp(trace, args)
     }
 
     fun pow(trace: Trace, args: List<Node>): Node {
