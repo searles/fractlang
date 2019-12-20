@@ -57,7 +57,7 @@ static float3 valueAt(double2 pt) {
 		return sb.toString()
 	}
 
-	fun access(relativeOffset: Int, argKind: BaseOp.ArgKind): String {
+	private fun access(relativeOffset: Int, argKind: BaseOp.ArgKind): String {
 		// special treatment for Intel CPUs.
 		if(argKind.isConst && argKind.type == BaseTypes.Cplx) {
 			val arg0 = access(relativeOffset, BaseOp.ArgKind(BaseTypes.Real, true))
@@ -76,7 +76,7 @@ static float3 valueAt(double2 pt) {
 		}
 	}
 	
-	fun generateOp(op: VmBaseOp, offset: Int): String {
+	private fun generateOp(op: VmBaseOp, offset: Int): String {
 		val sb = StringBuilder().append("            // === $op ===\n")
 
 		for(index in 0 until op.countArgKinds) {
@@ -181,7 +181,7 @@ static float3 valueAt(double2 pt) {
 			is Jump -> "pc = ${args[0]}; "
 			is Assign -> "${args[0]} = ${args[1]}; pc += $relativeOffset; "
 			is SetResult -> "result = createResult(${args[0]}, ${args[1]}, ${args[2]}); pc += $relativeOffset; "
-			// TODO relative jump: return "pc = code[pc + relativeOffset + ${args[0]}]"
+			// XXX relative jump: return "pc = code[pc + relativeOffset + ${args[0]}]"
 			else -> throw IllegalArgumentException("not implemented: $op")
 		}
 	}

@@ -1,4 +1,3 @@
 package at.searles.fractlang.linear
 
-interface CodeLine {
-}
+interface CodeLine

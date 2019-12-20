@@ -1,13 +1,8 @@
 package at.searles.fractlang
 
-import at.searles.buf.ReaderCharStream
-import at.searles.fractlang.parsing.FractlangParser
-import at.searles.lexer.TokenStream
-import at.searles.parsing.ParserStream
 import org.junit.Assert
 import org.junit.Test
 import java.io.File
-import java.io.FileReader
 
 class VmCodeTest {
     @Test

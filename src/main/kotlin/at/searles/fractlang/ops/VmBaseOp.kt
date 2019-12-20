@@ -12,7 +12,7 @@ abstract class VmBaseOp(vararg signatures: Signature): BaseOp(*signatures) {
     /**
      * Returns the concrete parameter configuration for the given offset.
      */
-    abstract fun getArgKindAt(offset: Int): List<BaseOp.ArgKind>
+    abstract fun getArgKindAt(offset: Int): List<ArgKind>
 
     /**
      * Inverse of getArgKindAt

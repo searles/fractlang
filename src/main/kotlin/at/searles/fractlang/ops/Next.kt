@@ -14,8 +14,8 @@ object Next: HasSpecialSyntax, StandardOp(2,
     override fun apply(trace: Trace, args: List<Node>): Node {
         if(args[1] !is IdNode) {
             throw SemanticAnalysisException(
-                "Bad assignment",
-                trace
+                "First argument in next must be a register",
+                args[1].trace
             )
         }
 

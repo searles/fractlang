@@ -4,7 +4,6 @@ import at.searles.fractlang.Visitor
 import at.searles.fractlang.nodes.*
 import at.searles.fractlang.ops.*
 import at.searles.fractlang.vm.VmInstruction
-import java.lang.IllegalArgumentException
 
 class LinearizeBool(private val code: ArrayList<CodeLine>, private val nameGenerator: Iterator<String>, private val trueLabel: Label, private val falseLabel: Label): Visitor<Unit> {
     override fun visit(boolNode: BoolNode) {

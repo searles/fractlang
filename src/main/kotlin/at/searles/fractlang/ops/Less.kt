@@ -3,7 +3,6 @@ package at.searles.fractlang.ops
 import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.nodes.*
 import at.searles.parsing.Trace
-import java.lang.IllegalArgumentException
 
 object Less: HasSpecialSyntax, StandardOp(3,
     Signature(BaseTypes.Bool, BaseTypes.Int, BaseTypes.Int),

@@ -80,7 +80,7 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 
 	override fun visit(app: App): Node {
         return app.head.accept(this).accept(
-			InlineAppVisitor(
+			SemanticAnalysisAppVisitor(
 				app.trace,
 				app.args,
 				this
@@ -163,7 +163,7 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 
     override fun visit(classEnv: ClassEnv): Node {
         return classEnv.accept(
-			InlineAppVisitor(
+			SemanticAnalysisAppVisitor(
 				classEnv.trace,
 				emptyList(),
 				this
@@ -173,7 +173,7 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 
     override fun visit(funEnv: FunEnv): Node {
         return funEnv.accept(
-			InlineAppVisitor(
+			SemanticAnalysisAppVisitor(
 				funEnv.trace,
 				emptyList(),
 				this
@@ -234,10 +234,10 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 			 */
 
 			return if(inlinedThenBranch.value) {
-				And.createApp(ifElse.trace, listOf(inlinedCondition, inlinedElseBranch))
+				And.apply(ifElse.trace, listOf(inlinedCondition, inlinedElseBranch))
 			} else {
-				And.createApp(ifElse.trace, listOf(
-					Not.createApp(ifElse.trace, listOf(inlinedCondition)),
+				And.apply(ifElse.trace, listOf(
+					Not.apply(ifElse.trace, listOf(inlinedCondition)),
 					inlinedElseBranch)
 				)
 			}
@@ -249,12 +249,12 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 			 * if(a) b else false ==  a or b
 			 */
 			return if(inlinedElseBranch.value) {
-				Or.createApp(ifElse.trace, listOf(
-					Not.createApp(ifElse.trace, listOf(inlinedCondition)),
+				Or.apply(ifElse.trace, listOf(
+					Not.apply(ifElse.trace, listOf(inlinedCondition)),
 					inlinedThenBranch)
 				)
 			} else {
-				Or.createApp(ifElse.trace, listOf(inlinedCondition, inlinedThenBranch))
+				Or.apply(ifElse.trace, listOf(inlinedCondition, inlinedThenBranch))
 			}
 		}
 
@@ -337,8 +337,9 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 	}
 
 	override fun visit(objectNode: ObjectNode): Node {
-		// TODO is it?
-		throw IllegalArgumentException("unreachable")
+		// XXX is it?
+		throw SemanticAnalysisException("I thought this branch is unreachable. Please file a bug with " +
+				"the source code.", objectNode.trace)
 	}
 
     override fun visit(vectorNode: VectorNode): Node {
@@ -366,7 +367,6 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
     override fun visit(forStmt: For): Node {
 		// syntax: for ( (var)? id (':' type)? in collection )
 		// collection is either a vector or a 1..3 or a 1 until range.
-		// TODO sometimes...
 		throw SemanticAnalysisException(
 			"not implemented",
 			forStmt.trace

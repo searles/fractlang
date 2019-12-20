@@ -46,7 +46,6 @@ class VmCodeAssembler(private val linearizedCode: ArrayList<CodeLine>, instructi
 
 	fun add(real: Double) {
 		val l = java.lang.Double.doubleToRawLongBits(real)
-		// FIXME beware of big endian systems [are there any?]
 		vmCode.add((l and 0x0ffffffffL).toInt())
 		vmCode.add((l shr 32).toInt())
 	}

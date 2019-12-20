@@ -16,7 +16,7 @@ interface SymbolTable {
         private val map: MutableMap<String, Node> = HashMap()
 
         override fun get(trace: Trace, id: String): Node? {
-            return map[id] ?: parent.get(trace, id)
+            return map[id] ?: parent[trace, id]
         }
 
         override fun addExternValue(trace: Trace, name: String, description: String, expr: String) {

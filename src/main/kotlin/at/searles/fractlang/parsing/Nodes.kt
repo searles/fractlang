@@ -84,10 +84,10 @@ object toQualified: Fold<Node, String, Node> {
 
 object toEscString: Mapping<CharSequence, String> {
     override fun parse(stream: ParserStream, left: CharSequence): String? {
-        try {
-            return EscStringParser.parse(CodePointStream(left.toString()))
+        return try {
+            EscStringParser.parse(CodePointStream(left.toString()))
         } catch(e: RegexParserException) {
-            return null
+            null
         }
     }
 

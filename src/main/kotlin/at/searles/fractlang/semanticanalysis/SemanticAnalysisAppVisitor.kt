@@ -8,7 +8,7 @@ import at.searles.parsing.Trace
 /**
  * args are not inlined
  */
-class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private val parentVisitor: SemanticAnalysisVisitor):
+class SemanticAnalysisAppVisitor(val trace: Trace, private val args: List<Node>, private val parentVisitor: SemanticAnalysisVisitor):
     Visitor<Node> {
     private val inlinedArgs: List<Node> by lazy {
 		args.map { it.accept(parentVisitor) }
@@ -64,12 +64,11 @@ class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private v
             innerVisitor.addStmt(it.accept(innerVisitor))
         }
 
-        // FIXME Check. This was a quick fix.
+        // Declarations must be on same level, otherwise
+        // variables will be reused in later step.
         innerVisitor.block.forEach {
             parentVisitor.addStmt(it)
         }
-
-        // parentVisitor.addStmt(Block(classEnv.trace, innerVisitor.block))
 
         return ObjectNode(trace, innerVisitor.table.top())
     }
@@ -81,7 +80,6 @@ class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private v
     override fun visit(vectorNode: VectorNode): Node {
 		// this could be something like [1,2,3][4]
 		
-		// TODO sometimes.
 		throw SemanticAnalysisException(
             "lists are not yet supported",
             vectorNode.trace
@@ -93,7 +91,6 @@ class InlineAppVisitor(val trace: Trace, private val args: List<Node>, private v
 		checkArity(trace, 1)
 		
 		if(inlinedArgs[0] is VectorNode) {
-            // TODO sometimes.
             throw SemanticAnalysisException(
                 "lists are not yet supported",
                 trace

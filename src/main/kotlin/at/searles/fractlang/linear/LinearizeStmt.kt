@@ -34,8 +34,6 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
             it.accept(this)
         }
 
-        // FIXME it should be enough to do this outside of loops.
-
         code.add(VarBound(block.stmts.filterIsInstance<VarDecl>().map {
             IdNode(it.trace, it.name).apply { type = it.varType!! }
         }))

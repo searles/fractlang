@@ -5,12 +5,15 @@ import at.searles.fractlang.nodes.ExternDecl
 import at.searles.fractlang.nodes.Node
 import at.searles.parsing.Trace
 
-class AllowImplicitExternsFacade(val owner: String, val analyzer: SemanticAnalysisVisitor) : SymbolTable {
+/**
+ * When parsing externs, this one is used to allow implicit extern definitions.
+ */
+class AllowImplicitExternsFacade(private val owner: String, private val analyzer: SemanticAnalysisVisitor) : SymbolTable {
     override fun get(trace: Trace, id: String): Node? {
         val node = analyzer.table[trace, id]
 
         if(node == null) {
-            ExternDecl(trace, id, "-> $owner", "0").accept(analyzer)
+            ExternDecl(trace, id, "-> $owner", defaultExpr).accept(analyzer)
             return analyzer.table[trace, id] ?: error("undefined implicit extern")
         }
 
@@ -18,10 +21,10 @@ class AllowImplicitExternsFacade(val owner: String, val analyzer: SemanticAnalys
     }
 
     override fun addExternValue(trace: Trace, name: String, description: String, expr: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        analyzer.table.addExternValue(trace, name, description, expr)
     }
 
     companion object {
-        val defaultExpr = "0"
+        const val defaultExpr = "0"
     }
 }
