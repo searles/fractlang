@@ -18,6 +18,8 @@ enum class BaseTypes: Type {
         override fun commonType(type: Type): Type? {
             return when(type) {
                 Int -> Int
+                Real -> Real
+                Cplx -> Cplx
                 else -> null
             }
         }
@@ -49,6 +51,7 @@ enum class BaseTypes: Type {
             return when(type) {
                 Int -> Real
                 Real -> Real
+                Cplx -> Cplx
                 else -> null
             }
         }
