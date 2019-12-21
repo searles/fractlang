@@ -8,9 +8,9 @@ import at.searles.parsing.Trace
 class RootSymbolTable(private val namedInstructions: Map<String, Op>, private val parameters: Map<String, String>): SymbolTable {
 
     /**
-     * Content is added to th
+     * Content is added to this map
      */
-    private val parameterMap = HashMap<String, ExternNode>()
+    private val parameterMap = LinkedHashMap<String, ExternNode>()
 
     val activeParameters: Map<String, String>
         get() = parameterMap.mapValues { it.value.expr }
