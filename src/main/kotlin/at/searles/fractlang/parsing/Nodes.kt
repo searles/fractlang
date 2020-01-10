@@ -10,19 +10,26 @@ import at.searles.parsing.*
 import at.searles.regexparser.CodePointStream
 import at.searles.regexparser.EscStringParser
 import at.searles.regexparser.RegexParserException
+import java.math.BigInteger
 
-val toInt = {s: CharSequence -> s.toString().toInt()}
-val toHex = {s: CharSequence -> s.substring(1).toBigInteger(16).toInt()}
+val toInt = {s: CharSequence -> s.toString().toBigInteger()}
+val toHex = {s: CharSequence -> s.substring(1).toBigInteger(16).toInt().toBigInteger()} // this must cover #ffffffff
 val toReal = {s: CharSequence -> s.toString().toDouble()}
 val toIdString = {s: CharSequence -> s.toString()}
 
-object toIntNode: Mapping<Int, Node> {
-    override fun parse(stream: ParserStream, left: Int): Node? {
-        return IntNode(stream.createTrace(), left)
+object toIntNode: Mapping<BigInteger, Node> {
+    override fun parse(stream: ParserStream, left: BigInteger): Node? {
+        val intValue = left.toInt()
+
+        if(BigInteger.valueOf(intValue.toLong()) != left) {
+            throw SemanticAnalysisException("integer must be in range -2147483648 to 2147483647", stream.createTrace())
+        }
+
+        return IntNode(stream.createTrace(), left.toInt())
     }
 
-    override fun left(result: Node): Int? {
-        return (result as? IntNode)?.value
+    override fun left(result: Node): BigInteger? {
+        return (result as? IntNode)?.value?.let { BigInteger.valueOf(it.toLong()) }
     }
 }
 

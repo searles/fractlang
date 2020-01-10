@@ -337,7 +337,7 @@ object Optimizer {
 		}
 
 		// //x ->
-		if(isOp(args[0], Reciprocal)) return (args[0] as App).args[0]
+		if(isOp(args[0], Recip)) return (args[0] as App).args[0]
 
 		// /(x / y) -> y / x
 		if(isOp(
@@ -349,7 +349,7 @@ object Optimizer {
             listOf((args[0] as App).args[1], (args[0] as App).args[0])
         )
 
-		return Reciprocal.createApp(trace, args)
+		return Recip.createApp(trace, args)
 	}
 
     fun re(trace: Trace, args: List<Node>): Node {

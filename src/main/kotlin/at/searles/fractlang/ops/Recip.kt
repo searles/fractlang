@@ -5,7 +5,7 @@ import at.searles.fractlang.semanticanalysis.Optimizer
 import at.searles.fractlang.nodes.Node
 import at.searles.parsing.Trace
 
-object Reciprocal: HasSpecialSyntax, StandardOp(1,
+object Recip: HasSpecialSyntax, StandardOp(1,
     Signature(BaseTypes.Real, BaseTypes.Real),
     Signature(BaseTypes.Cplx, BaseTypes.Cplx)
 ) {

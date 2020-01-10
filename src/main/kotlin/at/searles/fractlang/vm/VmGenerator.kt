@@ -138,7 +138,7 @@ static float3 valueAt(double2 pt) {
 			is Div -> generateDiv(offset, args, ret)
 			is Mod -> "$ret = ${args[0]} % ${args[1]}; "
 			is Neg -> "$ret = -${args[0]}; "
-			is Reciprocal -> generateRecip(offset, args[0], ret)
+			is Recip -> generateRecip(offset, args[0], ret)
 			is Point -> "$ret = pt; "
 			is RealPart -> "$ret = ${args[0]}.x; "
 			is ImaginaryPart -> "$ret = ${args[0]}.y; "
@@ -207,7 +207,7 @@ static float3 valueAt(double2 pt) {
 	}
 
 	private fun generateRecip(offset: Int, arg: String, ret: String): String {
-		val signature = Reciprocal.getSignatureAt(offset)
+		val signature = Recip.getSignatureAt(offset)
 
 		return if(signature.returnType == BaseTypes.Cplx) {
 			"$ret = cdiv((double2) {1., 0.}, $arg); "

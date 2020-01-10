@@ -1,8 +1,11 @@
 package at.searles.fractlang
 
 import at.searles.buf.ReaderCharStream
+import at.searles.fractlang.nodes.IntNode
+import at.searles.fractlang.nodes.RealNode
 import at.searles.lexer.TokenStream
 import at.searles.fractlang.parsing.FractlangParser
+import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.parsing.ParserStream
 import org.junit.Assert
 import org.junit.Test
@@ -208,6 +211,28 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val source = FractlangParser.expr.print(ast)
 
         Assert.assertEquals("-(1+2)", source?.toString())
+    }
+
+    @Test
+    fun testErrorOnLongIntl() {
+        val input = ParserStream.fromString("1234223432344234")
+
+        try {
+            FractlangParser.expr.parse(input)
+            Assert.fail()
+        } catch(e: SemanticAnalysisException) {
+            //
+        }
+    }
+
+    @Test
+    fun testLongHex() {
+        val input = ParserStream.fromString("#ffffffff")
+        val ast = FractlangParser.expr.parse(input)
+        val source = FractlangParser.expr.print(ast)
+
+        Assert.assertTrue(ast is IntNode)
+        Assert.assertEquals("-1", source?.toString())
     }
 
     @Test

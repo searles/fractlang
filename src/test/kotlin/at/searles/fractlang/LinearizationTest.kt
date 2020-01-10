@@ -150,7 +150,7 @@ class LinearizationTest {
         Assert.assertEquals(
             "Point[0] [R1]\n" +
                     "Allocate R1: Cplx\n" +
-                    "Reciprocal[1] [R1, R2]\n" +
+                    "Recip[1] [R1, R2]\n" +
                     "Allocate R2: Cplx\n" +
                     "Point[0] [R3]\n" +
                     "Allocate R3: Cplx\n" +

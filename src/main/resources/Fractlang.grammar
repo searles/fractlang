@@ -27,11 +27,11 @@ grammar FractlangParser {
     }
 }}}
 
-    fragment intRex: [0-9]{1,8} ;
+    fragment intRex: [0-9]+ ;
     fragment hexRex: '#' [0-9A-Fa-f]{1,8} ;
     fragment decimals: '.'[0-9]* ;
     fragment exponent: [eE]'-'?[0-9]+ ;
-    fragment realRex: [0-9]+(decimals | exponent | decimals exponent) ;
+    fragment realRex: [0-9]+ (decimals | exponent | decimals exponent) ;
     fragment identifierRex: [a-zA-Z_][a-zA-Z0-9_]* ;
     fragment stringRex: ('"' ([^\\"] | '\\'. )* '"') ;
 
