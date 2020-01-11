@@ -60,6 +60,19 @@ class ExternTest {
 
     }
 
+    @Test
+    fun testDescriptionSeparate() {
+        withSource("val descA = \"Some very long text that explains a.\";" +
+                "extern a: descA = \"1\"; " +
+                "var b = a;")
+
+        actParse()
+        actInline()
+
+        Assert.assertTrue(rootTable.activeParameters.containsKey("a"))
+        Assert.assertTrue(rootTable.descriptionMap.containsKey("a"))
+    }
+
     private lateinit var output: String
     private lateinit var inlined: Node
     private lateinit var ast: Node

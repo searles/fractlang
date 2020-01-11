@@ -155,7 +155,7 @@ grammar FractlangParser {
 				`CreateObject<Node>(ClassDecl::class.java, true, "name", "parameters", "body")` ;
 
 	externdecl: 'extern' @ `Annot.DefKeyword` `CreateEmptyProperties` identifier >> `PutProperty("name")`
-				':' str >> `PutProperty("description")`
+				(':' expr >> `PutProperty("description")`)?
 				'=' str >> `PutProperty("expr")`
 				`CreateObject<Node>(ExternDecl::class.java, true, "name", "description", "expr")` ;
 

@@ -12,8 +12,18 @@ class RootSymbolTable(private val namedInstructions: Map<String, Op>, private va
      */
     private val parameterMap = LinkedHashMap<String, ExternNode>()
 
-    val activeParameters: Map<String, String>
-        get() = parameterMap.mapValues { it.value.expr }
+    private val activeExternNodesMap by lazy {
+        parameterMap.values.sortedWith(TraceComparator()).map { it.id to it }.toMap()
+    }
+
+    // This one uses order of trace.
+    val activeParameters: Map<String, String> by lazy {
+        activeExternNodesMap.mapValues { it.value.expr }
+    }
+
+    val descriptionMap by lazy {
+        activeExternNodesMap.mapValues { it.value.description }
+    }
 
     var scale: DoubleArray? = null
         private set
@@ -45,12 +55,12 @@ class RootSymbolTable(private val namedInstructions: Map<String, Op>, private va
             throw SemanticAnalysisException("extern $name already defined", trace)
         }
 
-        val isDefault = !parameters.containsKey(name)
-
-        val node = ExternNode(trace, name, description, isDefault,
-            if(isDefault) expr else parameters.getValue(name))
+        val node = ExternNode(trace, name, description, parameters.getOrElse(name, {expr}))
 
         parameterMap[name] = node
+
+        // TODO sort by trace.
+
     }
 
     private inner class DeclareScale: Op {
@@ -116,6 +126,13 @@ class RootSymbolTable(private val namedInstructions: Map<String, Op>, private va
             palettes.add(PaletteData(name, width, height, points))
 
             return Nop(trace)
+        }
+    }
+
+    class TraceComparator: Comparator<ExternNode> {
+        override fun compare(n0: ExternNode, n1: ExternNode): Int {
+            val cmp = n0.trace.start.compareTo(n1.trace.start)
+            return if(cmp != 0) cmp else n0.trace.end.compareTo(n1.trace.end)
         }
     }
 

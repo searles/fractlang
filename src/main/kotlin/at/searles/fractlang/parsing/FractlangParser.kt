@@ -226,24 +226,24 @@ object FractlangParser {
     // position 5750-6046
     val classdecl = context.text("class").annotate(Annot.DefKeyword).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text("(").then(parameters).then(context.text(")")).or(CreateEmptyList()).fold(PutProperty("parameters"))).then(block.fold(PutProperty("body"))).then(CreateObject<Node>(ClassDecl::class.java, true, "name", "parameters", "body"))
 
-    // position 6051-6319
-    val externdecl = context.text("extern").annotate(Annot.DefKeyword).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text(":")).then(str.fold(PutProperty("description"))).then(context.text("=")).then(str.fold(PutProperty("expr"))).then(CreateObject<Node>(ExternDecl::class.java, true, "name", "description", "expr"))
+    // position 6051-6323
+    val externdecl = context.text("extern").annotate(Annot.DefKeyword).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text(":").then(expr.fold(PutProperty("description"))).opt()).then(context.text("=")).then(str.fold(PutProperty("expr"))).then(CreateObject<Node>(ExternDecl::class.java, true, "name", "description", "expr"))
 
-    // position 6324-6382
+    // position 6328-6386
     val decl = vardecl.or(valdecl).or(fundecl).or(classdecl).or(externdecl)
 
-    // position 6390-6431
+    // position 6394-6435
     val semicolon = context.text(";").then(Mapping.identity<Node>())
 
-    // position 6439-6515
+    // position 6443-6519
     val stmtOrDecl = decl.or(stmt).then(semicolon.or(SkipSemicolon, true).annotate(Annot.Stmt))
 
-    // position 6518-6558
+    // position 6522-6562
     init {
         stmts.set(stmtOrDecl.list())
     }
 
-    // position 6562-6586
+    // position 6566-6590
     val program = stmts.then(toBlock)
 
 }

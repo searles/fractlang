@@ -3,6 +3,7 @@ package at.searles.fractlang.semanticanalysis
 import at.searles.fractlang.SymbolTable
 import at.searles.fractlang.nodes.ExternDecl
 import at.searles.fractlang.nodes.Node
+import at.searles.fractlang.nodes.StringNode
 import at.searles.parsing.Trace
 
 /**
@@ -13,7 +14,7 @@ class AllowImplicitExternsFacade(private val owner: String, private val analyzer
         val node = analyzer.table[trace, id]
 
         if(node == null) {
-            ExternDecl(trace, id, "-> $owner", defaultExpr).accept(analyzer)
+            ExternDecl(trace, id, StringNode(trace, "$id (defined in $owner)"), defaultExpr).accept(analyzer)
             return analyzer.table[trace, id] ?: error("undefined implicit extern")
         }
 

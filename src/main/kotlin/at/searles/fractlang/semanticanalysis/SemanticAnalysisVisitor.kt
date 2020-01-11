@@ -404,7 +404,13 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 	}
 
 	override fun visit(externDecl: ExternDecl): Node {
-		table.addExternValue(externDecl.trace, externDecl.name, externDecl.description, externDecl.expr)
+		val description = externDecl.description.accept(this)
+
+		if(description !is StringNode) {
+			throw SemanticAnalysisException("Description of extern must be a string", description.trace)
+		}
+
+		table.addExternValue(externDecl.trace, externDecl.name, description.value, externDecl.expr)
 		return Nop(externDecl.trace)
 	}
 
