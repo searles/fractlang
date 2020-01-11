@@ -23,61 +23,60 @@ declarePalette("Lake Palette", 1, 1, [0, 0, #ffffffff]);
  * Fract default file. At the bottom all extern parameters are defined.
  */
 class Calculator {
-	// iteration counter
-	var n: Int = 0;
+ // iteration counter
+ var n: Int = 0;
 
-	// parameter
-	var c: Cplx = if(isJuliaSet)
-		juliaSetParameter
-	else
-		point;
+ // parameter
+ var c: Cplx = if(isJuliaSet)
+  juliaSetParameter
+ else
+  point;
 
-	// z[n]
-	var z: Cplx = if(isJuliaSet)
-		point
-	else
-		z0;
+ // z[n]
+ var z: Cplx = if(isJuliaSet)
+  point
+ else
+  z0;
 
-	// z[n-1]
-	var lastZ: Cplx = 0:0;
+ // z[n-1]
+ var lastZ: Cplx = 0:0;
 
     extern foldValue0: "Foldinit" = "0";
 var foldValue: Cplx = foldValue0;
-	/*
-	 * Performs one full calculation step
-	 * z, lastZ and n are modified.
-	 * true is returned if none of the break conditions succeeds.
-	 */
-	fun step() {
-		var nextZ = function;
-		lastZ = z;
-		z = nextZ;
+ /*
+  * Performs one full calculation step
+  * z, lastZ and n are modified.
+  * true is returned if none of the break conditions succeeds.
+  */
+ fun step() {
+  var nextZ = function;
+  lastZ = z;
+  z = nextZ;
 
-		var radZ = rad z;
-		var dz = z - lastZ;
-		var radDz = rad dz;
+  var radZ = rad z;
+  var dz = z - lastZ;
+  var radDz = rad dz;
 
   extern foldFunction : "Fold Fn" = "foldValue + re(z / radZ)";
   
-  
 
-		if(not next(maxIterationCount, n) or radDz < epsilonRadius) {
-			// lake
-			var value = lakeValue;
-			setResult(1, value, lakeHeight);
+  if(not next(maxIterationCount, n) or radDz < epsilonRadius) {
+   // lake
+   var value = lakeValue;
+   setResult(1, value, lakeHeight);
 
-			false
-		} else (radZ < bailoutRadius) or {
-			// bailout
-			var continuousAddend =
-				1 - log(log radZ / log bailoutRadius) / log maxExponent;
+   false
+  } else (radZ < bailoutRadius) or {
+   // bailout
+   var continuousAddend =
+    1 - log(log radZ / log bailoutRadius) / log maxExponent;
 
-			var value = bailoutValue;
-			setResult(0, value, bailoutHeight);
+   var value = bailoutValue;
+   setResult(0, value, bailoutHeight);
 
-			false
-		}
-	}
+   false
+  }
+ }
 }
 
 // Main starts here. It is rather simple and linear.
@@ -85,6 +84,6 @@ var foldValue: Cplx = foldValue0;
 val calculator = Calculator()
 
 while (
-	calculator.step()
+ calculator.step()
 );
 

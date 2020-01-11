@@ -142,7 +142,7 @@ static float3 valueAt(double2 pt) {
 			is Point -> "$ret = pt; "
 			is RealPart -> "$ret = ${args[0]}.x; "
 			is ImaginaryPart -> "$ret = ${args[0]}.y; "
-			is Abs -> generateAbs(offset, args[0], ret)
+			is Abs -> "$ret = abs(${args[0]}); "
 			is Sqrt -> "$ret = sqrt(${args[0]}); "
 			is Exp -> "$ret = exp(${args[0]}); "
 			is Log -> "$ret = log(${args[0]}); "
@@ -190,7 +190,7 @@ static float3 valueAt(double2 pt) {
 		val signature = Mul.getSignatureAt(offset)
 
 		return if(signature.returnType == BaseTypes.Cplx) {
-			"$ret = cmul(${args[0]}, ${args[1]}); "
+			"$ret = mul(${args[0]}, ${args[1]}); "
 		} else {
 			"$ret = ${args[0]} * ${args[1]}; "
 		}
@@ -200,7 +200,7 @@ static float3 valueAt(double2 pt) {
 		val signature = Div.getSignatureAt(offset)
 
 		return if(signature.returnType == BaseTypes.Cplx) {
-			"$ret = cdiv(${args[0]}, ${args[1]}); "
+			"$ret = div(${args[0]}, ${args[1]}); "
 		} else {
 			"$ret = ${args[0]} / ${args[1]}; "
 		}
@@ -210,19 +210,9 @@ static float3 valueAt(double2 pt) {
 		val signature = Recip.getSignatureAt(offset)
 
 		return if(signature.returnType == BaseTypes.Cplx) {
-			"$ret = cdiv((double2) {1., 0.}, $arg); "
+			"$ret = div((double2) {1., 0.}, $arg); "
 		} else {
 			"$ret = 1.0 / $arg; "
-		}
-	}
-
-	private fun generateAbs(offset: Int, arg: String, ret: String): String {
-		val signature = Abs.getSignatureAt(offset)
-
-		return if(signature.returnType == BaseTypes.Cplx) {
-			"$ret = cabs($arg); "
-		} else {
-			"$ret = dabs($arg); "
 		}
 	}
 }
