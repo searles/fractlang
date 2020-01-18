@@ -161,6 +161,24 @@ class LinearizationTest {
     }
 
     @Test
+    fun testExpBug() {
+        withSource("var z = 0:0; var a: Cplx = exp z;")
+
+        actParse()
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals(
+            "Assign[5] [\$1, 0.0]\n" +
+                    "Allocate \$1: Cplx\n" +
+                    "Exp[1] [\$1, \$2]\n" +
+                    "Allocate \$2: Cplx\n" +
+                    "VarBound [\$1, \$2]", output)
+    }
+
+    @Test
     fun testIfElseStmt() {
         withSource("var a = 1; if(a == 1) a = a + 1 else a = a + 2")
 

@@ -14,9 +14,7 @@ object Cos: HasSpecialSyntax, StandardOp (1,
         return when {
             args[0] is RealNode -> RealNode(trace, cos((args[0] as RealNode).value))
             args[0] is CplxNode -> CplxNode(trace, Cplx().cos((args[0] as CplxNode).value))
-            else -> App(trace, this, args).apply {
-                type = signatures[0].returnType
-            }
+            else -> createApp(trace, args)
         }
     }
 }

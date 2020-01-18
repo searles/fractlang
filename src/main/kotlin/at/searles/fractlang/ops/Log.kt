@@ -14,9 +14,7 @@ object Log: HasSpecialSyntax, StandardOp (1,
         return when {
             args[0] is RealNode -> RealNode(trace, ln((args[0] as RealNode).value))
             args[0] is CplxNode -> CplxNode(trace, Cplx().log((args[0] as CplxNode).value))
-            else -> App(trace, this, args).apply {
-                type = signatures[0].returnType
-            }
+            else -> createApp(trace, args)
         }
     }
 }

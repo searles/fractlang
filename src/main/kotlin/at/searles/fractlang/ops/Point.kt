@@ -7,9 +7,7 @@ import at.searles.parsing.Trace
 
 object Point: VmBaseOp(Signature(BaseTypes.Cplx)) {
     override fun evaluate(trace: Trace, args: List<Node>): Node {
-        return App(trace, this.toNode(trace), args).apply {
-            this.type = BaseTypes.Cplx
-        }
+        return createApp(trace, args)
     }
 
     override val countArgKinds = 1

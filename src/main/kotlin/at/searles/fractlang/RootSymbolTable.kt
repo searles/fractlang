@@ -39,7 +39,7 @@ class RootSymbolTable(private val namedInstructions: Map<String, Op>, private va
             return namedInstructions.getValue(id).toNode(trace)
         }
 
-        if(id == declareScale) { // TODO Special ops. Not the best design...
+        if(id == declareScale) {
             return OpNode(trace, DeclareScale())
         }
 
@@ -58,9 +58,6 @@ class RootSymbolTable(private val namedInstructions: Map<String, Op>, private va
         val node = ExternNode(trace, name, description, parameters.getOrElse(name, {expr}))
 
         parameterMap[name] = node
-
-        // TODO sort by trace.
-
     }
 
     private inner class DeclareScale: Op {
