@@ -203,7 +203,7 @@ object Optimizer {
 		return when(val arg = args[0]) {
 			is IntNode -> IntNode(trace, kotlin.math.abs(arg.value))
 			is RealNode -> RealNode(trace, kotlin.math.abs(arg.value))
-			is CplxNode -> CplxNode(trace, Cplx().abs(arg.value))
+			is CplxNode -> RealNode(trace, arg.value.rad())
 			else -> Abs.createApp(trace, args)
 		}
     }

@@ -10,7 +10,7 @@ extern bailoutRadius: "Bailout Radius" = "64";
 extern bailoutValue: "Color Value when Bailout is exceeded" = "log(n + continuousAddend)";
 extern bailoutHeight: "Height when Bailout is exceeded" = "re value";
 extern epsilonRadius: "Epsilon Radius" = "1e-9";
-extern lakeValue: "Color Value for Lake" = "radZ : radDz";
+extern lakeValue: "Color Value for Lake" = "absZ : absDz";
 extern lakeHeight: "Height for Lake" = "re value";
 
 // Parameters that are used by the system to eg determine how many palettes there should be.
@@ -51,19 +51,19 @@ class Calculator {
 		lastZ = z;
 		z = nextZ;
 		
-		var radZ = rad z;
-		var radDz = rad (z - lastZ);
+		var absZ = rad z;
+		var absDz = abs (z - lastZ);
 
-		if(not next(maxIterationCount, n) or radDz < epsilonRadius) {
+		if(not next(maxIterationCount, n) or absDz < epsilonRadius) {
 			// lake
 			var value = lakeValue;
 			setResult(1, value, lakeHeight);
 			
 			false
-		} else (radZ < bailoutRadius) or {
+		} else (absZ < bailoutRadius) or {
 			// bailout
 			var continuousAddend = 
-				1 - log(log radZ / log bailoutValue) / log maxExponent;
+				1 - log(log absZ / log bailoutValue) / log maxExponent;
 
 			var value = bailoutValue;
 			setResult(0, value, bailoutHeight);

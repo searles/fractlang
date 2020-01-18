@@ -100,13 +100,11 @@ static float3 valueAt(double2 pt) {
 				when(op.signatures[0].returnType) {
 					BaseTypes.Bool -> generateBoolCall(
 						op,
-						index,
 						args,
 						relativeOffset
 					)
 					BaseTypes.Unit -> generateUnitCall(
 						op,
-						index,
 						args,
 						relativeOffset
 					)
@@ -151,7 +149,7 @@ static float3 valueAt(double2 pt) {
 			is Sinh -> "$ret = sinh(${args[0]}); "
 			is Cosh -> "$ret = cosh(${args[0]}); "
 			is Pow -> "$ret = pow(${args[0]}, ${args[1]}); "
-			is Rad -> "$ret = rad(${args[0]}); "
+			is Cabs -> "$ret = cabs(${args[0]}); "
 			is Arc -> "$ret = arc(${args[0]}); "
 			is Cons -> "$ret = (double2) {${args[0]}, ${args[1]}}; "
 			is Rabs -> "$ret = rabs(${args[0]}); "
@@ -164,7 +162,11 @@ static float3 valueAt(double2 pt) {
 		return call + "pc += ${relativeOffset + 1}; "
 	}
 
-	private fun generateBoolCall(op: BaseOp, offset: Int, args: List<String>, relativeOffset: Int): String {
+	private fun generateBoolCall(
+		op: BaseOp,
+		args: List<String>,
+		relativeOffset: Int
+	): String {
 		val trueLabel = "code[pc + $relativeOffset]"
 		val falseLabel = "code[pc + ${relativeOffset + 1}]"
 
@@ -176,7 +178,11 @@ static float3 valueAt(double2 pt) {
 		}
 	}
 	
-	private fun generateUnitCall(op: BaseOp, offset: Int, args: List<String>, relativeOffset: Int): String {
+	private fun generateUnitCall(
+		op: BaseOp,
+		args: List<String>,
+		relativeOffset: Int
+	): String {
 		return when(op) {
 			is Jump -> "pc = ${args[0]}; "
 			is Assign -> "${args[0]} = ${args[1]}; pc += $relativeOffset; "

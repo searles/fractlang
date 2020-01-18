@@ -65,7 +65,7 @@ class FractlangProgram(val sourceCode: String, parameters: Map<String, String>) 
             Recip, Abs, Assign, Jump, Equal, Less, Next,
             Sqrt, Exp, Log, Sin, Cos, Sinh, Cosh,
             ToReal, Cons,
-            Rad, Arc, RealPart, ImaginaryPart, Conj, Rabs, Iabs,
+            Arc, RealPart, ImaginaryPart, Conj, Cabs, Rabs, Iabs,
             Point, SetResult
             )
 
@@ -82,11 +82,12 @@ class FractlangProgram(val sourceCode: String, parameters: Map<String, String>) 
             "sinh" to Sinh,
             "cosh" to Cosh,
             "conj" to Conj,
+            "rad" to Abs, // Backup
             "rabs" to Rabs,
             "iabs" to Iabs,
             "re" to RealPart,
             "im" to ImaginaryPart,
-            "rad" to Rad,
+            "cabs" to Cabs,
             "arc" to Arc,
             "point" to Point,
             "setResult" to SetResult,

@@ -29,15 +29,15 @@ class VmCodeTest {
                 "while ({\n" +
                 "\tz = z^maxExponent + c;\n" +
                 "\t\n" +
-                "\tvar radZ = rad z;\n" +
+                "\tvar absZ = abs z;\n" +
                 "\t\n" +
-                "\tif(radZ > bailoutValue) {\n" +
-                "\t\tvar continuousAddend = -log(radZ / log bailoutValue) / log maxExponent;\n" +
+                "\tif(absZ > bailoutValue) {\n" +
+                "\t\tvar continuousAddend = -log(absZ / log bailoutValue) / log maxExponent;\n" +
                 "\t\tvar continuousN = n + continuousAddend;\n" +
                 "\t\tsetResult(1, log (1 + continuousN), continuousN);\n" +
                 "\t\tfalse\n" +
                 "\t} else if(not next(maxIterationCount, n)) {\n" +
-                "\t\tsetResult(0, arc z / 2 pi, log radZ);\n" +
+                "\t\tsetResult(0, arc z / 2 pi, log absZ);\n" +
                 "\t\tfalse\n" +
                 "\t} else {\n" +
                 "\t\ttrue\n" +
@@ -67,8 +67,8 @@ class VmCodeTest {
                 "\n" +
                 "while ({\n" +
                 "\tz = z^2 + c;\n" +
-                "\tvar radZ = rad z;\n" +
-                "\tif(radZ > 4) {\n" +
+                "\tvar absZ = abs z;\n" +
+                "\tif(absZ > 4) {\n" +
                 "\t\tsetResult(0, n, 0);\n" +
                 "\t\tfalse\n" +
                 "\t} else if(not next(10, n)) {\n" +
@@ -93,8 +93,8 @@ class VmCodeTest {
                 "\n" +
                 "while ({\n" +
                 "\tz = z*z + c;\n" + // here is a problem, probably an overlap of variables.
-                "\tvar radZ = rad z;\n" +
-                "\tif(radZ > 4) {\n" +
+                "\tvar absZ = abs z;\n" +
+                "\tif(absZ > 4) {\n" +
                 "\t\tsetResult(0, n * 0.1, 0);\n" +
                 "\t\tfalse\n" +
                 "\t} else if(not next(10, n)) {\n" +
@@ -119,10 +119,10 @@ class VmCodeTest {
                 "while ({\n" +
                 "\tz = z^2 + c;\n" +
                 "\n" +
-                "\tvar radZ = rad z;\n" +
+                "\tvar absZ = abs z;\n" +
                 "\n" +
-                "\tif(radZ > 4) {\n" +
-                "\t\tvar continuousAddend = 1.0 - radZ;\n" +
+                "\tif(absZ > 4) {\n" +
+                "\t\tvar continuousAddend = 1.0 - absZ;\n" +
                 "\n" +
                 "\t\tif(continuousAddend < 0) continuousAddend = 0;\n" +
                 "\t\tif(continuousAddend > 1) continuousAddend = 1;\n" +
@@ -210,7 +210,7 @@ class VmCodeTest {
 
     @Test
     fun testCons() {
-        withSource("setResult(0, sin rad point, 0);")
+        withSource("setResult(0, sin abs point, 0);")
 
         actCreateVmCode()
 

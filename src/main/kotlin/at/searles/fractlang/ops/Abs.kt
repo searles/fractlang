@@ -8,7 +8,7 @@ import at.searles.parsing.Trace
 object Abs: HasSpecialSyntax, StandardOp(1,
     Signature(BaseTypes.Int, BaseTypes.Int),
     Signature(BaseTypes.Real, BaseTypes.Real),
-    Signature(BaseTypes.Cplx, BaseTypes.Cplx)
+    Signature(BaseTypes.Real, BaseTypes.Cplx)
 ) {
     override fun evaluate(trace: Trace, args: List<Node>): Node {
         return Optimizer.abs(trace, args)

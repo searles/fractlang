@@ -36,7 +36,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         // This was a bug in a beta version
         val filename = "src/test/resources/addend.ft"
         val input = ParserStream(TokenStream.fromCharStream(ReaderCharStream(FileReader(filename))))
-        val ast = FractlangParser.program.parse(input)
+        FractlangParser.program.parse(input)
     }
 
     @Test
