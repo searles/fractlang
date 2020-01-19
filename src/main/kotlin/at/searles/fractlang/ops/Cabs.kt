@@ -16,6 +16,6 @@ object Cabs: HasSpecialSyntax, StandardOp(1,
             return CplxNode(trace, Cplx().abs(cplx))
         }
 
-        return Conj.createApp(trace, args)
+        return createApp(trace, args)
     }
 }
