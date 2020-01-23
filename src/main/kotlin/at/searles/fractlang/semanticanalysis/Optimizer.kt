@@ -384,7 +384,7 @@ object Optimizer {
             }
         }
 
-        return ImaginaryPart.createApp(trace, args)
+        return ImagPart.createApp(trace, args)
     }
 
     fun pow(trace: Trace, args: List<Node>): Node {

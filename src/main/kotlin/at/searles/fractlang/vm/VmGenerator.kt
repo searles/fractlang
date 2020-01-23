@@ -139,7 +139,7 @@ static float3 valueAt(double2 pt) {
 			is Recip -> generateRecip(offset, args[0], ret)
 			is Point -> "$ret = pt; "
 			is RealPart -> "$ret = ${args[0]}.x; "
-			is ImaginaryPart -> "$ret = ${args[0]}.y; "
+			is ImagPart -> "$ret = ${args[0]}.y; "
 			is Abs -> "$ret = abs(${args[0]}); "
 			is Sqrt -> "$ret = sqrt(${args[0]}); "
 			is Exp -> "$ret = exp(${args[0]}); "
