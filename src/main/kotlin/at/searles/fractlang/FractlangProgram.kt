@@ -65,8 +65,9 @@ class FractlangProgram(val sourceCode: String, parameters: Map<String, String>) 
             Recip, Abs, Assign, Jump, Equal, Less, Next,
             Sqrt, Exp, Log, Sin, Cos, Sinh, Cosh,
             ToReal, Cons,
-            Arc, RealPart, ImaginaryPart, Conj, Cabs, Rabs, Iabs,
-            Point, SetResult
+            Arc, RealPart, ImaginaryPart, Conj, Cabs, Rabs, Iabs, Norm,
+            Point, SetResult,
+            Max, Min, Floor
             )
 
         val namedInstructions = mapOf(
@@ -90,6 +91,10 @@ class FractlangProgram(val sourceCode: String, parameters: Map<String, String>) 
             "cabs" to Cabs,
             "arc" to Arc,
             "point" to Point,
+            "max" to Max,
+            "min" to Min,
+            "norm" to Norm,
+            "floor" to Floor,
             "setResult" to SetResult,
             "toReal" to ToReal,
             "pi" to ConstOp { RealNode(it, Math.PI) },

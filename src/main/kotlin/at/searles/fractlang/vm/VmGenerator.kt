@@ -156,6 +156,10 @@ static float3 valueAt(double2 pt) {
 			is Iabs -> "$ret = iabs(${args[0]}); "
 			is Conj -> "$ret = conj(${args[0]}); "
 			is ToReal -> "$ret = (double) ${args[0]}; "
+			is Norm -> "$ret = ${args[0]} / abs(${args[0]}); "
+			is Max -> "$ret = max(${args[0]}, ${args[1]}); "
+			is Min -> "$ret = min(${args[0]}, ${args[1]}); "
+			is Floor -> "$ret = floor(${args[0]}); "
 			else -> throw IllegalArgumentException("not implemented: $op")
 		}
 		
