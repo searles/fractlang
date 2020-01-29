@@ -169,4 +169,8 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
     override fun visit(externNode: ExternNode) {
         error("not applicable")
     }
+
+    override fun visit(indexedNode: IndexedNode) {
+        error("not applicable")
+    }
 }

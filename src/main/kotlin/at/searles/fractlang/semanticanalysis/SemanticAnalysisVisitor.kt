@@ -431,4 +431,8 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 			throw SemanticAnalysisException("Semantic error in extern value: ${e.message}", externNode.trace)
 		}
 	}
+
+	override fun visit(indexedNode: IndexedNode): Node {
+		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+	}
 }

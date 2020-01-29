@@ -89,6 +89,20 @@ object toQualified: Fold<Node, String, Node> {
     }
 }
 
+object toIndexed: Fold<Node, Node, Node> {
+    override fun apply(stream: ParserStream, left: Node, right: Node): Node {
+        return IndexedNode(stream.createTrace(), left, right)
+    }
+
+    override fun leftInverse(result: Node): Node? {
+        return (result as? IndexedNode)?.field
+    }
+
+    override fun rightInverse(result: Node): Node? {
+        return (result as? IndexedNode)?.index
+    }
+}
+
 object toEscString: Mapping<CharSequence, String> {
     override fun parse(stream: ParserStream, left: CharSequence): String? {
         return try {
@@ -103,17 +117,17 @@ object toEscString: Mapping<CharSequence, String> {
     }
 }
 
-object listApply: Fold<List<Node>, Node, List<Node>> {
+object listApply: Fold<List<Node>, List<Node>, List<Node>> {
     // for (x+1) 5
-    override fun apply(stream: ParserStream, left: List<Node>, right: Node): List<Node>? {
+    override fun apply(stream: ParserStream, left: List<Node>, right: List<Node>): List<Node>? {
         // sin (x+1) y = sin ((x+1)*y)
         // max (x,y) z is an error.
 
-        if(left.size != 1) {
+        if(left.size != 1 || right.size != 1) {
             return null
         }
 
-        return listOf(toApp.apply(stream, left.first(), listOf(right)))
+        return listOf(toApp.apply(stream, left.first(), right))
     }
 
     // no inverse. Other methods will take care of that.

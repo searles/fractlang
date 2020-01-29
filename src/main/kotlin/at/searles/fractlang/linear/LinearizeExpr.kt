@@ -196,4 +196,8 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
     override fun visit(externNode: ExternNode): VmArg {
         error("not applicable")
     }
+
+    override fun visit(indexedNode: IndexedNode): VmArg {
+        error("not applicable")
+    }
 }

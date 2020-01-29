@@ -76,7 +76,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
     }
 
     @Test
-    fun testIndexed() {
+    fun testQualifiedFnCall() {
         val input = ParserStream.fromString("a.at(1)")
         val ast = FractlangParser.expr.parse(input)
         val source = FractlangParser.expr.print(ast)
@@ -313,6 +313,24 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val source = FractlangParser.expr.print(ast)
 
         Assert.assertEquals("sinx", source?.toString())
+    }
+
+    @Test
+    fun testSimpleAppApp() {
+        val input = ParserStream.fromString("sin cos x")
+        val ast = FractlangParser.expr.parse(input)
+        val source = FractlangParser.expr.print(ast)
+
+        Assert.assertEquals("sincosx", source?.toString())
+    }
+
+    @Test
+    fun testIndexed() {
+        val input = ParserStream.fromString("a[1]")
+        val ast = FractlangParser.expr.parse(input)
+        val source = FractlangParser.expr.print(ast)
+
+        Assert.assertEquals("a[1]", source?.toString())
     }
 
     @Test

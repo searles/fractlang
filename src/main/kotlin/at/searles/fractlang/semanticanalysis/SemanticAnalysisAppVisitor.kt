@@ -221,4 +221,8 @@ class SemanticAnalysisAppVisitor(val trace: Trace, private val args: List<Node>,
     override fun visit(externNode: ExternNode): Node {
         error("externs should be inlined in SemanticAnalysisVisitor")
     }
+
+    override fun visit(indexedNode: IndexedNode): Node {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 }
