@@ -53,6 +53,29 @@ grammar FractlangParser {
     comma: ',' @ `Annot.Comma` ;
     exprList: `expr.list(comma)` ;
 
+    atom: intNode     @ `Annot.Num`
+        | realNode    @ `Annot.Num`
+        | stringNode  @ `Annot.Str`
+        | boolNode    @ `Annot.Num`
+        | idNode      @ `Annot.Id`
+        ;
+
+
+        | vectorNode
+        | '(' expr @ `Annot.Intent` ')' ;
+
+    vectorNode: '[' exprList @ `Annot.Intent` `toVectorNode` ']' ;
+
+    argumentsInParentheses: '(' exprList ')' (app >> `listApply`)? ;
+    singleArgument: app `CreateSingletonList()` ;
+    arguments: `argumentsInParentheses.or(singleArgument, true)` ; // swap on inversion to avoid () in single args
+
+    app<Node>: atom (arguments >> `toApp`
+                    | '.' identifier >> `toQualified`
+             )* ; // recursive because of eg "sin cos x"
+
+    /* ---
+
     vectorNode: '[' exprList @ `Annot.Intent` `toVectorNode` ']' ;
 
     atom: intNode     @ `Annot.Num`
@@ -67,7 +90,11 @@ grammar FractlangParser {
     singleArgument: app `CreateSingletonList()` ;
     arguments: `argumentsInParentheses.or(singleArgument, true)` ; // swap on inversion to avoid () in single args
 
-    app<Node>: atom (arguments >> `toApp` | '.' identifier >> `toQualified`)* ; // recursive because of eg "sin cos x"
+    app<Node>: atom (arguments >> `toApp`
+                    | '.' identifier >> `toQualified`
+             )* ; // recursive because of eg "sin cos x"
+
+    --- */
 
     ifExpr<Node>: 'if' @ `Annot.Keyword` `CreateEmptyProperties`
                         '(' expr >> `PutProperty("condition")` ')'
@@ -82,7 +109,7 @@ grammar FractlangParser {
 
 	absExpr: '|' expr `toUnary(Abs)` '|' ;
 
-    term: ifExpr | block | absExpr | app ;
+    term: ifExpr | block | absExpr | app; // app must be last because of recursion
 
     literal<Node>: '-' literal `toUnary(Neg)`
                        | '/' literal `toUnary(Recip)`

@@ -74,7 +74,7 @@ class SemanticAnalysisAppVisitor(val trace: Trace, private val args: List<Node>,
     }
 
     override fun visit(opNode: OpNode): Node {
-        return opNode.op.apply(trace, inlinedArgs)
+        return opNode.op.inlineApply(trace, parentVisitor, args)
     }
 
     override fun visit(vectorNode: VectorNode): Node {

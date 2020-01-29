@@ -76,6 +76,24 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
     }
 
     @Test
+    fun testIndexed() {
+        val input = ParserStream.fromString("a.at(1)")
+        val ast = FractlangParser.expr.parse(input)
+        val source = FractlangParser.expr.print(ast)
+
+        Assert.assertEquals("a.at1", source?.toString())
+    }
+
+    @Test
+    fun testQualifiedWithVector() {
+        val input = ParserStream.fromString("[1, 2].size")
+        val ast = FractlangParser.expr.parse(input)
+        val source = FractlangParser.expr.print(ast)
+
+        Assert.assertEquals("[1,2].size", source?.toString())
+    }
+
+    @Test
     fun testUntypedVar() {
         val input = ParserStream.fromString("var a = 1")
         val ast = FractlangParser.program.parse(input)
@@ -281,11 +299,11 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
 
     @Test
     fun testArrayAccess() {
-        val input = ParserStream.fromString("a[1, 2]")
+        val input = ParserStream.fromString("a[1]")
         val ast = FractlangParser.expr.parse(input)
         val source = FractlangParser.expr.print(ast)
 
-        Assert.assertEquals("a[1,2]", source?.toString())
+        Assert.assertEquals("a[1]", source?.toString())
     }
 
     @Test
