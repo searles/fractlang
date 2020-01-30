@@ -81,7 +81,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = FractlangParser.expr.parse(input)
         val source = FractlangParser.expr.print(ast)
 
-        Assert.assertEquals("a.at1", source?.toString())
+        Assert.assertEquals("a.at(1)", source?.toString())
     }
 
     @Test
@@ -218,7 +218,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = FractlangParser.program.parse(input)
         val source = FractlangParser.program.print(ast)
 
-        Assert.assertEquals("classa(varb:Int){varc:Int=b;}vard=a1.c;", source?.toString())
+        Assert.assertEquals("classa(varb:Int){varc:Int=b;}vard=a(1).c;", source?.toString())
     }
 
     @Test
@@ -312,7 +312,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = FractlangParser.expr.parse(input)
         val source = FractlangParser.expr.print(ast)
 
-        Assert.assertEquals("sinx", source?.toString())
+        Assert.assertEquals("sin(x)", source?.toString())
     }
 
     @Test
@@ -321,7 +321,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = FractlangParser.expr.parse(input)
         val source = FractlangParser.expr.print(ast)
 
-        Assert.assertEquals("sincosx", source?.toString())
+        Assert.assertEquals("sin(cos(x))", source?.toString())
     }
 
     @Test
@@ -339,7 +339,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val ast = FractlangParser.expr.parse(input)
         val source = FractlangParser.expr.print(ast)
 
-        Assert.assertEquals("x(y+1)z", source?.toString())
+        Assert.assertEquals("x((y+1)(z))", source?.toString())
     }
 
     @Test

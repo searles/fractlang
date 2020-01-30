@@ -71,12 +71,10 @@ grammar FractlangParser {
 				| '(' expr ')'
 			) qualifier* ;
 
-	qualifiedAtom: atom qualifier* ;
+	singleArgument: atom `CreateSingletonList()` ;
+    argumentList: '(' exprList ')' ;
 
-    appArgument:
-		qualifiedAtom `CreateSingletonList()`
-		| '(' exprList ')' // must reverse
-		;
+    appArgument: `singleArgument.or(argumentList, true)` ; // must reverse for printing
 
     app: (appHead ((appArgument (appArgument >> `listApply`)*) >> `toApp`)?) qualifier* ;
 
