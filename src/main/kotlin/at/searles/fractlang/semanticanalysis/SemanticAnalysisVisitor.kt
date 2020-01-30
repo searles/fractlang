@@ -343,30 +343,45 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 	}
 
     override fun visit(vectorNode: VectorNode): Node {
-		if(vectorNode.items.isEmpty()) {
-			throw SemanticAnalysisException(
-				"empty vector",
-				vectorNode.trace
-			)
-		}
-		
-		val inlinedVectorItems = vectorNode.items.map { it.accept(this) }
-
-		// ensure common type of all items
-		inlinedVectorItems.fold(inlinedVectorItems.first().type) { type, item ->
-			type.commonType(item.type)
-				?: throw SemanticAnalysisException(
-					"incompatible type with previous elements",
-					item.trace
-				)
-		}
-
-		return VectorNode(vectorNode.trace, inlinedVectorItems)
+		val inlinedItems = vectorNode.items.map { it.accept(this) }
+		return VectorNode(vectorNode.trace, inlinedItems)
     }
 
-    override fun visit(forStmt: For): Node {
+	override fun visit(indexedNode: IndexedNode): Node {
+		val inlinedIndex = indexedNode.index.accept(this)
+
+		if(inlinedIndex.type != BaseTypes.Int) {
+			throw SemanticAnalysisException("Index must be an integer but was ${inlinedIndex.type}", inlinedIndex.trace)
+		}
+
+		val inlinedField = indexedNode.field.accept(this)
+
+		if(inlinedField !is VectorNode) {
+			throw SemanticAnalysisException("Not a vector", inlinedField.trace)
+		}
+
+		if(inlinedField.items.isEmpty()) {
+			throw SemanticAnalysisException("Vector must not be empty", inlinedField.trace)
+		}
+
+		val commonType = inlinedField.items.fold(inlinedField.items.first().type) { type, item ->
+			type.commonType(item.type) ?: throw SemanticAnalysisException(
+				"${item.type} cannot be converted to $type", item.trace
+			)
+		}
+
+		if(inlinedIndex is IntNode) {
+			val index = ((inlinedIndex.value % inlinedField.items.size) + inlinedField.items.size) % inlinedField.items.size
+			return commonType.convert(inlinedField.items[index])
+		}
+
+		return IndexedNode(indexedNode.trace, inlinedField, inlinedIndex).apply { type = commonType }
+	}
+
+	override fun visit(forStmt: For): Node {
 		// syntax: for ( (var)? id (':' type)? in collection )
-		// collection is either a vector or a 1..3 or a 1 until range.
+		// collection is either a vector or a range.
+		// TODO: Now that there are indexedNodes implement it.
 		throw SemanticAnalysisException(
 			"not implemented",
 			forStmt.trace
@@ -430,9 +445,5 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 		} catch (e: SemanticAnalysisException) {
 			throw SemanticAnalysisException("Semantic error in extern value: ${e.message}", externNode.trace)
 		}
-	}
-
-	override fun visit(indexedNode: IndexedNode): Node {
-		TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
 	}
 }

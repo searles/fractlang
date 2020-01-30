@@ -25,6 +25,35 @@ class SemanticAnalysisTest {
     }
 
     @Test
+    fun testVectorAccessConversion() {
+        withSource("var a = [1, 2.0][0]; ")
+        actParse()
+        actInline()
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;", output)
+    }
+
+    @Test
+    fun testVectorAccessNegativeIndex() {
+        withSource("var a = [1, 2, 3][-1]; ")
+        actParse()
+        actInline()
+        actPrint()
+
+        Assert.assertEquals("_1=3;var_1:Int;", output)
+    }
+
+    @Test
+    fun testVectorAccessTooLargeIndex() {
+        withSource("var a = [1, 2, 3][3]; ")
+        actParse()
+        actInline()
+        actPrint()
+
+        Assert.assertEquals("_1=1;var_1:Int;", output)
+    }
+    @Test
     fun testMissingInAssignment() {
         withSource("var a = a")
 

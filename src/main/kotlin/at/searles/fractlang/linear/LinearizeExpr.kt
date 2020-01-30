@@ -98,7 +98,7 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
                     args as List<VmArg>
                 )
             )
-            
+
             return optTargetNode
         }
 
@@ -119,6 +119,11 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
 
     override fun visit(opNode: OpNode): VmArg {
         return visit(App(opNode.trace, opNode, emptyList()).apply { type = (opNode.op as BaseOp).signatures[0].returnType })
+    }
+
+    override fun visit(indexedNode: IndexedNode): VmArg {
+        // creates a switch(i, size, addr0, addr1, ..., addrN)-statement
+        TODO("")
     }
 
     override fun visit(qualifiedNode: QualifiedNode): VmArg {
@@ -194,10 +199,6 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(externNode: ExternNode): VmArg {
-        error("not applicable")
-    }
-
-    override fun visit(indexedNode: IndexedNode): VmArg {
         error("not applicable")
     }
 }

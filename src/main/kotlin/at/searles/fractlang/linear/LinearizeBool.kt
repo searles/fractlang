@@ -101,6 +101,10 @@ class LinearizeBool(private val code: ArrayList<CodeLine>, private val nameGener
         return visit(App(opNode.trace, opNode, emptyList()).apply { type = (opNode.op as BaseOp).signatures[0].returnType })
     }
 
+    override fun visit(indexedNode: IndexedNode) {
+        TODO("")
+}
+
     override fun visit(classDecl: ClassDecl) {
         error("not applicable")
     }
@@ -186,10 +190,6 @@ class LinearizeBool(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(externNode: ExternNode) {
-        error("not applicable")
-    }
-
-    override fun visit(indexedNode: IndexedNode) {
         error("not applicable")
     }
 }

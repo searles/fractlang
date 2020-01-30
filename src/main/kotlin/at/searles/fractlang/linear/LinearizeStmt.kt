@@ -77,7 +77,6 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(whileStmt: While) {
-
         val startLabel = Label(nameGenerator.next())
         val trueLabel = Label(nameGenerator.next())
         val falseLabel = Label(nameGenerator.next())
@@ -101,6 +100,10 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
 
     override fun visit(opNode: OpNode) {
         return visit(App(opNode.trace, opNode, emptyList()).apply { type = (opNode.op as BaseOp).signatures[0].returnType })
+    }
+
+    override fun visit(indexedNode: IndexedNode) {
+        TODO("")
     }
 
     override fun visit(intNode: IntNode) {
@@ -167,10 +170,6 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(externNode: ExternNode) {
-        error("not applicable")
-    }
-
-    override fun visit(indexedNode: IndexedNode) {
         error("not applicable")
     }
 }
