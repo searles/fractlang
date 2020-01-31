@@ -1,11 +1,9 @@
 package at.searles.fractlang.linear
 
+import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.Visitor
 import at.searles.fractlang.nodes.*
-import at.searles.fractlang.ops.Assign
-import at.searles.fractlang.ops.BaseOp
-import at.searles.fractlang.ops.Jump
-import at.searles.fractlang.ops.VmBaseOp
+import at.searles.fractlang.ops.*
 import at.searles.fractlang.vm.VmArg
 import at.searles.fractlang.vm.VmInstruction
 
@@ -122,8 +120,37 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(indexedNode: IndexedNode): VmArg {
-        // creates a switch(i, size, addr0, addr1, ..., addrN)-statement
-        TODO("")
+        require(indexedNode.index.type == BaseTypes.Int) {"index must be an int" }
+        require(indexedNode.field is VectorNode) {"field must be a vector"}
+
+        val targetNode = optTargetNode ?: IdNode(indexedNode.trace, nameGenerator.next()).apply {
+            type = indexedNode.type
+        }
+
+        val index = indexedNode.index.accept(LinearizeExpr(code, nameGenerator, null))
+        val size = IntNode(indexedNode.field.trace, indexedNode.field.items.size)
+
+        val itemsWithLabels: List<Pair<Node, Label>> =
+            indexedNode.field.items.map { Pair(it, Label(nameGenerator.next())) }
+
+        val args: List<VmArg> = listOf(index, size) + itemsWithLabels.map { it.second }
+
+        val endLabel = Label(nameGenerator.next())
+
+        val jumpToEnd = VmInstruction(Jump, 0, listOf(endLabel))
+
+        code.add(VmInstruction(Switch, 0, args))
+
+        itemsWithLabels.forEach {
+            val label = it.second
+            code.add(label)
+            it.first.accept(LinearizeExpr(code, nameGenerator, targetNode))
+            code.add(jumpToEnd)
+        }
+
+        code.add(endLabel)
+
+        return targetNode
     }
 
     override fun visit(qualifiedNode: QualifiedNode): VmArg {

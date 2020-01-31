@@ -1,8 +1,10 @@
 package at.searles.fractlang.linear
 
+import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.Visitor
 import at.searles.fractlang.nodes.*
 import at.searles.fractlang.ops.*
+import at.searles.fractlang.vm.VmArg
 import at.searles.fractlang.vm.VmInstruction
 
 class LinearizeBool(private val code: ArrayList<CodeLine>, private val nameGenerator: Iterator<String>, private val trueLabel: Label, private val falseLabel: Label): Visitor<Unit> {
@@ -102,8 +104,34 @@ class LinearizeBool(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(indexedNode: IndexedNode) {
-        TODO("")
-}
+        // TODO 100% same as the one in LinearizeStmt.
+
+        require(indexedNode.index.type == BaseTypes.Int) {"index must be an int" }
+        require(indexedNode.field is VectorNode) {"field must be a vector"}
+
+        val index = indexedNode.index.accept(LinearizeExpr(code, nameGenerator, null))
+        val size = IntNode(indexedNode.field.trace, indexedNode.field.items.size)
+
+        val itemsWithLabels: List<Pair<Node, Label>> =
+            indexedNode.field.items.map { Pair(it, Label(nameGenerator.next())) }
+
+        val args: List<VmArg> = listOf(index, size) + itemsWithLabels.map { it.second }
+
+        val endLabel = Label(nameGenerator.next())
+
+        val jumpToEnd = VmInstruction(Jump, 0, listOf(endLabel))
+
+        code.add(VmInstruction(Switch, 0, args))
+
+        itemsWithLabels.forEach {
+            val label = it.second
+            code.add(label)
+            it.first.accept(this)
+            code.add(jumpToEnd)
+        }
+
+        code.add(endLabel)
+    }
 
     override fun visit(classDecl: ClassDecl) {
         error("not applicable")

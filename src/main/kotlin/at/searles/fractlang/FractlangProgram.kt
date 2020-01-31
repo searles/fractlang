@@ -63,7 +63,7 @@ class FractlangProgram(val sourceCode: String, parameters: Map<String, String>) 
     companion object {
         val vmInstructions: List<VmBaseOp> = listOf(
             Add, Sub, Mul, Div, Mod, Pow, Neg,
-            Recip, Abs, Assign, Jump, Equal, Less, Next,
+            Recip, Abs, Assign, Jump, Equal, Less, Next, Switch,
             Sqrt, Exp, Log, Sin, Cos, Sinh, Cosh,
             ToReal, Cons,
             Arc, RealPart, ImagPart, Conj, Cabs, Rabs, Iabs, Norm,

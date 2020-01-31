@@ -13,6 +13,96 @@ import org.junit.Test
 class LinearizationTest {
 
     @Test
+    fun testSwitchExpr() {
+        withSource("var a = 0; var b = [a + 1, a + 2, a + 3][a]")
+
+        actParse()
+
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals("Assign[1] [\$1, 0]\n" +
+                "Allocate \$1: Int\n" +
+                "Switch[0] [\$1, 3, Label R1, Label R2, Label R3]\n" +
+                "Label R1\n" +
+                "Add[1] [1, \$1, \$2]\n" +
+                "Jump[0] [Label R4]\n" +
+                "Label R2\n" +
+                "Add[1] [2, \$1, \$2]\n" +
+                "Jump[0] [Label R4]\n" +
+                "Label R3\n" +
+                "Add[1] [3, \$1, \$2]\n" +
+                "Jump[0] [Label R4]\n" +
+                "Label R4\n" +
+                "Allocate \$2: Int\n" +
+                "VarBound [\$1, \$2]", output)
+    }
+
+    @Test
+    fun testSwitchBool() {
+        withSource("var a = 0; var c: Int; if([a == 0, a == 1][a]) { c = 2 } else { c = 3 }; c = c + 4")
+
+        actParse()
+
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals("Assign[1] [\$1, 0]\n" +
+                "Allocate \$1: Int\n" +
+                "Allocate \$2: Int\n" +
+                "Switch[0] [\$1, 2, Label R4, Label R5]\n" +
+                "Label R4\n" +
+                "Equal[1] [0, \$1, Label R1, Label R2]\n" +
+                "Jump[0] [Label R6]\n" +
+                "Label R5\n" +
+                "Equal[1] [1, \$1, Label R1, Label R2]\n" +
+                "Jump[0] [Label R6]\n" +
+                "Label R6\n" +
+                "Label R1\n" +
+                "Assign[1] [\$2, 2]\n" +
+                "VarBound []\n" +
+                "Jump[0] [Label R3]\n" +
+                "Label R2\n" +
+                "Assign[1] [\$2, 3]\n" +
+                "VarBound []\n" +
+                "Label R3\n" +
+                "Add[1] [4, \$2, \$2]\n" +
+                "VarBound [\$1, \$2]", output)
+    }
+
+
+    @Test
+    fun testSwitchStmt() {
+        withSource("var a = 0; var b: Int; [{b = 1}, {b = 2}][a]")
+
+        actParse()
+
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals("Assign[1] [\$1, 0]\n" +
+                "Allocate \$1: Int\n" +
+                "Allocate \$2: Int\n" +
+                "Switch[0] [\$1, 2, Label R1, Label R2]\n" +
+                "Label R1\n" +
+                "Assign[1] [\$2, 1]\n" +
+                "VarBound []\n" +
+                "Jump[0] [Label R3]\n" +
+                "Label R2\n" +
+                "Assign[1] [\$2, 2]\n" +
+                "VarBound []\n" +
+                "Jump[0] [Label R3]\n" +
+                "Label R3\n" +
+                "VarBound [\$1, \$2]", output)
+    }
+
+    @Test
     fun testConsts() {
         withSource("var a = pi + e + i;")
 

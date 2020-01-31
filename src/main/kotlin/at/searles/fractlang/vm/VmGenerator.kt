@@ -191,7 +191,8 @@ static float3 valueAt(double2 pt) {
 			is Jump -> "pc = ${args[0]}; "
 			is Assign -> "${args[0]} = ${args[1]}; pc += $relativeOffset; "
 			is SetResult -> "result = createResult(${args[0]}, ${args[1]}, ${args[2]}); pc += $relativeOffset; "
-			// XXX relative jump: return "pc = code[pc + relativeOffset + ${args[0]}]"
+			is Switch -> "pc = code[pc + $relativeOffset + ((${args[0]} % ${args[1]} + ${args[1]}) % ${args[1]}]; "
+			// XXX relative jump: return "pc = code[pc + $relativeOffset + ${args[0]}]"
 			else -> throw IllegalArgumentException("not implemented: $op")
 		}
 	}
