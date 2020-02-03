@@ -5,7 +5,7 @@ import at.searles.fractlang.semanticanalysis.Optimizer
 import at.searles.fractlang.nodes.Node
 import at.searles.parsing.Trace
 
-object ImagPart: HasSpecialSyntax, StandardOp (1,
+object ImagPart: StandardOp (1,
     Signature(BaseTypes.Real, BaseTypes.Cplx)
 ) {
     override fun evaluate(trace: Trace, args: List<Node>): Node {

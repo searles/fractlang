@@ -104,7 +104,7 @@ class LinearizeBool(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(indexedNode: IndexedNode) {
-        // TODO 100% same as the one in LinearizeStmt.
+        // XXX 100% same as the one in LinearizeStmt.
 
         require(indexedNode.index.type == BaseTypes.Int) {"index must be an int" }
         require(indexedNode.field is VectorNode) {"field must be a vector"}

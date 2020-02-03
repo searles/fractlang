@@ -7,7 +7,7 @@ import at.searles.fractlang.nodes.Node
 import at.searles.parsing.Trace
 import kotlin.math.abs
 
-object Rabs: HasSpecialSyntax, StandardOp(1,
+object Rabs: StandardOp(1,
     Signature(BaseTypes.Cplx, BaseTypes.Cplx)
 ) {
     override fun evaluate(trace: Trace, args: List<Node>): Node {

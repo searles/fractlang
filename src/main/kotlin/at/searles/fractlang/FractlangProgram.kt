@@ -84,7 +84,7 @@ class FractlangProgram(val sourceCode: String, parameters: Map<String, String>) 
             "sinh" to Sinh,
             "cosh" to Cosh,
             "conj" to Conj,
-            "rad" to Abs, // Backup
+            "rad" to Abs, // legacy due to beta version
             "rabs" to Rabs,
             "iabs" to Iabs,
             "re" to RealPart,
@@ -101,7 +101,13 @@ class FractlangProgram(val sourceCode: String, parameters: Map<String, String>) 
             "pi" to ConstOp { RealNode(it, Math.PI) },
             "tau" to ConstOp { RealNode(it, 2 * Math.PI) },
             "e" to ConstOp { RealNode(it, Math.E) },
-            "i" to ConstOp { CplxNode(it, Cplx(0.0, 1.0)) }
+            "i" to ConstOp { CplxNode(it, Cplx(0.0, 1.0)) },
+            "diff" to Diff,
+            "newton" to Newton,
+            "setScale" to SetScale,
+            "addPalette" to AddPalette,
+            "declareScale" to SetScale, // legacy due to beta version
+            "declarePalette" to AddPalette // legacy due to beta version
         )
     }
 }
