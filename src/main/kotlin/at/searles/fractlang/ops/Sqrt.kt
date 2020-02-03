@@ -6,7 +6,7 @@ import at.searles.fractlang.nodes.*
 import at.searles.parsing.Trace
 import kotlin.math.sqrt
 
-object Sqrt: HasSpecialSyntax, StandardOp (1,
+object Sqrt: StandardOp (1,
     Signature(BaseTypes.Real, BaseTypes.Real),
     Signature(BaseTypes.Cplx, BaseTypes.Cplx)
 ) {

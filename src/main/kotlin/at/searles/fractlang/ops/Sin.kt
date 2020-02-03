@@ -6,7 +6,7 @@ import at.searles.fractlang.nodes.*
 import at.searles.parsing.Trace
 import kotlin.math.sin
 
-object Sin: HasSpecialSyntax, StandardOp (1,
+object Sin: StandardOp (1,
     Signature(BaseTypes.Real, BaseTypes.Real),
     Signature(BaseTypes.Cplx, BaseTypes.Cplx)
 ) {

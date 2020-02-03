@@ -6,7 +6,7 @@ import at.searles.fractlang.nodes.IntNode
 import at.searles.fractlang.nodes.Node
 import at.searles.parsing.Trace
 
-object Jump: HasSpecialSyntax, VmBaseOp(
+object Jump: VmBaseOp(
     Signature(BaseTypes.Unit, BaseTypes.Int)
 ) {
     override fun evaluate(trace: Trace, args: List<Node>): Node {

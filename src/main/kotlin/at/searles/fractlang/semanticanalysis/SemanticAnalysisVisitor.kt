@@ -10,8 +10,7 @@ import at.searles.parsing.ParserLookaheadException
 import at.searles.parsing.ParserStream
 import at.searles.parsing.Trace
 
-class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<String>):
-    Visitor<Node> {
+class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<String>): Visitor<Node> {
 	val block = ArrayList<Node>()
     val table = parentTable.fork()
 

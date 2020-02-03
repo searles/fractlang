@@ -340,6 +340,226 @@ class SemanticAnalysisTest {
     }
 
     @Test
+    fun testSimpleDiff() {
+        withSource("var x : Real = 1; var a = diff(x + 2x, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=3.0;var_2:Real;", output)
+    }
+
+    @Test
+    fun testAddDiff() {
+        withSource("var x : Real = 1; var a = diff(log x + exp x, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=/_1+Exp(_1);var_2:Real;", output)
+    }
+
+    @Test
+    fun testSubDiff() {
+        withSource("var x : Real = 1; var a = diff(log x - exp x, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=/_1-Exp(_1);var_2:Real;", output)
+    }
+
+    @Test
+    fun testMulDiff() {
+        withSource("var x : Real = 1; var a = diff(log x * exp x, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=Exp(_1)/_1+Exp(_1)*Log(_1);var_2:Real;", output)
+    }
+
+    @Test
+    fun testDivDiff() {
+        withSource("var x : Real = 1; var a = diff(log x / exp x, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=(Exp(_1)/_1-Log(_1)*Exp(_1))/Exp(_1)^2;var_2:Real;", output)
+    }
+
+    @Test
+    fun testPowNDiff() {
+        withSource("var x : Real = 1; var a = diff(log x ^ 5, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=Log(_1)^5*(5.0/_1/Log(_1));var_2:Real;", output)
+    }
+
+
+    @Test
+    fun testPowDiff() {
+        withSource("var x : Real = 1; var a = diff(x ^ x, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=_1^_1*(_1/_1+Log(_1));var_2:Real;", output)
+    }
+
+    @Test
+    fun testNegDiff() {
+        withSource("var x : Real = 1; var a = diff(-x, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=-1;var_2:Int;", output)
+    }
+
+    @Test
+    fun testRecipDiff() {
+        withSource("var x : Real = 1; var a = diff(/cosh x, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=-(Sinh(_1)/Cosh(_1)^2);var_2:Real;", output)
+    }
+
+    @Test
+    fun testSqrtDiff() {
+        withSource("var x : Real = 1; var a = diff(sqrt cosh x, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=Sinh(_1)/Sqrt(Cosh(_1));var_2:Real;", output)
+    }
+
+    @Test
+    fun testLogDiff() {
+        withSource("var x : Real = 1; var a = diff(log sin x, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=Cos(_1)/Sin(_1);var_2:Real;", output)
+    }
+
+    @Test
+    fun testExpDiff() {
+        withSource("var x : Real = 1; var a = diff(exp sin x, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=Exp(Sin(_1))*Cos(_1);var_2:Real;", output)
+    }
+
+    @Test
+    fun testSinhDiff() {
+        withSource("var x : Real = 1; var a = diff(sinh sin x, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=Cosh(Sin(_1))*Cos(_1);var_2:Real;", output)
+    }
+
+
+    @Test
+    fun testCoshDiff() {
+        withSource("var x : Real = 1; var a = diff(cosh sin x, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=Sinh(Sin(_1))*Cos(_1);var_2:Real;", output)
+    }
+
+
+    @Test
+    fun testSinDiff() {
+        withSource("var x : Real = 1; var a = diff(sin sinh x, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=Cos(Sinh(_1))*Cosh(_1);var_2:Real;", output)
+    }
+
+
+    @Test
+    fun testCosDiff() {
+        withSource("var x : Real = 1; var a = diff(cos sinh x, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=-(Sin(Sinh(_1))*Cosh(_1));var_2:Real;", output)
+    }
+
+    @Test
+    fun testDiffDiff() {
+        withSource("var x : Real = 1; var a = diff(diff(cos x, x), x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=-Cos(_1);var_2:Real;", output)
+    }
+
+    @Test
+    fun testNewton() {
+        withSource("var x : Real = 1; var a = newton(x^4 - 1, x)")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1.0;var_1:Real;_2=_1-(-1.0+_1^4)/(_1^4*(4.0/_1));var_2:Real;", output)
+    }
+
+    @Test
     fun testIfElseBool() {
         withSource("var a = 1; if(if(a == 1) false else true) a = 2 else a = 3")
 

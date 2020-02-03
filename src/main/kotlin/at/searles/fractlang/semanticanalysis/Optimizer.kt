@@ -232,7 +232,7 @@ object Optimizer {
 		// 1 * x -> 1
 		if(isOne(args[0])) return args[1]
 
-		// -x - y -> -(x * y)
+		// -x * y -> -(x * y)
 		if(isOp(
                 args[0],
                 Neg
@@ -262,7 +262,17 @@ object Optimizer {
             )
         )
 
-		return Mul.createApp(trace, args)
+        // /x * y -> y / x
+        if(isOp(args[0], Recip)) {
+            return Div.apply(trace, args[1], (args[0] as App).args[0])
+        }
+
+        // x * /y -> x / y
+        if(isOp(args[1], Recip)) {
+            return Div.apply(trace, args[0], (args[1] as App).args[0])
+        }
+
+        return Mul.createApp(trace, args)
 	}
 
 	fun div(trace: Trace, args: List<Node>): Node {

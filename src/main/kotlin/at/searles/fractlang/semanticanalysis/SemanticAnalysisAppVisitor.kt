@@ -8,15 +8,12 @@ import at.searles.parsing.Trace
 /**
  * args are not inlined
  */
-class SemanticAnalysisAppVisitor(val trace: Trace, private val args: List<Node>, private val parentVisitor: SemanticAnalysisVisitor):
-    Visitor<Node> {
-    private val inlinedArgs: List<Node> by lazy {
-		args.map { it.accept(parentVisitor) }
-	}
+class SemanticAnalysisAppVisitor(val trace: Trace, private val args: List<Node>, private val parentVisitor: SemanticAnalysisVisitor): Visitor<Node> {
 
     private fun defineArgs(parameters: List<Node>, innerVisitor: SemanticAnalysisVisitor) {
-        parameters.zip(inlinedArgs).forEach {
+        val inlinedArgs = args.map { it.accept(parentVisitor) }
 
+        parameters.zip(inlinedArgs).forEach {
             val parameter = it.first
             val argument = it.second
 
@@ -74,7 +71,7 @@ class SemanticAnalysisAppVisitor(val trace: Trace, private val args: List<Node>,
     }
 
     override fun visit(opNode: OpNode): Node {
-        return opNode.op.inlineApply(trace, parentVisitor, args)
+        return opNode.op.inlineApply(trace, args, parentVisitor)
     }
 
     override fun visit(vectorNode: VectorNode): Node {
@@ -90,14 +87,7 @@ class SemanticAnalysisAppVisitor(val trace: Trace, private val args: List<Node>,
 		// all implicits allow only one argument
 		checkArity(trace, 1)
 		
-		if(inlinedArgs[0] is VectorNode) {
-            throw SemanticAnalysisException(
-                "lists are not yet supported",
-                trace
-            )
-		}
-		
-		return Mul.apply(trace, listOf(head, inlinedArgs[0]))
+		return Mul.apply(trace, head, args[0].accept(parentVisitor))
 	}
 
     override fun visit(ifElse: IfElse): Node {
@@ -223,6 +213,6 @@ class SemanticAnalysisAppVisitor(val trace: Trace, private val args: List<Node>,
     }
 
     override fun visit(indexedNode: IndexedNode): Node {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return createImplicit(indexedNode)
     }
 }

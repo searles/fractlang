@@ -4,7 +4,7 @@ import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.nodes.*
 import at.searles.parsing.Trace
 
-object Arc: HasSpecialSyntax, StandardOp (1,
+object Arc: StandardOp (1,
     Signature(BaseTypes.Real, BaseTypes.Cplx)
 ) {
     override fun evaluate(trace: Trace, args: List<Node>): Node {
