@@ -572,6 +572,20 @@ class SemanticAnalysisTest {
     }
 
     @Test
+    fun testVectorHasNoType() {
+        withSource("var c = point; var z = c + [1, -1];")
+
+        actParse()
+
+        try {
+            actInline()
+            Assert.fail()
+        } catch (e: SemanticAnalysisException) {
+            e.printStackTrace()
+        }
+    }
+
+    @Test
     fun testClassNameHiding() {
         withSource(
                 "var f = 2;\n" +
