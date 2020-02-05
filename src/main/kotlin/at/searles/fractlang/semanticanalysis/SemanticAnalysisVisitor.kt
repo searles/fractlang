@@ -369,12 +369,15 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 			)
 		}
 
+		val typedInlinedField = VectorNode(inlinedField.trace, inlinedField.items.map { commonType.convert(it) })
+
 		if(inlinedIndex is IntNode) {
-			val index = ((inlinedIndex.value % inlinedField.items.size) + inlinedField.items.size) % inlinedField.items.size
-			return commonType.convert(inlinedField.items[index])
+			val size = typedInlinedField.items.size
+			val index = ((inlinedIndex.value % size) + size) % size
+			return typedInlinedField.items[index]
 		}
 
-		return IndexedNode(indexedNode.trace, inlinedField, inlinedIndex).apply { type = commonType }
+		return IndexedNode(indexedNode.trace, typedInlinedField, inlinedIndex).apply { type = commonType }
 	}
 
 	override fun visit(forStmt: For): Node {

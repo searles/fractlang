@@ -396,6 +396,33 @@ class LinearizationTest {
     }
 
     @Test
+    fun testVectorWithDifferentTypes() {
+        withSource("var c: Cplx = point; var n = 0; var z = [c, 1][n];\n")
+
+        actParse()
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals(
+            "Point[0] [\$1]\n" +
+                    "Allocate \$1: Cplx\n" +
+                    "Assign[1] [\$2, 0]\n" +
+                    "Allocate \$2: Int\n" +
+                    "Switch[0] [\$2, 2, Label R1, Label R2]\n" +
+                    "Label R1\n" +
+                    "Assign[4] [\$3, \$1]\n" +
+                    "Jump[0] [Label R3]\n" +
+                    "Label R2\n" +
+                    "Assign[5] [\$3, 1.0]\n" +
+                    "Jump[0] [Label R3]\n" +
+                    "Label R3\n" +
+                    "Allocate \$3: Cplx\n" +
+                    "VarBound [\$1, \$2, \$3]", output)
+    }
+
+    @Test
     fun testDivExpr() {
         withSource("var a = 1; var b = a / 2; var c = 2 / a;")
 
