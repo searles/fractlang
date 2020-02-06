@@ -1,5 +1,6 @@
 package at.searles.fractlang
 
+import at.searles.commons.math.Scale
 import at.searles.fractlang.nodes.*
 import at.searles.fractlang.ops.MetaOp
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
@@ -19,10 +20,19 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
         }.toMap()
     }
 
-    var defaultScale: DoubleArray? = null
+    var defaultScale: Scale = fallBackScale
         private set
 
-    val defaultPalettes = ArrayList<PaletteData>()
+    private val defaultPaletteData = ArrayList<PaletteData>()
+
+    val defaultPalettes: List<PaletteData>
+        get() {
+            if(defaultPaletteData.isEmpty()) {
+                return fallBackPalettes
+            }
+
+            return defaultPaletteData
+        }
 
     override fun get(trace: Trace, id: String): Node? {
         if(parameterMap.containsKey(id)) {
@@ -53,11 +63,15 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
     override fun setScale(scaleArray: DoubleArray) {
         require(scaleArray.size == 6)
 
-        defaultScale = scaleArray
+        defaultScale = toScale(scaleArray)
+    }
+
+    private fun toScale(array: DoubleArray): Scale {
+        return Scale(array[0], array[1], array[2], array[3], array[4], array[5])
     }
 
     override fun addPalette(paletteData: PaletteData) {
-        defaultPalettes.add(paletteData)
+        defaultPaletteData.add(paletteData)
     }
 
     class TraceComparator: Comparator<ExternNode> {
@@ -65,5 +79,10 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
             val cmp = n0.trace.start.compareTo(n1.trace.start)
             return if(cmp != 0) cmp else n0.trace.end.compareTo(n1.trace.end)
         }
+    }
+
+    companion object {
+        val fallBackScale = Scale(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
+        val fallBackPalettes = listOf(PaletteData("White (no palette defined in program)", 1, 1, listOf(intArrayOf(0, 0, -1))))
     }
 }

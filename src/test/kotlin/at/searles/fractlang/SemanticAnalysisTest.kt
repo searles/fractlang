@@ -1,5 +1,6 @@
 package at.searles.fractlang
 
+import at.searles.commons.math.Scale
 import at.searles.fractlang.nodes.Node
 import at.searles.fractlang.parsing.FractlangParser
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
@@ -607,7 +608,7 @@ class SemanticAnalysisTest {
     }
 
     private lateinit var palettes: List<PaletteData>
-    private var scale: DoubleArray? = null
+    private lateinit var scale: Scale
     private lateinit var output: String
     private lateinit var inlined: Node
     private lateinit var ast: Node
