@@ -383,7 +383,7 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 	override fun visit(forStmt: For): Node {
 		// syntax: for ( (var)? id (':' type)? in collection )
 		// collection is either a vector or a range.
-		// TODO: Now that there are indexedNodes implement it.
+		// XXX: Needed?
 		throw SemanticAnalysisException(
 			"not implemented",
 			forStmt.trace
@@ -441,7 +441,7 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 				throw SemanticAnalysisException("Extern value not fully parsed", externNode.trace)
 			}
 
-			return exprAst.accept(SemanticAnalysisVisitor(AllowImplicitExternsFacade(externNode.id, this), varNameGenerator))
+			return exprAst.accept(SemanticAnalysisVisitor(AllowImplicitExternsFacade(externNode.id, externNode.trace, this), varNameGenerator))
 		} catch(e: ParserLookaheadException) {
 			throw SemanticAnalysisException("Parser error in extern value: ${e.message}", externNode.trace)
 		} catch (e: SemanticAnalysisException) {

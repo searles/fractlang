@@ -2,28 +2,21 @@ package at.searles.fractlang
 
 import at.searles.fractlang.nodes.*
 import at.searles.fractlang.ops.MetaOp
-import at.searles.fractlang.ops.Op
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.parsing.Trace
 
-class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, private val parameters: Map<String, String>): SymbolTable {
+class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, private val definedParameters: Map<String, String>): SymbolTable {
 
     /**
      * Content is added to this map
      */
     private val parameterMap = LinkedHashMap<String, ExternNode>()
+    private val activeParameterKeys = HashSet<String>()
 
-    private val activeExternNodesMap by lazy {
-        parameterMap.values.sortedWith(TraceComparator()).map { it.id to it }.toMap()
-    }
-
-    // This one uses order of trace.
-    val activeParameters: Map<String, String> by lazy {
-        activeExternNodesMap.mapValues { it.value.expr }
-    }
-
-    val descriptionMap by lazy {
-        activeExternNodesMap.mapValues { it.value.description }
+    val activeParameters by lazy {
+        parameterMap.filterKeys { activeParameterKeys.contains(it) }.values.sortedWith(TraceComparator()).map {
+            it.id to ParameterEntry(it.id, it.description, it.isDefault, it.expr)
+        }.toMap()
     }
 
     var scale: DoubleArray? = null
@@ -33,6 +26,7 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
 
     override fun get(trace: Trace, id: String): Node? {
         if(parameterMap.containsKey(id)) {
+            activeParameterKeys.add(id)
             return parameterMap[id]
         }
 
@@ -48,7 +42,10 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
             throw SemanticAnalysisException("extern $name already defined", trace)
         }
 
-        val node = ExternNode(trace, name, description, parameters.getOrElse(name, {expr}))
+        val isDefault = !definedParameters.containsKey(name)
+
+        val node = ExternNode(trace, name, description, isDefault,
+            if(isDefault) expr else definedParameters.getValue(name))
 
         parameterMap[name] = node
     }
@@ -68,10 +65,5 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
             val cmp = n0.trace.start.compareTo(n1.trace.start)
             return if(cmp != 0) cmp else n0.trace.end.compareTo(n1.trace.end)
         }
-    }
-
-    companion object {
-        const val declarePalette = "declarePalette"
-        const val declareScale = "declareScale"
     }
 }
