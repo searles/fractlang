@@ -209,7 +209,15 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 				inlinedCondition.trace
 			)
 		}
-		
+
+		if(inlinedCondition is BoolNode) {
+			return if(inlinedCondition.value) {
+				ifElse.thenBranch.accept(this)
+			} else {
+				ifElse.elseBranch.accept(this)
+			}
+		}
+
 		val inlinedThenBranch = ifElse.thenBranch.accept(this)
 		val inlinedElseBranch = ifElse.elseBranch.accept(this)
 
@@ -219,13 +227,6 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 				ifElse.trace
 			)
 
-		if(inlinedCondition is BoolNode) {
-			return if(inlinedCondition.value) {
-				inlinedThenBranch
-			} else {
-				inlinedElseBranch
-			}
-		}
 
 		if(inlinedThenBranch is BoolNode) {
 			/*
@@ -277,7 +278,15 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 				inlinedCondition.trace
 			)
 		}
-		
+
+		if(inlinedCondition is BoolNode) {
+			if(!inlinedCondition.value) {
+				return Nop(ifStmt.trace)
+			}
+
+			return ifStmt.thenBranch.accept(this)
+		}
+
 		val inlinedBody = ifStmt.thenBranch.accept(this)
 		
 		if(inlinedBody.type != BaseTypes.Unit) {
@@ -285,14 +294,6 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 				"no return type expected",
 				inlinedBody.trace
 			)
-		}
-		
-		if(inlinedCondition is BoolNode) {
-			if(!inlinedCondition.value) {
-				return Nop(ifStmt.trace)
-			}
-			
-			return inlinedBody
 		}
 		
 		return If(ifStmt.trace, inlinedCondition, inlinedBody)

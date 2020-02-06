@@ -589,15 +589,15 @@ class SemanticAnalysisTest {
     @Test
     fun testClassNameHiding() {
         withSource(
-                "var f = 2;\n" +
-                "class A(var a: Int) {\n" +
-                "    var b = a * f + 1;\n" +
-                "}\n" +
-                "{\n" +
-                "    val f = 6;\n" +
-                "    val d = A(3);\n" +
-                "    var e = d.b;\n" +
-                "}\n")
+            "var f = 2;\n" +
+                    "class A(var a: Int) {\n" +
+                    "    var b = a * f + 1;\n" +
+                    "}\n" +
+                    "{\n" +
+                    "    val f = 6;\n" +
+                    "    val d = A(3);\n" +
+                    "    var e = d.b;\n" +
+                    "}\n")
 
         actParse()
         actInline()

@@ -132,6 +132,20 @@ class ExternTest {
     }
 
     @Test
+    fun testExternHiding() {
+        withSource(
+            "extern a: \"A\" = \"false\";\n" +
+                    "var b = if(a) {" +
+                    "    extern b: \"B\" = \"1\"; b" +
+                    "} else 2;")
+
+        actParse()
+        actInline()
+
+        Assert.assertEquals(1, rootTable.activeParameters.size)
+    }
+
+    @Test
     fun testSelfReference() {
         withSource(
             "extern a: \"A\" = \"if(c < a) d else 4 \"; var b = a")
