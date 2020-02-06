@@ -25,11 +25,11 @@ class FractlangProgram(val sourceCode: String, parameters: Map<String, String>) 
     val vmCode
         get() = vmCodeAssembler.vmCode.toIntArray()
 
-    val scale
-            get() = symbolTable.scale
+    val defaultScale
+            get() = symbolTable.defaultScale
 
-    val palettes
-            get() = symbolTable.palettes
+    val defaultPalettes
+            get() = symbolTable.defaultPalettes
 
     val activeParameters
             get() = symbolTable.activeParameters

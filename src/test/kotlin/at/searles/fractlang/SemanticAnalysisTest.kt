@@ -628,8 +628,8 @@ class SemanticAnalysisTest {
             )
         )
 
-        scale = rootTable.scale
-        palettes = rootTable.palettes
+        scale = rootTable.defaultScale
+        palettes = rootTable.defaultPalettes
     }
 
     private fun actParse() {

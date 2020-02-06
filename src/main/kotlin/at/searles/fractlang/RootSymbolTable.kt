@@ -19,10 +19,10 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
         }.toMap()
     }
 
-    var scale: DoubleArray? = null
+    var defaultScale: DoubleArray? = null
         private set
 
-    val palettes = ArrayList<PaletteData>()
+    val defaultPalettes = ArrayList<PaletteData>()
 
     override fun get(trace: Trace, id: String): Node? {
         if(parameterMap.containsKey(id)) {
@@ -53,11 +53,11 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
     override fun setScale(scaleArray: DoubleArray) {
         require(scaleArray.size == 6)
 
-        scale = scaleArray
+        defaultScale = scaleArray
     }
 
     override fun addPalette(paletteData: PaletteData) {
-        palettes.add(paletteData)
+        defaultPalettes.add(paletteData)
     }
 
     class TraceComparator: Comparator<ExternNode> {
