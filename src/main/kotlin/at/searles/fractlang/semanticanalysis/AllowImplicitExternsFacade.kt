@@ -19,7 +19,7 @@ class AllowImplicitExternsFacade(private val owner: String, private val ownerTra
         val node = analyzer.table[ownerTrace, id]
 
         if(node == null) {
-            ExternDecl(ownerTrace, id, StringNode(ownerTrace, "$id (defined in $owner)"), defaultExpr).accept(analyzer)
+            ExternDecl(ownerTrace, id, StringNode(ownerTrace, "$id (defined in \"$owner\")"), defaultExpr).accept(analyzer)
             return analyzer.table[ownerTrace, id] ?: error("undefined implicit extern")
         }
 
