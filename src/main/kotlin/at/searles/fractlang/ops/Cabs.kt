@@ -13,7 +13,7 @@ object Cabs: StandardOp(1,
     override fun evaluate(trace: Trace, args: List<Node>): Node {
         if(args[0] is CplxNode) {
             val cplx = (args[0] as CplxNode).value
-            return CplxNode(trace, Cplx().abs(cplx))
+            return CplxNode(trace, Cplx().cabs(cplx))
         }
 
         return createApp(trace, args)

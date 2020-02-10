@@ -1,7 +1,8 @@
 package at.searles.fractlang
 
+import at.searles.commons.color.Palette
+import at.searles.commons.math.Scale
 import at.searles.fractlang.nodes.Node
-import at.searles.fractlang.ops.Op
 import at.searles.parsing.Trace
 
 interface SymbolTable {
@@ -13,8 +14,8 @@ interface SymbolTable {
 
     fun addExternValue(trace: Trace, name: String, description: String, expr: String)
 
-    fun setScale(scaleArray: DoubleArray)
-    fun addPalette(paletteData: PaletteData)
+    fun setScale(scale: Scale)
+    fun addPalette(description: String, defaultPalette: Palette)
 
     class Mutable(private val parent: SymbolTable): SymbolTable {
         private val map: MutableMap<String, Node> = HashMap()
@@ -27,12 +28,12 @@ interface SymbolTable {
             parent.addExternValue(trace, name, description, expr)
         }
 
-        override fun setScale(scaleArray: DoubleArray) {
-            parent.setScale(scaleArray)
+        override fun setScale(scale: Scale) {
+            parent.setScale(scale)
         }
 
-        override fun addPalette(paletteData: PaletteData) {
-            parent.addPalette(paletteData)
+        override fun addPalette(description: String, defaultPalette: Palette) {
+            parent.addPalette(description, defaultPalette)
         }
 
         fun set(id: String, value: Node): Boolean {

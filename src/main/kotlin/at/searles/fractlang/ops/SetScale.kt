@@ -1,5 +1,6 @@
 package at.searles.fractlang.ops
 
+import at.searles.commons.math.Scale
 import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.nodes.Node
 import at.searles.fractlang.nodes.Nop
@@ -16,10 +17,14 @@ object SetScale: MetaOp {
 
         val inlinedArgs = args.map { it.accept(visitor) }
 
-        val scaleArray =  inlinedArgs.map { (BaseTypes.Real.convert(it) as RealNode).value }.toDoubleArray()
+        val scaleList =  inlinedArgs.map { (BaseTypes.Real.convert(it) as RealNode).value }
 
-        visitor.table.setScale(scaleArray)
+        visitor.table.setScale(toScale(scaleList))
 
         return Nop(trace)
+    }
+
+    private fun toScale(array: List<Double>): Scale {
+        return Scale(array[0], array[1], array[2], array[3], array[4], array[5])
     }
 }

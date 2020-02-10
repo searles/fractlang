@@ -587,6 +587,34 @@ class SemanticAnalysisTest {
     }
 
     @Test
+    fun testAddBadPalette() {
+        withSource(
+            "addPalette(\"p\", -1, 0, [0, 0, 0])\n")
+
+        actParse()
+
+        try {
+            actInline()
+            Assert.fail()
+        } catch(e: SemanticAnalysisException) {
+            e.printStackTrace()
+        }
+    }
+
+    @Test
+    fun testAddPalettes() {
+        withSource(
+            "addPalette(\"A\", 2, 2, [0, 0, 0]);addPalette(\"B\", 3, 3, [0, 0, 0])\n")
+
+        actParse()
+        actInline()
+
+        Assert.assertEquals(2, palettes.size)
+        Assert.assertEquals("A", palettes[0].description)
+        Assert.assertEquals("B", palettes[1].description)
+    }
+
+    @Test
     fun testClassNameHiding() {
         withSource(
             "var f = 2;\n" +
@@ -607,7 +635,7 @@ class SemanticAnalysisTest {
         Assert.assertEquals("_1=2;var_1:Int;{_2=3;var_2:Int;_3=1+_2*_1;var_3:Int;_4=_3;var_4:Int;}", output)
     }
 
-    private lateinit var palettes: List<PaletteData>
+    private lateinit var palettes: List<PaletteEntry>
     private lateinit var scale: Scale
     private lateinit var output: String
     private lateinit var inlined: Node
@@ -630,7 +658,7 @@ class SemanticAnalysisTest {
         )
 
         scale = rootTable.defaultScale
-        palettes = rootTable.defaultPalettes
+        palettes = rootTable.palettes
     }
 
     private fun actParse() {

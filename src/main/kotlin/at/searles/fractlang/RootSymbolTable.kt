@@ -1,6 +1,10 @@
 package at.searles.fractlang
 
+import at.searles.commons.color.Lab
+import at.searles.commons.color.Palette
+import at.searles.commons.color.Rgb
 import at.searles.commons.math.Scale
+import at.searles.commons.util.IntIntMap
 import at.searles.fractlang.nodes.*
 import at.searles.fractlang.ops.MetaOp
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
@@ -23,15 +27,15 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
     var defaultScale: Scale = fallBackScale
         private set
 
-    private val defaultPaletteData = ArrayList<PaletteData>()
+    private val paletteEntries = ArrayList<PaletteEntry>()
 
-    val defaultPalettes: List<PaletteData>
+    val palettes: List<PaletteEntry>
         get() {
-            if(defaultPaletteData.isEmpty()) {
+            if(paletteEntries.isEmpty()) {
                 return fallBackPalettes
             }
 
-            return defaultPaletteData
+            return paletteEntries
         }
 
     override fun get(trace: Trace, id: String): Node? {
@@ -60,18 +64,13 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
         parameterMap[name] = node
     }
 
-    override fun setScale(scaleArray: DoubleArray) {
-        require(scaleArray.size == 6)
-
-        defaultScale = toScale(scaleArray)
+    override fun setScale(scale: Scale) {
+        defaultScale = scale
     }
 
-    private fun toScale(array: DoubleArray): Scale {
-        return Scale(array[0], array[1], array[2], array[3], array[4], array[5])
-    }
-
-    override fun addPalette(paletteData: PaletteData) {
-        defaultPaletteData.add(paletteData)
+    override fun addPalette(description: String, defaultPalette: Palette) {
+        val entry = PaletteEntry(palettes.size, description, defaultPalette)
+        paletteEntries.add(entry)
     }
 
     class TraceComparator: Comparator<ExternNode> {
@@ -83,6 +82,10 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
 
     companion object {
         val fallBackScale = Scale(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
-        val fallBackPalettes = listOf(PaletteData("White (no palette defined in program)", 1, 1, listOf(intArrayOf(0, 0, -1))))
+        val fallBackPalettes = listOf(
+            PaletteEntry(0, "White (no palette defined in program)",
+            Palette(1, 1, 0f, 0f, IntIntMap<Lab>().apply {
+                set(0, 0, Rgb(0f, 0f, 0f).toLab())
+            })))
     }
 }

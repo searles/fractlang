@@ -1,6 +1,9 @@
 package at.searles.fractlang.ops
 
-import at.searles.fractlang.PaletteData
+import at.searles.commons.color.Lab
+import at.searles.commons.color.Palette
+import at.searles.commons.color.Rgb
+import at.searles.commons.util.IntIntMap
 import at.searles.fractlang.nodes.*
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
@@ -22,13 +25,19 @@ object AddPalette: MetaOp {
             throw SemanticAnalysisException("height must be > 0", trace)
         }
 
+        val colorMap = IntIntMap<Lab>()
+
         val points = args.drop(3).map { toColorPoint(it, width, height) }
+
+        points.forEach {
+            colorMap[it[0], it[1]] = Rgb.of(it[2]).toLab()
+        }
 
         if(points.isEmpty()) {
             throw SemanticAnalysisException("Palette must have at least one color point", trace)
         }
 
-        visitor.table.addPalette(PaletteData(name, width, height, points))
+        visitor.table.addPalette(name, Palette(width, height, 0f, 0f, colorMap))
 
         return Nop(trace)
     }

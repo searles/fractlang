@@ -1,6 +1,7 @@
 package at.searles.fractlang.semanticanalysis
 
-import at.searles.fractlang.PaletteData
+import at.searles.commons.color.Palette
+import at.searles.commons.math.Scale
 import at.searles.fractlang.SymbolTable
 import at.searles.fractlang.nodes.ExternDecl
 import at.searles.fractlang.nodes.Node
@@ -30,12 +31,12 @@ class AllowImplicitExternsFacade(private val owner: String, private val ownerTra
         analyzer.table.addExternValue(ownerTrace, name, description, expr)
     }
 
-    override fun setScale(scaleArray: DoubleArray) {
-        analyzer.table.setScale(scaleArray)
+    override fun setScale(scale: Scale) {
+        analyzer.table.setScale(scale)
     }
 
-    override fun addPalette(paletteData: PaletteData) {
-        analyzer.table.addPalette(paletteData)
+    override fun addPalette(description: String, defaultPalette: Palette) {
+        analyzer.table.addPalette(description, defaultPalette)
     }
 
     companion object {

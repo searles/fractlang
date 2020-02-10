@@ -29,7 +29,7 @@ class FractlangProgram(val sourceCode: String, parameters: Map<String, String>) 
             get() = symbolTable.defaultScale
 
     val defaultPalettes
-            get() = symbolTable.defaultPalettes
+            get() = symbolTable.palettes
 
     val activeParameters
             get() = symbolTable.activeParameters
