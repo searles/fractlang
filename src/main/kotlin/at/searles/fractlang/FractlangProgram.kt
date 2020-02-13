@@ -13,9 +13,9 @@ import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
 import at.searles.fractlang.vm.VmCodeAssembler
 import at.searles.parsing.ParserStream
 
-class FractlangProgram(val sourceCode: String, parameters: Map<String, String>) {
+class FractlangProgram(val sourceCode: String, val customParameters: Map<String, String>) {
 
-    private val symbolTable = RootSymbolTable(namedInstructions, parameters)
+    private val symbolTable = RootSymbolTable(namedInstructions, customParameters)
     private val varNameGenerator = generateSequence(0) { it + 1 }.map { "\$$it" }.iterator()
 
     private lateinit var typedAst: Node
