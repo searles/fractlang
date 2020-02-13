@@ -9,7 +9,6 @@ import at.searles.fractlang.ops.Switch
 import at.searles.fractlang.ops.VmBaseOp
 import at.searles.fractlang.vm.VmArg
 import at.searles.fractlang.vm.VmInstruction
-import sun.reflect.generics.tree.BaseType
 
 class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGenerator: Iterator<String>): Visitor<Unit> {
 

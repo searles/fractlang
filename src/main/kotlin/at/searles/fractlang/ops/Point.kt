@@ -1,7 +1,6 @@
 package at.searles.fractlang.ops
 
 import at.searles.fractlang.BaseTypes
-import at.searles.fractlang.nodes.App
 import at.searles.fractlang.nodes.Node
 import at.searles.parsing.Trace
 

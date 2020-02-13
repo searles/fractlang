@@ -94,26 +94,30 @@ class VmCodeAssembler(private val linearizedCode: ArrayList<CodeLine>, instructi
 		val actives = TreeMap<Int, IdNode>()
 
 		linearizedCode.reversed().forEach { stmt ->
-			if (stmt is VmInstruction) {
-				stmt.args.filterIsInstance<IdNode>().forEach { arg ->
-					if (!memoryOffsets.containsKey(arg.id)) {
-						val offset = addToMemoryOffsets(arg.id, actives)
-						actives[offset] = arg
+			when (stmt) {
+				is VmInstruction -> {
+					stmt.args.filterIsInstance<IdNode>().forEach { arg ->
+						if (!memoryOffsets.containsKey(arg.id)) {
+							val offset = addToMemoryOffsets(arg.id, actives)
+							actives[offset] = arg
+						}
 					}
 				}
-			} else if (stmt is Alloc) {
-				// remove from actives.
-				if (!memoryOffsets.containsKey(stmt.id)) {
-					addToMemoryOffsets(stmt.id, actives)
+				is Alloc -> {
+					// remove from actives.
+					if (!memoryOffsets.containsKey(stmt.id)) {
+						addToMemoryOffsets(stmt.id, actives)
+					}
+					val varName = stmt.id
+					val removedEntry = actives.remove(memoryOffsets[varName]!!)
+					require(removedEntry == null || varName == removedEntry.id)
 				}
-				val varName = stmt.id
-				val removedEntry = actives.remove(memoryOffsets[varName]!!)
-				require(removedEntry == null || varName == removedEntry.id)
-			} else if (stmt is VarBound) {
-				stmt.vars.forEach {
-					if (!memoryOffsets.containsKey(it.id)) {
-						val offset = addToMemoryOffsets(it.id, actives)
-						actives[offset] = it
+				is VarBound -> {
+					stmt.vars.forEach {
+						if (!memoryOffsets.containsKey(it.id)) {
+							val offset = addToMemoryOffsets(it.id, actives)
+							actives[offset] = it
+						}
 					}
 				}
 			}

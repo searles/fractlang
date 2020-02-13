@@ -2,10 +2,9 @@ package at.searles.fractlang
 
 import at.searles.buf.ReaderCharStream
 import at.searles.fractlang.nodes.IntNode
-import at.searles.fractlang.nodes.RealNode
-import at.searles.lexer.TokenStream
 import at.searles.fractlang.parsing.FractlangParser
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
+import at.searles.lexer.TokenStream
 import at.searles.parsing.ParserStream
 import org.junit.Assert
 import org.junit.Test

@@ -2,7 +2,6 @@ package at.searles.fractlang.nodes
 
 import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.Visitor
-import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.parsing.Trace
 
 /**

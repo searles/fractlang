@@ -443,22 +443,4 @@ object Optimizer {
 
         return Pow.createApp(trace, args)
     }
-
-    fun max(trace: Trace, args: List<Node>): Node {
-        if(isAllNum(args)) {
-            return when(val arg0 = args[0]) {
-                is RealNode -> RealNode(trace, max(arg0.value, (args[1] as RealNode).value))
-                is CplxNode -> CplxNode(trace, Cplx().max(arg0.value, (args[1] as CplxNode).value))
-                else -> error("something went wrong with the cast")
-            }
-        }
-
-        if(args[1] is NumValue) return max(
-            trace,
-            listOf(args[1], args[0])
-        )
-
-        return Max.createApp(trace, args)
-    }
-
 }

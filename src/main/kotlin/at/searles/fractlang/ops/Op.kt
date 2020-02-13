@@ -1,7 +1,6 @@
 package at.searles.fractlang.ops
 
 import at.searles.fractlang.nodes.Node
-import at.searles.fractlang.nodes.OpNode
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
 import at.searles.parsing.Trace
 
