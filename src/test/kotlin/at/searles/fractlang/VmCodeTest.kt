@@ -11,7 +11,7 @@ class VmCodeTest {
 
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(30, 0, 99), vmCode.toList())
+        Assert.assertEquals(listOf(49, 0, 99), vmCode.toList())
     }
 
     @Test
@@ -46,7 +46,7 @@ class VmCodeTest {
 
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(30, 0, 99), vmCode.toList())
+        Assert.assertEquals(listOf(92, 0, 49, 4, 0, 53, 5, 0, 0, 0, 0, 33, 5, 2, 9, 4, 9, 0, 5, 47, 5, 13, 61, 0, 1078984704, 13, 28, 70, 15, -600177666, 1070515977, 13, 15, 70, 15, 15, 15, 1697350398, 1073157447, 15, 15, 41, 15, 15, 80, 4, 17, 2, 17, 15, 17, 3, 0, 1072693248, 17, 19, 70, 19, 19, 83, 19, 0, 0, 19, 94, 1, 19, 17, 54, 99, 64, 1024, 4, 97, 75, 84, 5, 15, 15, 1841940611, 1069834032, 15, 15, 83, 15, 0, 0, 9, 70, 13, 13, 94, 0, 9, 13, 54, 99, 54, 11), vmCode.toList())
     }
 
     @Test
@@ -55,7 +55,7 @@ class VmCodeTest {
 
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(30, 0, 99), vmCode.toList())
+        Assert.assertEquals(listOf(49, 0, 1, 56, 1, 0, 8, 14, 1, 1, 0, 0, 54, 18, 1, 2, 0, 0), vmCode.toList())
     }
 
     @Test
@@ -81,7 +81,7 @@ class VmCodeTest {
 
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(30, 0, 99), vmCode.toList())
+        Assert.assertEquals(listOf(49, 0, 0, 92, 1, 53, 1, 0, 1073741824, 0, 0, 53, 5, 0, 0, 0, 0, 33, 5, 2, 9, 4, 9, 1, 5, 47, 5, 9, 61, 0, 1074790400, 9, 34, 49, 80, 0, 9, 83, 9, 0, 0, 9, 98, 0, 9, 0, 0, 54, 66, 64, 10, 0, 64, 54, 100, 1, 0, 0, 0, 0, 0, 0, 54, 66, 54, 17), vmCode.toList())
     }
 
 
@@ -107,7 +107,7 @@ class VmCodeTest {
 
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(30, 0, 99), vmCode.toList())
+        Assert.assertEquals(listOf(49, 0, 0, 92, 1, 53, 5, 0, 0, 0, 0, 16, 5, 5, 9, 4, 9, 1, 5, 47, 5, 9, 61, 0, 1074790400, 9, 28, 48, 80, 0, 9, 15, -1717986918, 1069128089, 9, 9, 83, 9, 0, 0, 9, 98, 0, 9, 0, 0, 54, 65, 64, 10, 0, 63, 53, 100, 1, 0, 0, 0, 0, 0, 0, 54, 65, 54, 11), vmCode.toList())
     }
 
     @Test
@@ -139,7 +139,7 @@ class VmCodeTest {
 
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(30, 0, 99), vmCode.toList())
+        Assert.assertEquals(listOf(49, 0, 0, 92, 1, 53, 5, 0, 0, 0, 0, 33, 5, 2, 9, 4, 9, 1, 5, 47, 5, 9, 61, 0, 1074790400, 9, 28, 73, 9, 0, 1072693248, 9, 9, 62, 9, 0, 0, 39, 43, 51, 9, 0, 0, 61, 0, 1072693248, 9, 49, 53, 51, 9, 0, 1072693248, 80, 0, 11, 15, 1214738225, 1069145036, 11, 11, 83, 11, 0, 0, 11, 98, 0, 11, 0, 0, 54, 90, 64, 10, 0, 88, 78, 100, 1, 0, 0, 0, 0, 0, 0, 54, 90, 54, 11), vmCode.toList())
     }
 
     @Test
@@ -150,7 +150,7 @@ class VmCodeTest {
 
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(30, 0, 99), vmCode.toList())
+        Assert.assertEquals(listOf(92, 0, 85, 0, 4, 83, 4, 0, 0, 0), vmCode.toList())
     }
 
 
@@ -160,7 +160,7 @@ class VmCodeTest {
 
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(30, 0, 99), vmCode.toList())
+        Assert.assertEquals(listOf(92, 0, 17, 0, 1075052544, 0, 0, 0, 0), vmCode.toList())
     }
 
     @Test
@@ -169,7 +169,7 @@ class VmCodeTest {
 
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(30, 0, 50, 30, 1, 25, 0, 0, 1, 0), vmCode.toList())
+        Assert.assertEquals(listOf(49, 0, 50, 49, 1, 25, 0, 0, 1, 2), vmCode.toList())
     }
 
     @Test
@@ -178,7 +178,7 @@ class VmCodeTest {
 
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(30, 0, 50, 1, 25, 0, 0), vmCode.toList())
+        Assert.assertEquals(listOf(49, 0, 50, 1, 25, 0, 0), vmCode.toList())
     }
 
     @Test
@@ -187,7 +187,7 @@ class VmCodeTest {
 
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(32, 0, 0, 1078525952, 32, 2, 0, 1077477376, 2, 0, 2, 0), vmCode.toList())
+        Assert.assertEquals(listOf(51, 0, 0, 1078525952, 51, 2, 0, 1077477376, 2, 0, 2, 4), vmCode.toList())
     }
 
     @Test
@@ -196,7 +196,7 @@ class VmCodeTest {
 
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(30, 1, 1, 30, 0, 2, 38, 0, 1, 11, 16, 29, 0, 1, 35, 16), vmCode.toList())
+        Assert.assertEquals(listOf(49, 0, 1, 49, 1, 2, 57, 1, 0, 11, 16, 48, 2, 0, 54, 19, 48, 2, 1), vmCode.toList())
     }
 
     @Test
@@ -205,7 +205,7 @@ class VmCodeTest {
 
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(0), vmCode.toList())
+        Assert.assertEquals(listOf(100, 0, 0, 1071644672, 0, 0, 0, 0), vmCode.toList())
     }
 
     @Test
@@ -214,7 +214,7 @@ class VmCodeTest {
 
         actCreateVmCode()
 
-        Assert.assertEquals(listOf(0), vmCode.toList())
+        Assert.assertEquals(listOf(92, 0, 47, 0, 0, 72, 0, 0, 83, 0, 0, 0, 0, 98, 0, 0, 0, 0), vmCode.toList())
     }
 
     @Test
