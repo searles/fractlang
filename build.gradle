@@ -15,7 +15,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     implementation 'com.github.searles:parsing:2.0.0'
     implementation 'com.github.searles:parsingtools:0.1.1'
-    implementation 'com.github.searles:utils:0.4.4'
+    implementation 'com.github.searles:utils:0.5.0'
 }
 
 compileKotlin {
