@@ -151,7 +151,7 @@ static float3 valueAt(double2 pt) {
 			is Cosh -> "$ret = cosh(${args[0]}); "
 			is Pow -> "$ret = pow(${args[0]}, ${args[1]}); "
 			is Cabs -> "$ret = cabs(${args[0]}); "
-			is Arg -> "$ret = arc(${args[0]}); "
+			is Arg -> "$ret = arg(${args[0]}); "
 			is Cons -> "$ret = (double2) {${args[0]}, ${args[1]}}; "
 			is Rabs -> "$ret = rabs(${args[0]}); "
 			is Iabs -> "$ret = iabs(${args[0]}); "
