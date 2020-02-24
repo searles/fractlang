@@ -66,9 +66,10 @@ class FractlangProgram(val sourceCode: String, val customParameters: Map<String,
             Recip, Abs, Assign, Jump, Equal, Less, Next, Switch,
             Sqrt, Exp, Log, Sin, Cos, Sinh, Cosh,
             ToReal, Cons,
-            Arc, RealPart, ImagPart, Conj, Cabs, Rabs, Iabs, Norm,
+            Arg, RealPart, ImagPart, Conj, Cabs, Rabs, Iabs, Norm,
             Point, SetResult,
-            Max, Min, Floor
+            Max, Min, Floor,
+            ArcOp, LineOp, CircleOp, RectOp
             )
 
         val namedInstructions = mapOf(
@@ -90,7 +91,8 @@ class FractlangProgram(val sourceCode: String, val customParameters: Map<String,
             "re" to RealPart,
             "im" to ImagPart,
             "cabs" to Cabs,
-            "arc" to Arc,
+            "arc" to Arg, // TODO: Replace
+            "arg" to Arg, // TODO: Replace
             "point" to Point,
             "max" to Max,
             "min" to Min,
@@ -107,7 +109,11 @@ class FractlangProgram(val sourceCode: String, val customParameters: Map<String,
             "setScale" to SetScale,
             "addPalette" to AddPalette,
             "declareScale" to SetScale, // legacy due to beta version
-            "declarePalette" to AddPalette // legacy due to beta version
+            "declarePalette" to AddPalette, // legacy due to beta version
+            "line" to LineOp,
+            "rect" to RectOp,
+            "circle" to CircleOp,
+            "arc" to ArcOp
         )
     }
 }

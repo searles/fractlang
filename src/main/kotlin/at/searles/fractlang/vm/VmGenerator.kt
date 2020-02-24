@@ -7,6 +7,7 @@ object VmGenerator {
 
 	private val header = """
 #include "complex.rsh"
+#include "geometry.rsh"
 
 static float3 createResult(int layer, double2 value, double height) {
     float2 fValue = convert_float2(value);
@@ -150,7 +151,7 @@ static float3 valueAt(double2 pt) {
 			is Cosh -> "$ret = cosh(${args[0]}); "
 			is Pow -> "$ret = pow(${args[0]}, ${args[1]}); "
 			is Cabs -> "$ret = cabs(${args[0]}); "
-			is Arc -> "$ret = arc(${args[0]}); "
+			is Arg -> "$ret = arc(${args[0]}); "
 			is Cons -> "$ret = (double2) {${args[0]}, ${args[1]}}; "
 			is Rabs -> "$ret = rabs(${args[0]}); "
 			is Iabs -> "$ret = iabs(${args[0]}); "
@@ -160,6 +161,10 @@ static float3 valueAt(double2 pt) {
 			is Max -> "$ret = max(${args[0]}, ${args[1]}); "
 			is Min -> "$ret = min(${args[0]}, ${args[1]}); "
 			is Floor -> "$ret = floor(${args[0]}); "
+			is ArcOp -> "$ret = arc(${args[0]}, ${args[1]}, ${args[2]}, ${args[3]}); "
+			is LineOp -> "$ret = line(${args[0]}, ${args[1]}, ${args[2]}); "
+			is CircleOp -> "$ret = circle(${args[0]}, ${args[1]}, ${args[2]}); "
+			is RectOp -> "$ret = rect(${args[0]}, ${args[2]}, ${args[2]}); "
 			else -> throw IllegalArgumentException("not implemented: $op")
 		}
 		

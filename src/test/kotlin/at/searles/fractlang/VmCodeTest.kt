@@ -37,7 +37,7 @@ class VmCodeTest {
                 "\t\tsetResult(1, log (1 + continuousN), continuousN);\n" +
                 "\t\tfalse\n" +
                 "\t} else if(not next(maxIterationCount, n)) {\n" +
-                "\t\tsetResult(0, arc z / 2 pi, log absZ);\n" +
+                "\t\tsetResult(0, arg z / 2 pi, log absZ);\n" +
                 "\t\tfalse\n" +
                 "\t} else {\n" +
                 "\t\ttrue\n" +
