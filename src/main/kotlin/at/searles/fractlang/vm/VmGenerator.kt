@@ -6,7 +6,6 @@ import at.searles.fractlang.ops.*
 object VmGenerator {
 
 	private val header = """
-#include "complex.rsh"
 #include "geometry.rsh"
 
 static float3 createResult(int layer, double2 value, double height) {
@@ -164,7 +163,7 @@ static float3 valueAt(double2 pt) {
 			is ArcOp -> "$ret = arc(${args[0]}, ${args[1]}, ${args[2]}, ${args[3]}); "
 			is LineOp -> "$ret = line(${args[0]}, ${args[1]}, ${args[2]}); "
 			is CircleOp -> "$ret = circle(${args[0]}, ${args[1]}, ${args[2]}); "
-			is RectOp -> "$ret = rect(${args[0]}, ${args[2]}, ${args[2]}); "
+			is RectOp -> "$ret = rect(${args[0]}, ${args[1]}, ${args[2]}); "
 			else -> throw IllegalArgumentException("not implemented: $op")
 		}
 		
