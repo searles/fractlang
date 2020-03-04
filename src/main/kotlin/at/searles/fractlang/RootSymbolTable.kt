@@ -68,9 +68,11 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
         defaultScale = scale
     }
 
-    override fun addPalette(description: String, defaultPalette: Palette) {
+    override fun addPalette(description: String, defaultPalette: Palette): Int {
         val entry = PaletteEntry(palettes.size, description, defaultPalette)
+        val index = paletteEntries.size
         paletteEntries.add(entry)
+        return index
     }
 
     class TraceComparator: Comparator<ExternNode> {

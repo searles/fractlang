@@ -29,6 +29,10 @@ abstract class BaseOp(vararg val signatures: Signature) : Op {
         return evaluate(trace, typedArgs)
     }
 
+    fun createApp(trace: Trace, vararg args: Node): Node {
+        return createApp(trace, listOf(*args))
+    }
+
     fun createApp(trace: Trace, args: List<Node>): Node {
         val returnType = signatures.find { it.matches(args) }?.returnType
 

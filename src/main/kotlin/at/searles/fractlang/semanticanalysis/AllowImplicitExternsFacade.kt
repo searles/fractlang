@@ -35,8 +35,8 @@ class AllowImplicitExternsFacade(private val owner: String, private val ownerTra
         analyzer.table.setScale(scale)
     }
 
-    override fun addPalette(description: String, defaultPalette: Palette) {
-        analyzer.table.addPalette(description, defaultPalette)
+    override fun addPalette(description: String, defaultPalette: Palette): Int {
+        return analyzer.table.addPalette(description, defaultPalette)
     }
 
     companion object {
