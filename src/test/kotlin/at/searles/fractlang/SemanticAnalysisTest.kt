@@ -548,6 +548,45 @@ class SemanticAnalysisTest {
         Assert.assertEquals("_1=1.0;var_1:Real;_2=-Cos(_1);var_2:Real;", output)
     }
 
+
+    @Test
+    fun testIfTrueElseBlock() {
+        withSource("var a = 0; if(a == 1) true else { a = 2; false }")
+        actParse()
+        actInline()
+        actPrint()
+        Assert.assertEquals("_1=0;var_1:Int;1==_1or{_1=2;false;};", output)
+    }
+
+    @Test
+    fun testIfFalseElseBlock() {
+        withSource("var a = 0; if(a == 1) false else { a = 2; false }")
+        actParse()
+        actInline()
+        actPrint()
+        Assert.assertEquals("_1=0;var_1:Int;not1==_1and{_1=2;false;};", output)
+    }
+
+    @Test
+    fun testIfElseTrueBlock() {
+        withSource("var a = 0; if(a == 1) { a = 2; false } else true")
+        actParse()
+        actInline()
+        actPrint()
+        Assert.assertEquals("_1=0;var_1:Int;not1==_1or{_1=2;false;};", output)
+    }
+
+    @Test
+    fun testIfElseFalseBlock() {
+        withSource("var a = 0; if(a == 1) { a = 2; false } else false")
+        actParse()
+        actInline()
+        actPrint()
+        Assert.assertEquals("_1=0;var_1:Int;1==_1and{_1=2;false;};", output)
+    }
+
+
+
     @Test
     fun testNewton() {
         withSource("var x : Real = 1; var a = newton(x^4 - 1, x)")

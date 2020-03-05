@@ -228,13 +228,30 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 			)
 
 
+
 		if(inlinedThenBranch is BoolNode) {
-			/*
-			 * if(a) true else b = a and b.
-			 */
+			// if(a) true else b
+
+			//      a | b      || result | b.isExecuted
+			//  false | false  || false  | true
+			//  false | true   || true   | true
+			//   true | false  || true   | false
+			//   true | true   || true   | false
+
+			// ==> a or b
+
+			// if(a) false else b
+
+			//      a | b      || result | b.isExecuted
+			//  false | false  || false  | true
+			//  false | true   || true   | true
+			//   true | false  || false  | false
+			//   true | true   || false  | false
+
+			// ==> not a and b
 
 			return if(inlinedThenBranch.value) {
-				And.apply(ifElse.trace, listOf(inlinedCondition, inlinedElseBranch))
+				Or.apply(ifElse.trace, listOf(inlinedCondition, inlinedElseBranch))
 			} else {
 				And.apply(ifElse.trace, listOf(
 					Not.apply(ifElse.trace, listOf(inlinedCondition)),
@@ -244,20 +261,34 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 		}
 
 		if(inlinedElseBranch is BoolNode) {
-			/*
-			 * if(a) b else true  ==  not a or b
-			 * if(a) b else false ==  a or b
-			 */
+			// if(a) b else true
+
+			//      a | b      || result | b.isExecuted
+			//  false | false  || true   | false
+			//  false | true   || true   | false
+			//   true | false  || false  | true
+			//   true | true   || true   | true
+
+			// ==> not a or b
+
+			// if(a) b else false
+
+			//      a | b      || result | b.isExecuted
+			//  false | false  || false  | false
+			//  false | true   || false  | false
+			//   true | false  || false  | true
+			//   true | true   || true   | true
+
+			// ==> a and b
 			return if(inlinedElseBranch.value) {
 				Or.apply(ifElse.trace, listOf(
 					Not.apply(ifElse.trace, listOf(inlinedCondition)),
 					inlinedThenBranch)
 				)
 			} else {
-				Or.apply(ifElse.trace, listOf(inlinedCondition, inlinedThenBranch))
+				And.apply(ifElse.trace, listOf(inlinedCondition, inlinedThenBranch))
 			}
 		}
-
 
 		return IfElse(
 			ifElse.trace,

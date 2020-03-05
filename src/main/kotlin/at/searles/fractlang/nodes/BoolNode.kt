@@ -12,4 +12,8 @@ class BoolNode(trace: Trace, val value: Boolean): Node(trace) {
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }
+
+    override fun toString(): String {
+        return value.toString()
+    }
 }

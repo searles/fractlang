@@ -20,7 +20,7 @@ abstract class BaseOp(vararg val signatures: Signature) : Op {
         val signature = signatures.find { it.matches(args) } ?:
 
         throw SemanticAnalysisException(
-            "no matching signature",
+            "no matching signature in $this for $args",
             trace
         )
 

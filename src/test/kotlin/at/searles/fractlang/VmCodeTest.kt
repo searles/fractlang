@@ -224,6 +224,13 @@ class VmCodeTest {
         Assert.assertNotNull(source)
     }
 
+    @Test
+    fun testMandelbrot2File() {
+        withSource(File("src/test/resources/mandelbrot2.ft").readText())
+        actCreateVmCode()
+        Assert.assertNotNull(source)
+    }
+
 
     private lateinit var ci: FractlangProgram
     private lateinit var source: String

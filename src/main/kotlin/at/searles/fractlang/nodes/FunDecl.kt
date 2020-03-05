@@ -6,4 +6,8 @@ class FunDecl(trace: Trace, val name: String, val parameters: List<Node>, val bo
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }
+
+    override fun toString(): String {
+        return "fun $name($parameters) {...}"
+    }
 }
