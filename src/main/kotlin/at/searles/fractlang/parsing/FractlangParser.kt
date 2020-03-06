@@ -28,6 +28,7 @@ object FractlangParser {
     private val context = Context(tokenizer)
 
 
+    val appArgument = Ref<List<Node>>("appArgument")
     val ifExpr = Ref<Node>("ifExpr")
     val literal = Ref<Node>("literal")
     val pow = Ref<Node>("pow")
@@ -129,118 +130,123 @@ object FractlangParser {
     // position 2043-2185
     val appHead = atom.or(context.text("[").then(exprList.annotate(Annot.Intent)).then(toVectorNode).then(context.text("]"))).or(context.text("|").then(expr).then(toUnary(Abs)).then(context.text("|"))).or(context.text("(").then(expr).then(context.text(")"))).then(qualifier.rep())
 
-    // position 2190-2234
-    val singleArgument = atom.then(CreateSingletonList())
+    // position 2190-2223
+    val appSecondaryHead = atom.then(qualifier.rep())
 
-    // position 2241-2271
-    val argumentList = context.text("(").then(exprList).then(context.text(")"))
+    // position 2231-2291
+    val argumentList = context.text("(").then(exprList).then(context.text(")")).then(appArgument.fold(listApply).opt())
 
-    // position 2279-2331
-    val appArgument = singleArgument.or(argumentList, true)
+    // position 2328-2398
+    val singleArgument = atom.then(appArgument.fold(toApp).opt()).then(CreateSingletonList())
 
-    // position 2368-2451
-    val app = appHead.then(appArgument.then(appArgument.fold(listApply).rep()).fold(toApp).opt()).then(qualifier.rep())
+    // position 2406-2472
+    init {
+        appArgument.set(singleArgument.or(argumentList, true))
+    }
 
-    // position 2459-2923
+    // position 2509-2558
+    val app = appHead.then(appArgument.fold(toApp).opt()).then(qualifier.rep())
+
+    // position 2566-3030
     init {
         ifExpr.set(context.text("if").annotate(Annot.Keyword).then(CreateEmptyProperties).then(context.text("(")).then(expr.fold(PutProperty("condition"))).then(context.text(")")).then(stmt.fold(PutProperty("thenBranch"))).then(context.text("else").annotate(Annot.Keyword).then(stmt.fold(PutProperty("elseBranch"))).then(CreateObject<Node>(IfElse::class.java, true, "condition", "thenBranch", "elseBranch")).or(CreateObject<Node>(If::class.java, true, "condition", "thenBranch"))))
     }
 
-    // position 2928-3011
+    // position 3035-3118
     val block = context.text("{").annotate(Annot.Newline).then(stmts.annotate(Annot.Intent)).then(toBlock.annotate(Annot.Newline)).then(context.text("}"))
 
-    // position 3019-3045
+    // position 3126-3152
     val term = ifExpr.or(block).or(app)
 
-    // position 3093-3218
+    // position 3200-3325
     init {
         literal.set(context.text("-").then(literal).then(toUnary(Neg)).or(context.text("/").then(literal).then(toUnary(Recip))).or(term))
     }
 
-    // position 3249-3297
+    // position 3356-3404
     val cons = literal.then(context.text(":").then(literal.fold(toBinary(Cons))).opt())
 
-    // position 3305-3350
+    // position 3412-3457
     init {
         pow.set(cons.then(context.text("^").then(pow.fold(toBinary(Pow))).opt()))
     }
 
-    // position 3358-3460
+    // position 3465-3567
     val product = pow.then(context.text("*").then(pow.fold(toBinary(Mul))).or(context.text("/").then(pow.fold(toBinary(Div)))).or(context.text("%").then(pow.fold(toBinary(Mod)))).rep())
 
-    // position 3468-3548
+    // position 3575-3655
     val sum = product.then(context.text("+").then(product.fold(toBinary(Add))).or(context.text("-").then(product.fold(toBinary(Sub)))).rep())
 
-    // position 3553-3784
+    // position 3660-3891
     val cmp = sum.then(context.text(">").then(sum.fold(toBinary(Greater))).or(context.text(">=").then(sum.fold(toBinary(GreaterEqual)))).or(context.text("<=").then(sum.fold(toBinary(LessEqual)))).or(context.text("<").then(sum.fold(toBinary(Less)))).or(context.text("==").then(sum.fold(toBinary(Equal)))).or(context.text("!=").then(sum.fold(toBinary(NotEqual)))).opt())
 
-    // position 3789-3831
+    // position 3896-3938
     val logicalLit = context.text("not").then(cmp).then(toUnary(Not)).or(cmp)
 
-    // position 3835-3896
+    // position 3942-4003
     val logicalAnd = logicalLit.then(context.text("and").then(logicalLit.fold(toBinary(And))).rep())
 
-    // position 3900-3961
+    // position 4007-4068
     val logicalXor = logicalAnd.then(context.text("xor").then(logicalAnd.fold(toBinary(Xor))).rep())
 
-    // position 3965-4023
+    // position 4072-4130
     val logicalOr = logicalXor.then(context.text("or").then(logicalXor.fold(toBinary(Or))).rep())
 
-    // position 4028-4049
+    // position 4135-4156
     init {
         expr.set(logicalOr)
     }
 
-    // position 4054-4098
+    // position 4161-4205
     val exprstmt = expr.then(context.text("=").then(expr.fold(toAssignment)).opt())
 
-    // position 4103-4345
+    // position 4210-4452
     val whilestmt = context.text("while").annotate(Annot.Keyword).then(CreateEmptyProperties).then(context.text("(")).then(expr.fold(PutProperty("condition"))).then(context.text(")")).then(stmt.or(createNop, true).fold(PutProperty("body"))).then(CreateObject<Node>(While::class.java, true, "condition", "body"))
 
-    // position 4350-4590
+    // position 4457-4697
     val forstmt = context.text("for").annotate(Annot.Keyword).then(CreateEmptyProperties).then(context.text("(")).then(identifier.fold(PutProperty("name"))).then(context.text("in")).then(expr.fold(PutProperty("range"))).then(context.text(")")).then(stmt.fold(PutProperty("body"))).then(CreateObject<Node>(For::class.java, true, "name", "range", "body"))
 
-    // position 4595-4637
+    // position 4702-4744
     init {
         stmt.set(whilestmt.or(forstmt).or(exprstmt))
     }
 
-    // position 4642-4931
+    // position 4749-5038
     val vardecl = context.text("var").annotate(Annot.DefKeyword).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text(":").then(identifier.then(ToType).fold(PutProperty("varType"))).opt()).then(context.text("=").then(expr.fold(PutProperty("init"))).opt()).then(CreateObject<Node>(VarDecl::class.java, true, "name", "varType", "init"))
 
-    // position 4936-5152
+    // position 5043-5259
     val valdecl = context.text("val").annotate(Annot.DefKeyword).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text("=").then(expr.fold(PutProperty("init")))).then(CreateObject<Node>(ValDecl::class.java, true, "name", "init"))
 
-    // position 5157-5431
+    // position 5264-5538
     val parameter = context.text("var").annotate(Annot.DefKeyword).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text(":").then(identifier.then(ToType).fold(PutProperty("varType"))).opt()).then(CreateObject<Node>(VarParameter::class.java, true, "name", "varType")).or(idNode)
 
-    // position 5436-5471
+    // position 5543-5578
     val parameters = parameter.list(comma)
 
-    // position 5476-5757
+    // position 5583-5864
     val fundecl = context.text("fun").annotate(Annot.DefKeyword).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text("(")).then(parameters.fold(PutProperty("parameters"))).then(context.text(")")).then(block.or(context.text("=").then(expr)).fold(PutProperty("body"))).then(CreateObject<Node>(FunDecl::class.java, true, "name", "parameters", "body"))
 
-    // position 5762-6058
+    // position 5869-6165
     val classdecl = context.text("class").annotate(Annot.DefKeyword).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text("(").then(parameters).then(context.text(")")).or(CreateEmptyList()).fold(PutProperty("parameters"))).then(block.fold(PutProperty("body"))).then(CreateObject<Node>(ClassDecl::class.java, true, "name", "parameters", "body"))
 
-    // position 6063-6335
+    // position 6170-6442
     val externdecl = context.text("extern").annotate(Annot.DefKeyword).then(CreateEmptyProperties).then(identifier.fold(PutProperty("name"))).then(context.text(":").then(expr.fold(PutProperty("description"))).opt()).then(context.text("=")).then(str.fold(PutProperty("expr"))).then(CreateObject<Node>(ExternDecl::class.java, true, "name", "description", "expr"))
 
-    // position 6340-6398
+    // position 6447-6505
     val decl = vardecl.or(valdecl).or(fundecl).or(classdecl).or(externdecl)
 
-    // position 6406-6447
+    // position 6513-6554
     val semicolon = context.text(";").then(Mapping.identity<Node>())
 
-    // position 6455-6531
+    // position 6562-6638
     val stmtOrDecl = decl.or(stmt).then(semicolon.or(SkipSemicolon, true).annotate(Annot.Stmt))
 
-    // position 6534-6574
+    // position 6641-6681
     init {
         stmts.set(stmtOrDecl.list())
     }
 
-    // position 6578-6602
+    // position 6685-6709
     val program = stmts.then(toBlock)
 
 }

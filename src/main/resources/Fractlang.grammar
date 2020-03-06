@@ -71,12 +71,15 @@ grammar FractlangParser {
 				| '(' expr ')'
 			) qualifier* ;
 
-	singleArgument: atom `CreateSingletonList()` ;
-    argumentList: '(' exprList ')' ;
+	appSecondaryHead: atom qualifier* ;
 
-    appArgument: `singleArgument.or(argumentList, true)` ; // must reverse for printing
+    argumentList: '(' exprList ')' (appArgument >> `listApply`)? ; // no qualifier for inner ones.
 
-    app: (appHead ((appArgument (appArgument >> `listApply`)*) >> `toApp`)?) qualifier* ;
+	singleArgument: atom (appArgument >> `toApp`)? `CreateSingletonList()` ;
+
+    appArgument<`List<Node>`>: `singleArgument.or(argumentList, true)` ; // must reverse for printing
+
+    app: appHead (appArgument >> `toApp`)? qualifier* ;
 
     ifExpr<Node>: 'if' @ `Annot.Keyword` `CreateEmptyProperties`
                         '(' expr >> `PutProperty("condition")` ')'

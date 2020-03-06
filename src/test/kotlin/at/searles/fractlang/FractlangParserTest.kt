@@ -31,6 +31,15 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
     }
 
     @Test
+    fun testChainAppWithParens() {
+        val input = ParserStream.fromString("a b(c, d)")
+        val ast = FractlangParser.expr.parse(input)
+        val source = FractlangParser.expr.print(ast)
+
+        Assert.assertEquals("a(b(c,d))", source?.toString())
+    }
+
+    @Test
     fun testAddendBug() {
         // This was a bug in a beta version
         val filename = "src/test/resources/addend.ft"

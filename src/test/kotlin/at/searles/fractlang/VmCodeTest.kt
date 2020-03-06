@@ -231,6 +231,13 @@ class VmCodeTest {
         Assert.assertNotNull(source)
     }
 
+    @Test
+    fun testLyapunovFile() {
+        withSource(File("src/test/resources/lyapunov.ft").readText())
+        actCreateVmCode()
+        Assert.assertNotNull(source)
+    }
+
 
     private lateinit var ci: FractlangProgram
     private lateinit var source: String
