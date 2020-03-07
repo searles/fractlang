@@ -13,11 +13,9 @@ object ArgNorm: BaseOp (
         return if(args[0] is CplxNode)
             RealNode(trace, (args[0] as CplxNode).value.arg() / (2 * PI))
         else
-            Arg.createApp(trace,
-                Div.apply(trace,
-                    args[0],
-                    RealNode(trace, tau)
-                    )
+            Div.apply(trace,
+                Arg.createApp(trace, args[0]),
+                RealNode(trace, tau)
             )
     }
 }
