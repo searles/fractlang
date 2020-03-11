@@ -146,6 +146,7 @@ static float3 valueAt(double2 pt) {
 			is Log -> "$ret = log(${args[0]}); "
 			is Sin -> "$ret = sin(${args[0]}); "
 			is Cos -> "$ret = cos(${args[0]}); "
+			is Atan -> "$ret = atan(${args[0]}); "
 			is Sinh -> "$ret = sinh(${args[0]}); "
 			is Cosh -> "$ret = cosh(${args[0]}); "
 			is Pow -> "$ret = pow(${args[0]}, ${args[1]}); "
