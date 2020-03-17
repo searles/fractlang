@@ -331,7 +331,7 @@ class SemanticAnalysisTest {
     fun testDeclareStuff() {
         withSource("declareScale(1, 2, 3, 4, 5, 6); " +
                 "declarePalette(\"Hi\", 1, 1, [0, 0, #ffff0000]);" +
-                "declarePalette(\"Hi\", 2, 2, [1, 1, #ffff00ff]);")
+                "declarePalette(\"Hi2\", 2, 2, [1, 1, #ffff00ff]);")
 
         actParse()
         actInline()

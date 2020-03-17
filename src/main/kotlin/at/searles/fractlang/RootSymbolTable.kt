@@ -52,8 +52,14 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
     }
 
     override fun addExternValue(trace: Trace, name: String, description: String, expr: String) {
-        if(parameterMap.containsKey(name)) {
-            throw SemanticAnalysisException("extern $name already defined", trace)
+        val existingEntry = parameterMap[name]
+
+        if(existingEntry != null) {
+            if(existingEntry.expr != expr) {
+                throw SemanticAnalysisException("extern $name already defined with different expr", trace)
+            }
+
+            return
         }
 
         val isDefault = !definedParameters.containsKey(name)
@@ -69,6 +75,13 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
     }
 
     override fun addPalette(description: String, defaultPalette: Palette): Int {
+        // Use description as label.
+        val indexInExisting = paletteEntries.indexOfFirst { it.description == description }
+
+        if(indexInExisting != -1) {
+            return indexInExisting
+        }
+
         val entry = PaletteEntry(palettes.size, description, defaultPalette)
         val index = paletteEntries.size
         paletteEntries.add(entry)
