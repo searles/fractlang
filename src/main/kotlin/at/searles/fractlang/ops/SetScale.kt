@@ -19,7 +19,7 @@ object SetScale: MetaOp {
 
         val scaleList =  inlinedArgs.map { (BaseTypes.Real.convert(it) as RealNode).value }
 
-        visitor.table.setScale(toScale(scaleList))
+        visitor.table.setScale(trace, toScale(scaleList))
 
         return Nop(trace)
     }

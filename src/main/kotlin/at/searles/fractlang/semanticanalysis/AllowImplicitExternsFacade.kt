@@ -31,12 +31,12 @@ class AllowImplicitExternsFacade(private val owner: String, private val ownerTra
         analyzer.table.addExternValue(ownerTrace, name, description, expr)
     }
 
-    override fun setScale(scale: Scale) {
-        analyzer.table.setScale(scale)
+    override fun setScale(trace: Trace, scale: Scale) {
+        analyzer.table.setScale(trace, scale)
     }
 
-    override fun addPalette(description: String, defaultPalette: Palette): Int {
-        return analyzer.table.addPalette(description, defaultPalette)
+    override fun addPalette(trace: Trace, description: String, defaultPalette: Palette): Int {
+        return analyzer.table.addPalette(trace, description, defaultPalette)
     }
 
     companion object {

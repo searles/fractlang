@@ -108,7 +108,7 @@ class ExternTest {
     @Test
     fun testExternWithImplicitOrder() {
         withSource(
-            "extern a: \"A\" = \"b\"; extern c: \"C\" = \"d\"; var e = c; var f = a")
+            "extern a: \"A\" = \"b\"; extern c: \"C\" = \"d\"; var e = a; var f = c")
 
         actParse()
 

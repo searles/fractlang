@@ -14,12 +14,12 @@ interface SymbolTable {
 
     fun addExternValue(trace: Trace, name: String, description: String, expr: String)
 
-    fun setScale(scale: Scale)
+    fun setScale(trace: Trace, scale: Scale)
 
     /**
      * @return The index of the just given palette.
      */
-    fun addPalette(description: String, defaultPalette: Palette): Int
+    fun addPalette(trace: Trace, description: String, defaultPalette: Palette): Int
 
     class Mutable(private val parent: SymbolTable): SymbolTable {
         private val map: MutableMap<String, Node> = HashMap()
@@ -32,12 +32,12 @@ interface SymbolTable {
             parent.addExternValue(trace, name, description, expr)
         }
 
-        override fun setScale(scale: Scale) {
-            parent.setScale(scale)
+        override fun setScale(trace: Trace, scale: Scale) {
+            parent.setScale(trace, scale)
         }
 
-        override fun addPalette(description: String, defaultPalette: Palette): Int {
-            return parent.addPalette(description, defaultPalette)
+        override fun addPalette(trace: Trace, description: String, defaultPalette: Palette): Int {
+            return parent.addPalette(trace, description, defaultPalette)
         }
 
         fun set(id: String, value: Node): Boolean {

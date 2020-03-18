@@ -15,13 +15,15 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
     /**
      * Content is added to this map
      */
-    private val parameterMap = LinkedHashMap<String, ExternNode>()
-    private val activeParameterKeys = HashSet<String>()
+    private val parameterMap = HashMap<String, ExternNode>()
+    private val activeParameterKeys = LinkedHashSet<String>()
 
+    // TODO use sorted with Trace Comparator?
     val activeParameters by lazy {
-        parameterMap.filterKeys { activeParameterKeys.contains(it) }.values.sortedWith(TraceComparator()).map {
-            it.id to ParameterEntry(it.id, it.description, it.isDefault, it.expr)
-        }.toMap()
+        activeParameterKeys.
+            map { parameterMap.getValue(it) }.
+            map { it.id to ParameterEntry(it.id, it.description, it.isDefault, it.expr) }.
+            toMap()
     }
 
     var defaultScale: Scale = fallBackScale
@@ -55,8 +57,8 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
         val existingEntry = parameterMap[name]
 
         if(existingEntry != null) {
-            if(existingEntry.expr != expr) {
-                throw SemanticAnalysisException("extern $name already defined with different expr", trace)
+            if(existingEntry.trace != trace) {
+                throw SemanticAnalysisException("extern $name already defined", existingEntry.trace)
             }
 
             return
@@ -70,19 +72,19 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
         parameterMap[name] = node
     }
 
-    override fun setScale(scale: Scale) {
+    override fun setScale(trace: Trace, scale: Scale) {
         defaultScale = scale
     }
 
-    override fun addPalette(description: String, defaultPalette: Palette): Int {
+    override fun addPalette(trace: Trace, description: String, defaultPalette: Palette): Int {
         // Use description as label.
-        val indexInExisting = paletteEntries.indexOfFirst { it.description == description }
+        val indexInExisting = paletteEntries.indexOfFirst { it.trace == trace }
 
         if(indexInExisting != -1) {
             return indexInExisting
         }
 
-        val entry = PaletteEntry(palettes.size, description, defaultPalette)
+        val entry = PaletteEntry(trace, palettes.size, description, defaultPalette)
         val index = paletteEntries.size
         paletteEntries.add(entry)
         return index
@@ -98,7 +100,10 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
     companion object {
         val fallBackScale = Scale(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
         val fallBackPalettes = listOf(
-            PaletteEntry(0, "White (no palette defined in program)",
+            PaletteEntry(object: Trace {
+                override fun getStart(): Long = 0
+                override fun getEnd(): Long = 0
+            }, 0, "White (no palette defined in program)",
             Palette(1, 1, 0f, 0f, IntIntMap<Lab>().apply {
                 set(0, 0, Rgb(0f, 0f, 0f).toLab())
             })))

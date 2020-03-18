@@ -37,7 +37,7 @@ object AddPalette: MetaOp {
             throw SemanticAnalysisException("Palette must have at least one color point", trace)
         }
 
-        val index = visitor.table.addPalette(name, Palette(width, height, 0f, 0f, colorMap))
+        val index = visitor.table.addPalette(trace, name, Palette(width, height, 0f, 0f, colorMap))
 
         return IntNode(trace, index)
     }
