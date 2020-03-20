@@ -475,7 +475,7 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 
 			return exprAst.accept(SemanticAnalysisVisitor(AllowImplicitExternsFacade(externNode.id, externNode.trace, this), varNameGenerator))
 		} catch(e: ParserLookaheadException) {
-			throw SemanticAnalysisException("Parser error in extern value: ${e.message}", externNode.trace)
+			throw SemanticAnalysisException("Unexpected token. Expected ${e.failedParser().right()}", externNode.trace)
 		} catch (e: SemanticAnalysisException) {
 			throw SemanticAnalysisException("Semantic error in extern value: ${e.message}", externNode.trace)
 		}
