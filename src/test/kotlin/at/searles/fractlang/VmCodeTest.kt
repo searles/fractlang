@@ -1,5 +1,7 @@
 package at.searles.fractlang
 
+import at.searles.fractlang.parsing.FractlangParser
+import at.searles.parsing.ParserStream
 import org.junit.Assert
 import org.junit.Test
 import java.io.File
@@ -237,7 +239,6 @@ class VmCodeTest {
         actCreateVmCode()
         Assert.assertNotNull(source)
     }
-
 
     private lateinit var ci: FractlangProgram
     private lateinit var source: String
