@@ -134,7 +134,7 @@ static float3 valueAt(double2 pt) {
 			is Sub -> "$ret = ${args[0]} - ${args[1]}; "
 			is Mul -> generateMul(offset, args, ret)
 			is Div -> generateDiv(offset, args, ret)
-			is Mod -> "$ret = ${args[0]} % ${args[1]}; "
+			is Mod -> "$ret = mod(${args[0]}, ${args[1]}); "
 			is Neg -> "$ret = -${args[0]}; "
 			is Recip -> generateRecip(offset, args[0], ret)
 			is Point -> "$ret = pt; "
@@ -146,12 +146,16 @@ static float3 valueAt(double2 pt) {
 			is Log -> "$ret = log(${args[0]}); "
 			is Sin -> "$ret = sin(${args[0]}); "
 			is Cos -> "$ret = cos(${args[0]}); "
+			is Tan -> "$ret = tan(${args[0]}); "
 			is Atan -> "$ret = atan(${args[0]}); "
 			is Sinh -> "$ret = sinh(${args[0]}); "
 			is Cosh -> "$ret = cosh(${args[0]}); "
+			is Tanh -> "$ret = tanh(${args[0]}); "
+			is Atanh -> "$ret = atanh(${args[0]}); "
 			is Pow -> "$ret = pow(${args[0]}, ${args[1]}); "
 			is Cabs -> "$ret = cabs(${args[0]}); "
 			is Arg -> "$ret = arg(${args[0]}); "
+			is ArgNorm -> "$ret = argnorm(${args[0]}); "
 			is Cons -> "$ret = (double2) {${args[0]}, ${args[1]}}; "
 			is Rabs -> "$ret = rabs(${args[0]}); "
 			is Iabs -> "$ret = iabs(${args[0]}); "
@@ -161,6 +165,7 @@ static float3 valueAt(double2 pt) {
 			is Max -> "$ret = max(${args[0]}, ${args[1]}); "
 			is Min -> "$ret = min(${args[0]}, ${args[1]}); "
 			is Floor -> "$ret = floor(${args[0]}); "
+			is Fract -> "$ret = fract(${args[0]}); "
 			is ArcOp -> "$ret = arc(${args[0]}, ${args[1]}, ${args[2]}, ${args[3]}); "
 			is LineOp -> "$ret = line(${args[0]}, ${args[1]}, ${args[2]}); "
 			is CircleOp -> "$ret = circle(${args[0]}, ${args[1]}, ${args[2]}); "

@@ -102,8 +102,12 @@ object Diff: Op {
             is Exp -> Mul.apply(trace, Exp.apply(trace, arg), dArg)
             is Sin -> Mul.apply(trace, Cos.apply(trace, arg), dArg)
             is Cos -> Neg.apply(trace, Mul.apply(trace, Sin.apply(trace, arg), dArg))
+            is Tan -> Div.apply(trace, dArg, Sqr.apply(trace, Cos.apply(trace, arg)))
+            is Atan -> Div.apply(trace, dArg, Add.apply(trace, IntNode(trace, 1), Sqr.apply(trace, arg)))
             is Sinh -> Mul.apply(trace, Cosh.apply(trace, arg), dArg)
             is Cosh -> Mul.apply(trace, Sinh.apply(trace, arg), dArg)
+            is Tanh -> Div.apply(trace, dArg, Sqr.apply(trace, Cosh.apply(trace, arg)))
+            is Atanh -> Div.apply(trace, dArg, Sub.apply(trace, IntNode(trace, 1), Sqr.apply(trace, arg)))
             else -> throw SemanticAnalysisException("No derivative of $op.", trace)
         }
     }

@@ -118,6 +118,53 @@ class SemanticAnalysisTest {
     }
 
     @Test
+    fun testMod0() {
+        withSource("var a = 1 % 0;")
+
+        actParse()
+
+        try {
+            actInline()
+            Assert.fail()
+        } catch(e: SemanticAnalysisException) {}
+    }
+
+    @Test
+    fun testModNegPos() {
+        withSource("var a = -2 % 3;")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=1;var_1:Int;", output)
+    }
+
+    @Test
+    fun testModPosNeg() {
+        withSource("var a = 2 % -3;")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("_1=-1;var_1:Int;", output)
+    }
+
+    @Test
+    fun testModNegNeg() {
+        withSource("var a = -2 % -3;")
+
+        actParse()
+        actInline()
+        actPrint()
+
+        Assert.assertEquals("_1=-2;var_1:Int;", output)
+    }
+
+    @Test
     fun testVarWithAdd() {
         withSource("var a = 1; var b = a + 1")
 
@@ -325,6 +372,36 @@ class SemanticAnalysisTest {
         } catch(e: SemanticAnalysisException) {
             e.printStackTrace()
         }
+    }
+
+    @Test
+    fun testErrorOnBadNextArity() {
+        withSource("var a: Int = 0; if(next(a)) a = 1;")
+
+        actParse()
+
+        try {
+            actInline()
+            Assert.fail()
+        } catch(e: SemanticAnalysisException) {
+            e.printStackTrace()
+        }
+    }
+
+    @Test
+    fun testPowBugDir1() {
+        withSource("var a: Cplx = 0:0; var b = (a^2)^0.5")
+
+        actParse()
+        actInline()
+    }
+
+    @Test
+    fun testPowBugDir2() {
+        withSource("var a: Cplx = 0:0; var b = (a^0.5)^(2:2)")
+
+        actParse()
+        actInline()
     }
 
     @Test

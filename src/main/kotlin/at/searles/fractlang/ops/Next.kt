@@ -12,6 +12,10 @@ object Next: StandardOp(2,
     Signature(BaseTypes.Bool, BaseTypes.Int, BaseTypes.Int)
 ) {
     override fun apply(trace: Trace, args: List<Node>): Node {
+        if(args.size != 2) {
+            throw SemanticAnalysisException("next has arity 2", trace)
+        }
+
         if(args[1] !is IdNode) {
             throw SemanticAnalysisException(
                 "2nd argument in next must be a register",

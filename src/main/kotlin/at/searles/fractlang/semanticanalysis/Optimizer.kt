@@ -438,7 +438,7 @@ object Optimizer {
             val exp0 = (args[0] as App).args[1]
             val exp1 = args[1]
 
-            return pow(trace, listOf(base, mul(trace, listOf(exp0, exp1))))
+            return pow(trace, listOf(base, Mul.apply(trace, exp0, exp1)))
         }
 
         return Pow.createApp(trace, args)
