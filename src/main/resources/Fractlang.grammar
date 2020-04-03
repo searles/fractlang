@@ -71,8 +71,6 @@ grammar FractlangParser {
 				| '(' expr ')'
 			) qualifier* ;
 
-	appSecondaryHead: atom qualifier* ;
-
     argumentList: '(' exprList ')' (appArgument >> `listApply`)? ; // no qualifier for inner ones.
 
 	singleArgument: atom (appArgument >> `toApp`)? `CreateSingletonList()` ;

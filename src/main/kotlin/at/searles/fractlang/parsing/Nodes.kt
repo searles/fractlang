@@ -31,6 +31,10 @@ object toIntNode: Mapping<BigInteger, Node> {
     override fun left(result: Node): BigInteger? {
         return (result as? IntNode)?.value?.let { BigInteger.valueOf(it.toLong()) }
     }
+
+    override fun toString(): String {
+        return "{int}"
+    }
 }
 
 object toRealNode: Mapping<Double, Node> {
@@ -41,6 +45,10 @@ object toRealNode: Mapping<Double, Node> {
     override fun left(result: Node): Double? {
         return (result as? RealNode)?.value
     }
+
+    override fun toString(): String {
+        return "{real}"
+    }
 }
 
 object toStringNode: Mapping<String, Node> {
@@ -50,6 +58,10 @@ object toStringNode: Mapping<String, Node> {
 
     override fun left(result: Node): String? {
         return (result as? StringNode)?.value
+    }
+
+    override fun toString(): String {
+        return "{string}"
     }
 }
 
@@ -63,6 +75,10 @@ object toIdNode: Mapping<String, Node> {
         return (result as? IdNode)?.id
             ?: (result as? OpNode)?.op?.toString()
     }
+
+    override fun toString(): String {
+        return "{id}"
+    }
 }
 
 object toVectorNode: Mapping<List<Node>, Node> {
@@ -72,6 +88,10 @@ object toVectorNode: Mapping<List<Node>, Node> {
 
     override fun left(result: Node): List<Node>? {
         return (result as? VectorNode)?.items
+    }
+
+    override fun toString(): String {
+        return "{vector}"
     }
 }
 
@@ -87,6 +107,10 @@ object toQualified: Fold<Node, String, Node> {
     override fun rightInverse(result: Node): String? {
         return (result as? QualifiedNode)?.qualifier
     }
+
+    override fun toString(): String {
+        return "{qualified}"
+    }
 }
 
 object toIndexed: Fold<Node, Node, Node> {
@@ -101,6 +125,10 @@ object toIndexed: Fold<Node, Node, Node> {
     override fun rightInverse(result: Node): Node? {
         return (result as? IndexedNode)?.index
     }
+
+    override fun toString(): String {
+        return "{index}"
+    }
 }
 
 object toEscString: Mapping<CharSequence, String> {
@@ -114,6 +142,10 @@ object toEscString: Mapping<CharSequence, String> {
 
     override fun left(result: String): CharSequence? {
         return EscStringParser.unparse(result)
+    }
+
+    override fun toString(): String {
+        return "{escString}"
     }
 }
 
@@ -131,6 +163,10 @@ object listApply: Fold<List<Node>, List<Node>, List<Node>> {
     }
 
     // no inverse. Other methods will take care of that.
+
+    override fun toString(): String {
+        return "{apply}"
+    }
 }
 
 object toApp: Fold<Node, List<Node>, Node> {
@@ -161,6 +197,10 @@ object toApp: Fold<Node, List<Node>, Node> {
 
         return result.args
     }
+
+    override fun toString(): String {
+        return "{apply}"
+    }
 }
 
 object toBlock: Mapping<List<Node>, Node> {
@@ -170,6 +210,10 @@ object toBlock: Mapping<List<Node>, Node> {
 
     override fun left(result: Node): List<Node>? {
         return (result as? Block)?.stmts
+    }
+
+    override fun toString(): String {
+        return "{block}"
     }
 }
 
@@ -191,6 +235,10 @@ fun toUnary(op: Op): Mapping<Node, Node> {
         override fun left(result: Node): Node? {
             return appArgOrNull(result, op, 1, 0)
         }
+
+        override fun toString(): String {
+            return "{${op.javaClass.simpleName}}"
+        }
     }
 }
 
@@ -206,6 +254,10 @@ object toAssignment: Fold<Node, Node, Node> {
     override fun rightInverse(result: Node): Node? {
         return (result as? Assignment)?.rhs
     }
+
+    override fun toString(): String {
+        return "{set}"
+    }
 }
 
 fun toBinary(op: Op): Fold<Node, Node, Node> {
@@ -220,6 +272,10 @@ fun toBinary(op: Op): Fold<Node, Node, Node> {
 
         override fun rightInverse(result: Node): Node? {
             return appArgOrNull(result, op, 2, 1)
+        }
+
+        override fun toString(): String {
+            return "{${op.javaClass.simpleName}}"
         }
     }
 }
@@ -237,6 +293,10 @@ object ToType: Mapping<String, Type> {
     override fun left(result: Type): String? {
         return result.toString()
     }
+
+    override fun toString(): String {
+        return "{type}"
+    }
 }
 
 fun toBool(value: Boolean): Initializer<Boolean> {
@@ -247,6 +307,10 @@ fun toBool(value: Boolean): Initializer<Boolean> {
 
         override fun consume(t: Boolean): Boolean {
             return t == value
+        }
+
+        override fun toString(): String {
+            return "{${value}}"
         }
     }
 }
@@ -259,6 +323,10 @@ object toBoolNode: Mapping<Boolean, Node> {
     override fun left(result: Node): Boolean? {
         return (result as? BoolNode)?.value
     }
+
+    override fun toString(): String {
+        return "{bool}"
+    }
 }
 
 object createNop: Initializer<Node> {
@@ -268,6 +336,10 @@ object createNop: Initializer<Node> {
 
     override fun consume(t: Node?): Boolean {
         return t is Nop
+    }
+
+    override fun toString(): String {
+        return "{nop}"
     }
 }
 
@@ -288,6 +360,10 @@ object SkipSemicolon: Mapping<Node, Node> {
         }
 
         return null
+    }
+
+    override fun toString(): String {
+        return "{;}"
     }
 }
 

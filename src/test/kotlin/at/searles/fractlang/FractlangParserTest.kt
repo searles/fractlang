@@ -358,6 +358,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
 
         Assert.assertEquals("while(1==1);", source?.toString())
     }
+
     @Test
     fun testSimpleAlgorithm() {
         val input = ParserStream.fromString("var i = 0; var sum = 0; while(i < 10) {sum = sum + i; i = i + 1}")
@@ -365,5 +366,17 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
         val source = FractlangParser.program.print(ast)
 
         Assert.assertEquals("vari=0;varsum=0;while(i<10){sum=sum+i;i=i+1;};", source?.toString())
+    }
+
+    @Test
+    fun testErrorMessages() {
+        val input = ParserStream.fromString("var i = 1 + 2 + ")
+
+        try {
+            FractlangParser.program.parse(input)
+            Assert.fail()
+        } catch(e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
