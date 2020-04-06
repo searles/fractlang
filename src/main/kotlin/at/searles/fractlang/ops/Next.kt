@@ -23,7 +23,7 @@ object Next: StandardOp(2,
             )
         }
 
-        return evaluate(trace, args)
+        return super.apply(trace, args)
     }
 
     override fun evaluate(trace: Trace, args: List<Node>): Node {

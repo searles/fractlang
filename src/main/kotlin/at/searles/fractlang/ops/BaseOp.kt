@@ -18,11 +18,10 @@ abstract class BaseOp(vararg val signatures: Signature) : Op {
 
     override fun apply(trace: Trace, args: List<Node>): Node {
         val signature = signatures.find { it.matches(args) } ?:
-
-        throw SemanticAnalysisException(
-            "no matching signature in $this for $args",
-            trace
-        )
+            throw SemanticAnalysisException(
+                "no matching signature in $this for $args",
+                trace
+            )
 
         val typedArgs = signature.convertArguments(args)
 

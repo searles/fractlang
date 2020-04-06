@@ -12,4 +12,8 @@ class App(trace: Trace, val head: Node, val args: List<Node>): Node(trace) {
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }
+
+    override fun toString(): String {
+        return "$head(${args.joinToString(", ")})"
+    }
 }

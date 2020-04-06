@@ -24,6 +24,21 @@ class ExternTest {
     }
 
     @Test
+    fun testExternBugWithNext() {
+        withSource(
+            "var b: Cplx = 0; extern a: \"A\" = \"b + next(1, b)\"; var c = a")
+
+        actParse()
+
+        try {
+            actInline()
+            Assert.fail()
+        } catch(e: SemanticAnalysisException) {
+            e.printStackTrace()
+        }
+    }
+
+    @Test
     fun testInlinedExtern() {
         withSource(
             "var a = 1; extern e: \"A\" = \"if(c < a) d else 4 \"; var b = e")
@@ -196,7 +211,7 @@ class ExternTest {
     }
 
     private fun actInline() {
-        rootTable = RootSymbolTable(emptyMap(), externs)
+        rootTable = RootSymbolTable(FractlangProgram.namedInstructions, externs)
         val varNameGenerator = generateSequence(1) { it + 1 }.map { "_$it" }.iterator()
 
         inlined = ast.accept(
