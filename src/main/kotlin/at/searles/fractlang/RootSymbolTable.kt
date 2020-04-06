@@ -18,7 +18,7 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
     private val parameterMap = HashMap<String, ExternNode>()
     private val activeParameterKeys = LinkedHashSet<String>()
 
-    // TODO use sorted with Trace Comparator?
+    // XXX use sorted with Trace Comparator?
     val activeParameters by lazy {
         activeParameterKeys.
             map { parameterMap.getValue(it) }.
