@@ -64,7 +64,8 @@ class FractlangProgram(val sourceCode: String, val customParameters: Map<String,
         val vmInstructions: List<VmBaseOp> = listOf(
             Add, Sub, Mul, Div, Mod, Pow, Neg,
             Recip, Abs, Assign, Jump, Equal, Less, Next, Switch,
-            Sqrt, Exp, Log, Sin, Cos, Tan, Atan, Sinh, Cosh, Tanh, Atanh,
+            Sqrt, Exp, Log, Sin, Cos, Tan, Asin, Acos, Atan,
+            Sinh, Cosh, Tanh, Asinh, Acosh, Atanh,
             ToReal, Cons,
             Arg, ArgNorm, RealPart, ImagPart, Conj, Cabs, Rabs, Iabs, Norm,
             Point, SetResult,
@@ -121,7 +122,11 @@ class FractlangProgram(val sourceCode: String, val customParameters: Map<String,
             "fract" to Fract,
             "tan" to Tan,
             "tanh" to Tanh,
-            "atanh" to Atanh
+            "atanh" to Atanh,
+            "asin" to Asin,
+            "asinh" to Asinh,
+            "acos" to Acos,
+            "acosh" to Acosh
         )
     }
 }

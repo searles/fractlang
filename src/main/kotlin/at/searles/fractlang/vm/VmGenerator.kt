@@ -7,6 +7,7 @@ object VmGenerator {
 
 	private val header = """
 #include "geometry.rsh"
+#include "imod.rsh"
 
 static float3 createResult(int layer, double2 value, double height) {
     float2 fValue = convert_float2(value);
@@ -147,10 +148,14 @@ static float3 valueAt(double2 pt) {
 			is Sin -> "$ret = sin(${args[0]}); "
 			is Cos -> "$ret = cos(${args[0]}); "
 			is Tan -> "$ret = tan(${args[0]}); "
+			is Asin -> "$ret = asin(${args[0]}); "
+			is Acos -> "$ret = acos(${args[0]}); "
 			is Atan -> "$ret = atan(${args[0]}); "
 			is Sinh -> "$ret = sinh(${args[0]}); "
 			is Cosh -> "$ret = cosh(${args[0]}); "
 			is Tanh -> "$ret = tanh(${args[0]}); "
+			is Asinh -> "$ret = asinh(${args[0]}); "
+			is Acosh -> "$ret = acosh(${args[0]}); "
 			is Atanh -> "$ret = atanh(${args[0]}); "
 			is Pow -> "$ret = pow(${args[0]}, ${args[1]}); "
 			is Cabs -> "$ret = cabs(${args[0]}); "
