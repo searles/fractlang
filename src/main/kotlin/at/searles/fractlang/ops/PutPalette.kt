@@ -12,13 +12,14 @@ import at.searles.parsing.Trace
 /**
  * Should not be used anymore.
  */
-object AddPalette: MetaOp {
+object PutPalette: MetaOp {
     override fun inlineApply(trace: Trace, args: List<Node>, visitor: SemanticAnalysisVisitor): Node {
         val inlinedArgs = args.map { it.accept(visitor) }
 
-        val name = (inlinedArgs[0] as? StringNode)?.value ?: throw SemanticAnalysisException("arg0 must be a String", args[0].trace)
-        val width = (inlinedArgs[1] as? IntNode)?.value ?: throw SemanticAnalysisException("arg1 must be an Int", args[1].trace)
-        val height = (inlinedArgs[2] as? IntNode)?.value ?: throw SemanticAnalysisException("arg2 must be an Int", args[2].trace)
+        val label = (inlinedArgs[0] as? StringNode)?.value ?: throw SemanticAnalysisException("label in arg[0] must be a string", args[0].trace)
+        val description = (inlinedArgs[1] as? StringNode)?.value ?: throw SemanticAnalysisException("description in arg[1] must be a string", args[1].trace)
+        val width = (inlinedArgs[2] as? IntNode)?.value ?: throw SemanticAnalysisException("width in arg[2] must be an integer", args[2].trace)
+        val height = (inlinedArgs[3] as? IntNode)?.value ?: throw SemanticAnalysisException("height in arg[3] must be an integer", args[3].trace)
 
         if(width <= 0) {
             throw SemanticAnalysisException("width must be > 0", trace)
@@ -30,7 +31,7 @@ object AddPalette: MetaOp {
 
         val colorMap = IntIntMap<Lab>()
 
-        val points = args.drop(3).map { toColorPoint(it, width, height) }
+        val points = args.drop(4).map { toColorPoint(it, width, height) }
 
         points.forEach {
             colorMap[it[0], it[1]] = Rgb.of(it[2]).toLab()
@@ -40,7 +41,7 @@ object AddPalette: MetaOp {
             throw SemanticAnalysisException("Palette must have at least one color point", trace)
         }
 
-        val index = visitor.table.addPalette(trace, name, Palette(width, height, 0f, 0f, colorMap))
+        val index = visitor.table.putPalette(trace, label, description, Palette(width, height, 0f, 0f, colorMap))
 
         return IntNode(trace, index)
     }

@@ -110,7 +110,8 @@ class FractlangProgram(val sourceCode: String, val customParameters: Map<String,
             "diff" to Diff,
             "newton" to Newton,
             "setScale" to SetScale,
-            "addPalette" to AddPalette,
+            "putPalette" to PutPalette,
+            "addPalette" to AddPalette, // legacy due to usage up to version 1.0.3
             "declareScale" to SetScale, // legacy due to beta version
             "declarePalette" to DeclarePalette, // legacy due to beta version
             "line" to LineOp,

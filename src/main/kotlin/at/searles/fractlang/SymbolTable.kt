@@ -17,9 +17,12 @@ interface SymbolTable {
     fun setScale(trace: Trace, scale: Scale)
 
     /**
-     * @return The index of the just given palette.
+     * @return The index of the just given palette. Deprecated, use putPalette instead. Just
+     * here for legacy purposes
      */
     fun addPalette(trace: Trace, description: String, defaultPalette: Palette): Int
+
+    fun putPalette(trace: Trace, label: String, description: String, defaultPalette: Palette): Int
 
     class Mutable(private val parent: SymbolTable): SymbolTable {
         private val map: MutableMap<String, Node> = HashMap()
@@ -38,6 +41,10 @@ interface SymbolTable {
 
         override fun addPalette(trace: Trace, description: String, defaultPalette: Palette): Int {
             return parent.addPalette(trace, description, defaultPalette)
+        }
+
+        override fun putPalette(trace: Trace, label: String, description: String, defaultPalette: Palette): Int {
+            return parent.putPalette(trace, label, description, defaultPalette)
         }
 
         fun set(id: String, value: Node): Boolean {

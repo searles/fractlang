@@ -32,11 +32,15 @@ class AllowImplicitExternsFacade(private val owner: String, private val ownerTra
     }
 
     override fun setScale(trace: Trace, scale: Scale) {
-        analyzer.table.setScale(trace, scale)
+        throw SemanticAnalysisException("setScale not allowed in extern", trace)
     }
 
     override fun addPalette(trace: Trace, description: String, defaultPalette: Palette): Int {
-        return analyzer.table.addPalette(trace, description, defaultPalette)
+        throw SemanticAnalysisException("addPalette not allowed in extern", trace)
+    }
+
+    override fun putPalette(trace: Trace, label: String, description: String, defaultPalette: Palette): Int {
+        throw SemanticAnalysisException("putPalette not allowed in extern", trace)
     }
 
     companion object {

@@ -29,9 +29,9 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
     var defaultScale: Scale = fallBackScale
         private set
 
-    private val paletteEntries = ArrayList<PaletteEntry>()
+    private val paletteEntries = HashMap<String, PaletteEntry>()
 
-    val palettes: List<PaletteEntry>
+    val palettes: Map<String, PaletteEntry>
         get() {
             if(paletteEntries.isEmpty()) {
                 return fallBackPalettes
@@ -77,17 +77,32 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
     }
 
     override fun addPalette(trace: Trace, description: String, defaultPalette: Palette): Int {
-        // Use description as label.
-        val indexInExisting = paletteEntries.indexOfFirst { it.trace == trace }
+        val indexInExisting = paletteEntries.values.indexOfFirst { it.trace == trace }
 
         if(indexInExisting != -1) {
             return indexInExisting
         }
 
-        val entry = PaletteEntry(trace, palettes.size, description, defaultPalette)
+        val entry = PaletteEntry(trace, paletteEntries.size, description, defaultPalette)
         val index = paletteEntries.size
-        paletteEntries.add(entry)
+
+        paletteEntries["Palette $index"] = entry
+
         return index
+    }
+
+    override fun putPalette(trace: Trace, label: String, description: String, defaultPalette: Palette): Int {
+        val existingEntry = paletteEntries[label]
+
+        if(existingEntry != null) {
+            return existingEntry.index
+        }
+
+        val entry = PaletteEntry(trace, paletteEntries.size, description, defaultPalette)
+
+        paletteEntries[label] = entry
+
+        return entry.index
     }
 
     class TraceComparator: Comparator<ExternNode> {
@@ -99,13 +114,16 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
 
     companion object {
         val fallBackScale = Scale(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
-        val fallBackPalettes = listOf(
-            PaletteEntry(object: Trace {
-                override fun getStart(): Long = 0
-                override fun getEnd(): Long = 0
-            }, 0, "White (no palette defined in program)",
-            Palette(1, 1, 0f, 0f, IntIntMap<Lab>().apply {
-                set(0, 0, Rgb(0f, 0f, 0f).toLab())
-            })))
+        val fallBackPalettes = mapOf(
+            Pair(
+                "Black",
+                PaletteEntry(object: Trace {
+                    override fun getStart(): Long = 0
+                    override fun getEnd(): Long = 0
+                }, 0, "Black (no palette defined in program)",
+                Palette(1, 1, 0f, 0f, IntIntMap<Lab>().apply {
+                    set(0, 0, Rgb(0f, 0f, 0f).toLab())
+                })))
+        )
     }
 }

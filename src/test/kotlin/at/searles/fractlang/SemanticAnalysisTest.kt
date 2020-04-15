@@ -731,6 +731,34 @@ class SemanticAnalysisTest {
     }
 
     @Test
+    fun testPutBadPalette() {
+        withSource(
+            "putPalette(\"p\", \"p\", -1, 0, [0, 0, 0])\n")
+
+        actParse()
+
+        try {
+            actInline()
+            Assert.fail()
+        } catch(e: SemanticAnalysisException) {
+            e.printStackTrace()
+        }
+    }
+
+    @Test
+    fun testPutPalettes() {
+        withSource(
+            "putPalette(\"A\", \"A\", 2, 2, [0, 0, 0]);putPalette(\"B\", \"B\", 3, 3, [0, 0, 0])\n")
+
+        actParse()
+        actInline()
+
+        Assert.assertEquals(2, palettes.size)
+        Assert.assertEquals("A", palettes[0].description)
+        Assert.assertEquals("B", palettes[1].description)
+    }
+
+    @Test
     fun testClassNameHiding() {
         withSource(
             "var f = 2;\n" +
@@ -774,7 +802,7 @@ class SemanticAnalysisTest {
         )
 
         scale = rootTable.defaultScale
-        palettes = rootTable.palettes
+        palettes = rootTable.palettes.values.sortedBy { it.index }
     }
 
     private fun actParse() {
