@@ -7,4 +7,7 @@ class QualifiedNode(trace: Trace, val instance: Node, val qualifier: String) : N
         return visitor.visit(this)
     }
 
+    override fun toString(): String {
+        return "$instance.$qualifier"
+    }
 }

@@ -12,4 +12,8 @@ class While(trace: Trace, val condition: Node, val body: Node): Node(trace) {
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }
+
+    override fun toString(): String {
+        return "while($condition) $body"
+    }
 }

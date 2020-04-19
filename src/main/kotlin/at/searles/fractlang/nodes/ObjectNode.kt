@@ -21,4 +21,7 @@ class ObjectNode(trace: Trace, private val table: Map<String, Node>) : Node(trac
         return visitor.visit(this)
     }
 
+    override fun toString(): String {
+        return "object[$table]"
+    }
 }

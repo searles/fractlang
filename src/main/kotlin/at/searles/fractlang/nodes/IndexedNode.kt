@@ -7,4 +7,7 @@ class IndexedNode(trace: Trace, val field: Node, val index: Node) : Node(trace) 
         return visitor.visit(this)
     }
 
+    override fun toString(): String {
+        return "$field[$index]"
+    }
 }

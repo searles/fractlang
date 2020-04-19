@@ -8,6 +8,6 @@ class FunDecl(trace: Trace, val name: String, val parameters: List<Node>, val bo
     }
 
     override fun toString(): String {
-        return "fun $name($parameters) {...}"
+        return "fun $name($parameters) $body"
     }
 }

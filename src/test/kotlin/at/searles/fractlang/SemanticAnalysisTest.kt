@@ -703,6 +703,29 @@ class SemanticAnalysisTest {
     }
 
     @Test
+    fun testThrowError() {
+        withSource("if(true) error(\"hi\", \"this is an error\");")
+
+        actParse()
+
+        try {
+            actInline()
+            Assert.fail()
+        } catch (e: SemanticAnalysisException) {
+            e.printStackTrace()
+        }
+    }
+
+    @Test
+    fun testDoNotThrowError() {
+        withSource("if(false) error(\"hi\", \"this is an error\");")
+
+        actParse()
+
+        actInline()
+    }
+
+    @Test
     fun testAddBadPalette() {
         withSource(
             "addPalette(\"p\", -1, 0, [0, 0, 0])\n")

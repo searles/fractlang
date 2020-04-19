@@ -6,4 +6,8 @@ class IfElse(trace: Trace, val condition: Node, val thenBranch: Node, val elseBr
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }
+
+    override fun toString(): String {
+        return "if($condition) $thenBranch else $elseBranch"
+    }
 }

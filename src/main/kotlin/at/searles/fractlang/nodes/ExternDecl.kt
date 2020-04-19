@@ -10,4 +10,8 @@ class ExternDecl(trace: Trace, val name: String, val description: Node, val expr
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }
+
+    override fun toString(): String {
+        return "extern $name : $description = $expr"
+    }
 }

@@ -127,7 +127,8 @@ class FractlangProgram(val sourceCode: String, val customParameters: Map<String,
             "asin" to Asin,
             "asinh" to Asinh,
             "acos" to Acos,
-            "acosh" to Acosh
+            "acosh" to Acosh,
+            "error" to Error
         )
     }
 }

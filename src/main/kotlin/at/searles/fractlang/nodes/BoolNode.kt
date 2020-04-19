@@ -14,6 +14,6 @@ class BoolNode(trace: Trace, val value: Boolean): Node(trace) {
     }
 
     override fun toString(): String {
-        return value.toString()
+        return "$value"
     }
 }

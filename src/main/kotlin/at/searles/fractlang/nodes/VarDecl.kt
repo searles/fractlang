@@ -13,4 +13,8 @@ class VarDecl(trace: Trace, val name: String, val varType: Type?, val init: Node
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }
+
+    override fun toString(): String {
+        return "var $name: $varType = $init"
+    }
 }

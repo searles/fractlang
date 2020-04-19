@@ -11,4 +11,8 @@ class ExternNode(trace: Trace, val id: String, val description: String, val isDe
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }
+
+    override fun toString(): String {
+        return "extern[isDefault=$isDefault] $id : $description = $expr"
+    }
 }

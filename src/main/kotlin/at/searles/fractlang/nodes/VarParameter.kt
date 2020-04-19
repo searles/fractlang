@@ -14,4 +14,8 @@ class VarParameter(trace: Trace,  val name: String, val varType: Type?): Node(tr
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }
+
+    override fun toString(): String {
+        return "var $name: $varType"
+    }
 }

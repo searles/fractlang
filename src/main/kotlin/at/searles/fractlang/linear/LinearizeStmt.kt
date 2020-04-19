@@ -17,11 +17,15 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
 
         val op: VmBaseOp = app.head.op
 
+        val opOffset = op.getArgKindOffset(app.args)
+
+        require(opOffset < op.countArgKinds)
+
         val linearizedArgs = app.args.map { it.accept(LinearizeExpr(code, nameGenerator, null))}
         code.add(
             VmInstruction(
                 op,
-                op.getArgKindOffset(app.args),
+                opOffset,
                 linearizedArgs
             )
         )

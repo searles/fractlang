@@ -20,4 +20,7 @@ class OpNode(trace: Trace, val op: MetaOp) : Node(trace) {
         return visitor.visit(this)
     }
 
+    override fun toString(): String {
+        return op.javaClass.simpleName
+    }
 }

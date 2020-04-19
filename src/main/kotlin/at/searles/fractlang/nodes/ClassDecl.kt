@@ -7,4 +7,8 @@ class ClassDecl(trace: Trace, val name: String, val parameters: List<Node>, val 
     override fun <T> accept(visitor: Visitor<T>): T {
         return visitor.visit(this)
     }
+
+    override fun toString(): String {
+        return "class $name(${parameters.joinToString(", ")}) $body"
+    }
 }
