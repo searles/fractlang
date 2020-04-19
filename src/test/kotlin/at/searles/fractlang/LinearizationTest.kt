@@ -13,6 +13,46 @@ import org.junit.Test
 class LinearizationTest {
 
     @Test
+    fun testRealConstantInBlockWithAddition() {
+        withSource("var a = 0.1 + { var b = 1; 0.26};")
+        actParse()
+
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals("Assign[1] [\$1, 1]\n" +
+                "Allocate \$1: Int\n" +
+                "VarBound [\$1]\n" +
+                "Assign[3] [R1, 0.26]\n" +
+                "Allocate R1: Real\n" +
+                "Add[3] [0.1, R1, \$2]\n" + // could try to optimize this...
+                "Allocate \$2: Real\n" +
+                "VarBound [\$2]", output)
+    }
+
+    @Test
+    fun testRealConstantInBlockToComplex() {
+        withSource("var a: Cplx = { var b = 1; 0.26};")
+        actParse()
+
+        actInline()
+        actLinearize()
+
+        actPrint()
+
+        Assert.assertEquals("Assign[1] [\$1, 1]\n" +
+                "Allocate \$1: Int\n" +
+                "VarBound [\$1]\n" +
+                "Assign[3] [R1, 0.26]\n" +
+                "Allocate R1: Real\n" +
+                "Cons[2] [R1, 0.0, \$2]\n" +
+                "Allocate \$2: Cplx\n" +
+                "VarBound [\$2]", output)
+    }
+
+    @Test
     fun testSwitchExpr() {
         withSource("var a = 0; var b = [a + 1, a + 2, a + 3][a]")
 

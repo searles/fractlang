@@ -29,7 +29,7 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
     var defaultScale: Scale = fallBackScale
         private set
 
-    private val paletteEntries = HashMap<String, PaletteEntry>()
+    private val paletteEntries = LinkedHashMap<String, PaletteEntry>()
 
     val palettes: Map<String, PaletteEntry>
         get() {
@@ -86,7 +86,7 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
         val entry = PaletteEntry(trace, paletteEntries.size, description, defaultPalette)
         val index = paletteEntries.size
 
-        paletteEntries["Palette $index"] = entry
+        paletteEntries["$index"] = entry
 
         return index
     }

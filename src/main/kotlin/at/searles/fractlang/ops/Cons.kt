@@ -5,6 +5,7 @@ import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.nodes.*
 import at.searles.parsing.Trace
 
+// TODO: Since this is a conversion, this one might be called with arguments only!
 object Cons: HasSpecialSyntax, StandardOp(3,
     Signature(BaseTypes.Cplx, BaseTypes.Real, BaseTypes.Real)
 ) {

@@ -9,6 +9,10 @@ import at.searles.fractlang.vm.VmInstruction
 
 class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGenerator: Iterator<String>, private val optTargetNode: IdNode?): Visitor<VmArg> {
 
+    private fun createIdNode(node: Node): IdNode {
+        return IdNode(node.trace, nameGenerator.next()).apply { this.type = node.type }
+    }
+
     override fun visit(app: App): VmArg {
         val op = (app.head as OpNode).op as VmBaseOp
 
@@ -22,7 +26,7 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
             )
         )}
 
-        val target = optTargetNode ?: IdNode(app.trace, nameGenerator.next()).apply { type = app.type }
+        val target = optTargetNode ?: createIdNode(app)
 
         // last argument is the target.
         code.add(VmInstruction(op, index, linearizedArgs + target))
@@ -35,7 +39,7 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(ifElse: IfElse): VmArg {
-        val targetNode = optTargetNode ?: IdNode(ifElse.trace, nameGenerator.next()).apply { type = ifElse.type }
+        val target = optTargetNode ?: createIdNode(ifElse)
 
         // last argument is the target.
         val trueLabel = Label(nameGenerator.next())
@@ -44,17 +48,17 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
 
         ifElse.condition.accept(LinearizeBool(code, nameGenerator, trueLabel, falseLabel))
         code.add(trueLabel)
-        ifElse.thenBranch.accept(LinearizeExpr(code, nameGenerator, targetNode))
+        ifElse.thenBranch.accept(LinearizeExpr(code, nameGenerator, target))
         code.add(VmInstruction(Jump, 0, listOf(endLabel)))
         code.add(falseLabel)
-        ifElse.elseBranch.accept(LinearizeExpr(code, nameGenerator, targetNode))
+        ifElse.elseBranch.accept(LinearizeExpr(code, nameGenerator, target))
         code.add(endLabel)
 
         if(optTargetNode == null) {
-            code.add(Alloc(targetNode.id, targetNode.type))
+            code.add(Alloc(target.id, target.type))
         }
 
-        return targetNode
+        return target
     }
 
     override fun visit(block: Block): VmArg {
@@ -68,7 +72,17 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
             IdNode(it.trace, it.name).apply { type = it.varType!! }
         }))
 
-        return block.stmts.last().accept(this)
+        // Always use a register for returns
+        val target = optTargetNode ?: createIdNode(block)
+
+        // Return value is 'target'.
+        block.stmts.last().accept(LinearizeExpr(code, nameGenerator, target))
+
+        if(optTargetNode == null) {
+            code.add(Alloc(target.id, target.type))
+        }
+
+        return target
     }
 
     override fun visit(idNode: IdNode): VmArg {
@@ -122,6 +136,8 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
     override fun visit(indexedNode: IndexedNode): VmArg {
         require(indexedNode.index.type == BaseTypes.Int) {"index must be an int" }
         require(indexedNode.field is VectorNode) {"field must be a vector"}
+
+        // TODO: Do I need alloc here?
 
         val targetNode = optTargetNode ?: IdNode(indexedNode.trace, nameGenerator.next()).apply {
             type = indexedNode.type
