@@ -1,6 +1,7 @@
 package at.searles.fractlang.linear
 
 import at.searles.fractlang.BaseTypes
+import at.searles.fractlang.NameGenerator
 import at.searles.fractlang.Visitor
 import at.searles.fractlang.nodes.*
 import at.searles.fractlang.ops.BaseOp
@@ -10,7 +11,7 @@ import at.searles.fractlang.ops.VmBaseOp
 import at.searles.fractlang.vm.VmArg
 import at.searles.fractlang.vm.VmInstruction
 
-class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGenerator: Iterator<String>): Visitor<Unit> {
+class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGenerator: NameGenerator): Visitor<Unit> {
 
     override fun visit(app: App) {
         require(app.head is OpNode && app.head.op is VmBaseOp)
@@ -60,8 +61,8 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(ifStmt: If) {
-        val trueLabel = Label(nameGenerator.next())
-        val falseLabel = Label(nameGenerator.next())
+        val trueLabel = Label(nameGenerator.next("ifTrue"))
+        val falseLabel = Label(nameGenerator.next("ifFalse"))
 
         ifStmt.condition.accept(LinearizeBool(code, nameGenerator, trueLabel, falseLabel))
         code.add(trueLabel)
@@ -70,9 +71,9 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(ifElse: IfElse) {
-        val trueLabel = Label(nameGenerator.next())
-        val falseLabel = Label(nameGenerator.next())
-        val endLabel = Label(nameGenerator.next())
+        val trueLabel = Label(nameGenerator.next("ifElseTrue"))
+        val falseLabel = Label(nameGenerator.next("ifElseFalse"))
+        val endLabel = Label(nameGenerator.next("endIfElse"))
 
         ifElse.condition.accept(LinearizeBool(code, nameGenerator, trueLabel, falseLabel))
         code.add(trueLabel)
@@ -84,9 +85,9 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(whileStmt: While) {
-        val startLabel = Label(nameGenerator.next())
-        val trueLabel = Label(nameGenerator.next())
-        val falseLabel = Label(nameGenerator.next())
+        val startLabel = Label(nameGenerator.next("while"))
+        val trueLabel = Label(nameGenerator.next("whileTrue"))
+        val falseLabel = Label(nameGenerator.next("endWhile"))
 
         code.add(startLabel)
 
@@ -119,11 +120,11 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
         val size = IntNode(indexedNode.field.trace, indexedNode.field.items.size)
 
         val itemsWithLabels: List<Pair<Node, Label>> =
-            indexedNode.field.items.map { Pair(it, Label(nameGenerator.next())) }
+            indexedNode.field.items.map { Pair(it, Label(nameGenerator.next("case"))) }
 
         val args: List<VmArg> = listOf(index, size) + itemsWithLabels.map { it.second }
 
-        val endLabel = Label(nameGenerator.next())
+        val endLabel = Label(nameGenerator.next("endSwitch"))
 
         val jumpToEnd = VmInstruction(Jump, 0, listOf(endLabel))
 

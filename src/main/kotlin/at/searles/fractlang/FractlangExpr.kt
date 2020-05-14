@@ -18,7 +18,7 @@ object FractlangExpr {
         }
 
         val symbolTable = RootSymbolTable(FractlangProgram.namedInstructions, emptyMap())
-        val varNameGenerator = generateSequence(0) { it + 1 }.map { "\$$it" }.iterator()
+        val varNameGenerator = NameGenerator()
 
         return ast.accept(SemanticAnalysisVisitor(symbolTable, varNameGenerator))
     }

@@ -13,10 +13,11 @@ import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
 import at.searles.fractlang.vm.VmCodeAssembler
 import at.searles.parsing.ParserStream
 
+@Suppress("CanBeParameter", "MemberVisibilityCanBePrivate", "unused")
 class FractlangProgram(val sourceCode: String, val customParameters: Map<String, String>) {
 
     private val symbolTable = RootSymbolTable(namedInstructions, customParameters)
-    private val varNameGenerator = generateSequence(0) { it + 1 }.map { "\$$it" }.iterator()
+    private val varNameGenerator = NameGenerator()
 
     private lateinit var typedAst: Node
     private lateinit var linearizedCode: ArrayList<CodeLine>

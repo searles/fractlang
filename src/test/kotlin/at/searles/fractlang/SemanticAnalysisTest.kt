@@ -32,7 +32,7 @@ class SemanticAnalysisTest {
         actInline()
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;", output)
+        Assert.assertEquals("a\$0=1.0;vara\$0:Real;", output)
     }
 
     @Test
@@ -42,7 +42,7 @@ class SemanticAnalysisTest {
         actInline()
         actPrint()
 
-        Assert.assertEquals("_1=3;var_1:Int;", output)
+        Assert.assertEquals("a\$0=3;vara\$0:Int;", output)
     }
 
     @Test
@@ -52,7 +52,7 @@ class SemanticAnalysisTest {
         actInline()
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;", output)
+        Assert.assertEquals("a\$0=1;vara\$0:Int;", output)
     }
     @Test
     fun testMissingInAssignment() {
@@ -77,7 +77,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_3={_2=2;var_2:Int;_2;};var_3:Int;", output)
+        Assert.assertEquals("a\$0=1;vara\$0:Int;b\$0={a\$1=2;vara\$1:Int;a\$1;};varb\$0:Int;", output)
     }
 
     @Test
@@ -89,7 +89,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=6;var_1:Int;", output)
+        Assert.assertEquals("a\$0=6;vara\$0:Int;", output)
 
     }
 
@@ -102,7 +102,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;", output)
+        Assert.assertEquals("a\$0=1;vara\$0:Int;", output)
     }
 
     @Test
@@ -138,7 +138,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;", output)
+        Assert.assertEquals("a\$0=1;vara\$0:Int;", output)
     }
 
     @Test
@@ -150,7 +150,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=-1;var_1:Int;", output)
+        Assert.assertEquals("a\$0=-1;vara\$0:Int;", output)
     }
 
     @Test
@@ -161,7 +161,7 @@ class SemanticAnalysisTest {
         actInline()
         actPrint()
 
-        Assert.assertEquals("_1=-2;var_1:Int;", output)
+        Assert.assertEquals("a\$0=-2;vara\$0:Int;", output)
     }
 
     @Test
@@ -173,7 +173,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_2=1+_1;var_2:Int;", output)
+        Assert.assertEquals("a\$0=1;vara\$0:Int;b\$0=1+a\$0;varb\$0:Int;", output)
     }
 
     @Test
@@ -185,7 +185,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_2=1+{_1=1;var_1:Int;_1;};var_2:Int;", output)
+        Assert.assertEquals("a\$0=1+{b\$0=1;varb\$0:Int;b\$0;};vara\$0:Int;", output)
     }
 
     @Test
@@ -197,7 +197,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;{_1=2;}", output)
+        Assert.assertEquals("b\$0=1;varb\$0:Int;{b\$0=2;}", output)
     }
 
     @Test
@@ -209,11 +209,11 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=3;var_1:Int;", output)
+        Assert.assertEquals("c\$0=3;varc\$0:Int;", output)
     }
 
     @Test
-    fun testFunWithTypdeVarArgAndExpr() {
+    fun testFunWithTypeVarArgAndExpr() {
         withSource("fun a(var b: Int) = b + 1; var c = a(2);")
 
         actParse()
@@ -221,7 +221,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=2;var_1:Int;_2=1+_1;var_2:Int;", output)
+        Assert.assertEquals("b\$0=2;varb\$0:Int;c\$0=1+b\$0;varc\$0:Int;", output)
     }
 
     @Test
@@ -233,7 +233,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=2;var_1:Int;_2=1+_1;var_2:Int;", output)
+        Assert.assertEquals("b\$0=2;varb\$0:Int;c\$0=1+b\$0;varc\$0:Int;", output)
     }
 
     @Test
@@ -245,7 +245,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_2=2+_1;var_2:Int;", output)
+        Assert.assertEquals("a\$0=1;vara\$0:Int;c\$0=2+a\$0;varc\$0:Int;", output)
     }
 
     @Test
@@ -257,7 +257,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_2=_1;var_2:Int;", output)
+        Assert.assertEquals("b\$0=1;varb\$0:Int;c\$0=b\$0;varc\$0:Int;", output)
     }
 
     @Test
@@ -269,7 +269,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_2=_1;var_2:Int;", output)
+        Assert.assertEquals("b\$0=1;varb\$0:Int;c\$0=b\$0;varc\$0:Int;", output)
     }
 
     @Test
@@ -281,7 +281,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.1;var_1:Real;_2=_1;var_2:Real;", output)
+        Assert.assertEquals("b\$0=1.1;varb\$0:Real;c\$0=b\$0;varc\$0:Real;", output)
     }
 
     @Test
@@ -293,7 +293,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;", output)
     }
 
     @Test
@@ -305,7 +305,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=_1;var_2:Real;_3=_2;var_3:Real;", output)
+        Assert.assertEquals("d\$0=1.0;vard\$0:Real;b\$0=d\$0;varb\$0:Real;c\$0=b\$0;varc\$0:Real;", output)
     }
 
     @Test
@@ -317,7 +317,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;if(1==_1)_1=2else_1=3;", output)
+        Assert.assertEquals("a\$0=1;vara\$0:Int;if(1==a\$0)a\$0=2elsea\$0=3;", output)
     }
 
     @Test
@@ -329,7 +329,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_1=if(1==_1)2else3;", output)
+        Assert.assertEquals("a\$0=1;vara\$0:Int;a\$0=if(1==a\$0)2else3;", output)
     }
 
     @Test
@@ -426,7 +426,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=3.0;var_2:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;a$0=3.0;vara$0:Real;", output)
     }
 
     @Test
@@ -438,7 +438,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=/_1+Exp(_1);var_2:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx\$0:Real;a$0=/x\$0+Exp(x\$0);vara$0:Real;", output)
     }
 
     @Test
@@ -450,7 +450,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=/_1-Exp(_1);var_2:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;a$0=/x$0-Exp(x$0);vara$0:Real;", output)
     }
 
     @Test
@@ -462,7 +462,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=Exp(_1)/_1+Exp(_1)*Log(_1);var_2:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;a$0=Exp(x$0)/x$0+Exp(x$0)*Log(x$0);vara$0:Real;", output)
     }
 
     @Test
@@ -474,7 +474,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=(Exp(_1)/_1-Log(_1)*Exp(_1))/Exp(_1)^2;var_2:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;a$0=(Exp(x$0)/x$0-Log(x$0)*Exp(x$0))/Exp(x$0)^2;vara$0:Real;", output)
     }
 
     @Test
@@ -486,7 +486,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=Log(_1)^5*(5.0/_1/Log(_1));var_2:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;a$0=Log(x$0)^5*(5.0/x$0/Log(x$0));vara$0:Real;", output)
     }
 
 
@@ -499,7 +499,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=_1^_1*(_1/_1+Log(_1));var_2:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;a$0=x$0^x$0*(x$0/x$0+Log(x$0));vara$0:Real;", output)
     }
 
     @Test
@@ -511,7 +511,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=-1;var_2:Int;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;a$0=-1;vara$0:Int;", output)
     }
 
     @Test
@@ -523,7 +523,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=-(Sinh(_1)/Cosh(_1)^2);var_2:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;a$0=-(Sinh(x$0)/Cosh(x$0)^2);vara$0:Real;", output)
     }
 
     @Test
@@ -535,7 +535,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=Sinh(_1)/Sqrt(Cosh(_1));var_2:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;a$0=Sinh(x$0)/Sqrt(Cosh(x$0));vara$0:Real;", output)
     }
 
     @Test
@@ -547,7 +547,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=Cos(_1)/Sin(_1);var_2:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;a$0=Cos(x$0)/Sin(x$0);vara$0:Real;", output)
     }
 
     @Test
@@ -559,7 +559,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=Exp(Sin(_1))*Cos(_1);var_2:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;a$0=Exp(Sin(x$0))*Cos(x$0);vara$0:Real;", output)
     }
 
     @Test
@@ -571,7 +571,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=Cosh(Sin(_1))*Cos(_1);var_2:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;a$0=Cosh(Sin(x$0))*Cos(x$0);vara$0:Real;", output)
     }
 
 
@@ -584,7 +584,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=Sinh(Sin(_1))*Cos(_1);var_2:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;a$0=Sinh(Sin(x$0))*Cos(x$0);vara$0:Real;", output)
     }
 
 
@@ -597,7 +597,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=Cos(Sinh(_1))*Cosh(_1);var_2:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;a$0=Cos(Sinh(x$0))*Cosh(x$0);vara$0:Real;", output)
     }
 
 
@@ -610,7 +610,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=-(Sin(Sinh(_1))*Cosh(_1));var_2:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;a$0=-(Sin(Sinh(x$0))*Cosh(x$0));vara$0:Real;", output)
     }
 
     @Test
@@ -622,7 +622,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=-Cos(_1);var_2:Real;", output)
+        Assert.assertEquals("x$0=1.0;varx$0:Real;a$0=-Cos(x$0);vara$0:Real;", output)
     }
 
 
@@ -632,7 +632,7 @@ class SemanticAnalysisTest {
         actParse()
         actInline()
         actPrint()
-        Assert.assertEquals("_1=0;var_1:Int;1==_1or{_1=2;false;};", output)
+        Assert.assertEquals("a\$0=0;vara\$0:Int;1==a\$0or{a\$0=2;false;};", output)
     }
 
     @Test
@@ -641,7 +641,7 @@ class SemanticAnalysisTest {
         actParse()
         actInline()
         actPrint()
-        Assert.assertEquals("_1=0;var_1:Int;not1==_1and{_1=2;false;};", output)
+        Assert.assertEquals("a\$0=0;vara\$0:Int;not1==a\$0and{a\$0=2;false;};", output)
     }
 
     @Test
@@ -650,7 +650,7 @@ class SemanticAnalysisTest {
         actParse()
         actInline()
         actPrint()
-        Assert.assertEquals("_1=0;var_1:Int;not1==_1or{_1=2;false;};", output)
+        Assert.assertEquals("a\$0=0;vara\$0:Int;not1==a\$0or{a\$0=2;false;};", output)
     }
 
     @Test
@@ -659,7 +659,7 @@ class SemanticAnalysisTest {
         actParse()
         actInline()
         actPrint()
-        Assert.assertEquals("_1=0;var_1:Int;1==_1and{_1=2;false;};", output)
+        Assert.assertEquals("a\$0=0;vara\$0:Int;1==a\$0and{a\$0=2;false;};", output)
     }
 
 
@@ -673,7 +673,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1.0;var_1:Real;_2=_1-(-1.0+_1^4)/(_1^4*(4.0/_1));var_2:Real;", output)
+        Assert.assertEquals("x\$0=1.0;varx\$0:Real;a\$0=x\$0-(-1.0+x\$0^4)/(x\$0^4*(4.0/x\$0));vara\$0:Real;", output)
     }
 
     @Test
@@ -685,7 +685,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;if(not1==_1)_1=2else_1=3;", output)
+        Assert.assertEquals("a\$0=1;vara\$0:Int;if(not1==a\$0)a\$0=2elsea\$0=3;", output)
     }
 
     @Test
@@ -799,7 +799,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=2;var_1:Int;{_2=3;var_2:Int;_3=1+_2*_1;var_3:Int;_4=_3;var_4:Int;}", output)
+        Assert.assertEquals("f\$0=2;varf\$0:Int;{a\$0=3;vara\$0:Int;b\$0=1+a\$0*f\$0;varb\$0:Int;e\$0=b\$0;vare\$0:Int;}", output)
     }
 
     private lateinit var palettes: List<PaletteEntry>
@@ -815,7 +815,7 @@ class SemanticAnalysisTest {
 
     private fun actInline() {
         val rootTable = RootSymbolTable(FractlangProgram.namedInstructions, emptyMap())
-        val varNameGenerator = generateSequence(1) { it + 1 }.map { "_$it" }.iterator()
+        val varNameGenerator = NameGenerator()
 
         inlined = ast.accept(
             SemanticAnalysisVisitor(

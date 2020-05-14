@@ -20,7 +20,7 @@ class ExternTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;", output)
+        Assert.assertEquals("b\$0=1;varb\$0:Int;", output)
     }
 
     @Test
@@ -50,7 +50,7 @@ class ExternTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_2=if(0<_1)0else4;var_2:Int;", output)
+        Assert.assertEquals("a\$0=1;vara\$0:Int;b\$0=if(0<a\$0)0else4;varb\$0:Int;", output)
 
         Assert.assertTrue(rootTable.activeParameters.containsKey("c"))
         Assert.assertTrue(rootTable.activeParameters.containsKey("d"))
@@ -69,7 +69,7 @@ class ExternTest {
 
         actPrint()
 
-        Assert.assertEquals("_1=1;var_1:Int;_2=if(0<_1)17else4;var_2:Int;", output)
+        Assert.assertEquals("a\$0=1;vara\$0:Int;b\$0=if(0<a\$0)17else4;varb\$0:Int;", output)
 
         Assert.assertTrue(rootTable.activeParameters.containsKey("c"))
         Assert.assertTrue(rootTable.activeParameters.containsKey("f"))
@@ -212,7 +212,7 @@ class ExternTest {
 
     private fun actInline() {
         rootTable = RootSymbolTable(FractlangProgram.namedInstructions, externs)
-        val varNameGenerator = generateSequence(1) { it + 1 }.map { "_$it" }.iterator()
+        val varNameGenerator = NameGenerator()
 
         inlined = ast.accept(
             SemanticAnalysisVisitor(

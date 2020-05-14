@@ -10,7 +10,7 @@ import at.searles.parsing.ParserLookaheadException
 import at.searles.parsing.ParserStream
 import at.searles.parsing.Trace
 
-class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: Iterator<String>): Visitor<Node> {
+class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: NameGenerator): Visitor<Node> {
 	val block = ArrayList<Node>()
     val table = parentTable.fork()
 
@@ -46,7 +46,7 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: It
 			throw SemanticAnalysisException("Cannot declare a variable of this type", trace)
 		}
 
-		val newVarName = varNameGenerator.next()
+		val newVarName = varNameGenerator.next(varNode.name)
 		val newIdNode = IdNode(varNode.trace, newVarName).apply {
 			this.type = type
 		}

@@ -1,16 +1,17 @@
 package at.searles.fractlang.linear
 
 import at.searles.fractlang.BaseTypes
+import at.searles.fractlang.NameGenerator
 import at.searles.fractlang.Visitor
 import at.searles.fractlang.nodes.*
 import at.searles.fractlang.ops.*
 import at.searles.fractlang.vm.VmArg
 import at.searles.fractlang.vm.VmInstruction
 
-class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGenerator: Iterator<String>, private val optTargetNode: IdNode?): Visitor<VmArg> {
+class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGenerator: NameGenerator, private val optTargetNode: IdNode?): Visitor<VmArg> {
 
     private fun createIdNode(node: Node): IdNode {
-        return IdNode(node.trace, nameGenerator.next()).apply { this.type = node.type }
+        return IdNode(node.trace, nameGenerator.next("_")).apply { this.type = node.type }
     }
 
     override fun visit(app: App): VmArg {
@@ -42,9 +43,9 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
         val target = optTargetNode ?: createIdNode(ifElse)
 
         // last argument is the target.
-        val trueLabel = Label(nameGenerator.next())
-        val falseLabel = Label(nameGenerator.next())
-        val endLabel = Label(nameGenerator.next())
+        val trueLabel = Label(nameGenerator.next("ifElseTrue"))
+        val falseLabel = Label(nameGenerator.next("ifElseFalse"))
+        val endLabel = Label(nameGenerator.next("ifElseEnd"))
 
         ifElse.condition.accept(LinearizeBool(code, nameGenerator, trueLabel, falseLabel))
         code.add(trueLabel)
@@ -139,7 +140,7 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
 
         // TODO: Do I need alloc here?
 
-        val targetNode = optTargetNode ?: IdNode(indexedNode.trace, nameGenerator.next()).apply {
+        val targetNode = optTargetNode ?: IdNode(indexedNode.trace, nameGenerator.next("_")).apply {
             type = indexedNode.type
         }
 
@@ -147,11 +148,11 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
         val size = IntNode(indexedNode.field.trace, indexedNode.field.items.size)
 
         val itemsWithLabels: List<Pair<Node, Label>> =
-            indexedNode.field.items.map { Pair(it, Label(nameGenerator.next())) }
+            indexedNode.field.items.map { Pair(it, Label(nameGenerator.next("case"))) }
 
         val args: List<VmArg> = listOf(index, size) + itemsWithLabels.map { it.second }
 
-        val endLabel = Label(nameGenerator.next())
+        val endLabel = Label(nameGenerator.next("endSwitch"))
 
         val jumpToEnd = VmInstruction(Jump, 0, listOf(endLabel))
 
