@@ -140,7 +140,7 @@ class Interpreter(private val point: Cplx, private val debugCallback: DebugCallb
     }
 
     override fun visit(varDecl: VarDecl): Node {
-        debugCallback.step(this, varDecl)
+        require(varDecl.init == null)
         activeVars.add(varDecl)
         return Nop(varDecl.trace)
     }

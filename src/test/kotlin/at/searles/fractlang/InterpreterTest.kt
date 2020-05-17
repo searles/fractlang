@@ -137,6 +137,17 @@ class InterpreterTest {
     }
 
     @Test
+    fun testIndexed() {
+        withSource("var a = 1; setResult([1,2,3][a], 0, 0)")
+
+        actParse()
+        actInline()
+        actInterpret()
+
+        Assert.assertEquals(2, interpreter.paletteIndex)
+    }
+
+    @Test
     fun testSimpleMandel() {
         val filename = "src/test/resources/mandelbrot.ft"
         withSource(FileReader(filename).readText())
@@ -147,7 +158,7 @@ class InterpreterTest {
 
         actInterpret()
 
-        Assert.assertEquals(82516, countDebugSteps)
+        Assert.assertEquals(22505, countDebugSteps)
         Assert.assertEquals(2500, plottedValues.size)
     }
 

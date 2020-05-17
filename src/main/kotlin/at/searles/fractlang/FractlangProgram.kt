@@ -1,6 +1,7 @@
 package at.searles.fractlang
 
 import at.searles.commons.math.Cplx
+import at.searles.fractlang.interpreter.Interpreter
 import at.searles.fractlang.linear.CodeLine
 import at.searles.fractlang.linear.LinearizeStmt
 import at.searles.fractlang.nodes.CplxNode
@@ -40,7 +41,9 @@ class FractlangProgram(val sourceCode: String, val customParameters: Map<String,
         compile()
     }
 
-
+    fun runInterpreter(interpreter: Interpreter) {
+        typedAst.accept(interpreter)
+    }
 
     private fun analyze() {
         val sourceCodeStream = ParserStream.fromString(sourceCode)
