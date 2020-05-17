@@ -7,6 +7,6 @@ class NameGenerator {
         // strip trailing numbers from base
         val index = baseMapCounter.getOrPut(base, {0})
         baseMapCounter[base] = index + 1
-        return "$base\$$index"
+        return if(index == 0) base else "$base\$$index"
     }
 }

@@ -40,6 +40,8 @@ class FractlangProgram(val sourceCode: String, val customParameters: Map<String,
         compile()
     }
 
+
+
     private fun analyze() {
         val sourceCodeStream = ParserStream.fromString(sourceCode)
 
@@ -72,7 +74,7 @@ class FractlangProgram(val sourceCode: String, val customParameters: Map<String,
             Point, SetResult,
             Max, Min, Floor, Fract,
             ArcOp, LineOp, CircleOp, RectOp
-            )
+        )
 
         val namedInstructions = mapOf(
             "next" to Next,
@@ -129,7 +131,8 @@ class FractlangProgram(val sourceCode: String, val customParameters: Map<String,
             "asinh" to Asinh,
             "acos" to Acos,
             "acosh" to Acosh,
-            "error" to Error
+            "error" to Error,
+            "plot" to Plot
         )
     }
 }

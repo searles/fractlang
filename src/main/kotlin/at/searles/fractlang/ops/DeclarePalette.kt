@@ -1,11 +1,7 @@
 package at.searles.fractlang.ops
 
-import at.searles.commons.color.Lab
-import at.searles.commons.color.Palette
-import at.searles.commons.color.Rgb
-import at.searles.commons.util.IntIntMap
-import at.searles.fractlang.nodes.*
-import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
+import at.searles.fractlang.nodes.Node
+import at.searles.fractlang.nodes.Nop
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
 import at.searles.parsing.Trace
 

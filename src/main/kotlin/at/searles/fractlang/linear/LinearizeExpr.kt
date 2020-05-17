@@ -15,7 +15,10 @@ class LinearizeExpr(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(app: App): VmArg {
-        val op = (app.head as OpNode).op as VmBaseOp
+        require(app.head is OpNode)
+        require(app.head.op is BaseOp)
+
+        val op = app.head.op as VmBaseOp
 
         val index = op.getArgKindOffset(app.args)
 

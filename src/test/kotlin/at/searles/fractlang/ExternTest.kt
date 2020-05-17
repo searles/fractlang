@@ -20,7 +20,7 @@ class ExternTest {
 
         actPrint()
 
-        Assert.assertEquals("b\$0=1;varb\$0:Int;", output)
+        Assert.assertEquals("b=1;varb:Int;", output)
     }
 
     @Test
@@ -50,7 +50,7 @@ class ExternTest {
 
         actPrint()
 
-        Assert.assertEquals("a\$0=1;vara\$0:Int;b\$0=if(0<a\$0)0else4;varb\$0:Int;", output)
+        Assert.assertEquals("a=1;vara:Int;b=if(0<a)0else4;varb:Int;", output)
 
         Assert.assertTrue(rootTable.activeParameters.containsKey("c"))
         Assert.assertTrue(rootTable.activeParameters.containsKey("d"))
@@ -69,7 +69,7 @@ class ExternTest {
 
         actPrint()
 
-        Assert.assertEquals("a\$0=1;vara\$0:Int;b\$0=if(0<a\$0)17else4;varb\$0:Int;", output)
+        Assert.assertEquals("a=1;vara:Int;b=if(0<a)17else4;varb:Int;", output)
 
         Assert.assertTrue(rootTable.activeParameters.containsKey("c"))
         Assert.assertTrue(rootTable.activeParameters.containsKey("f"))

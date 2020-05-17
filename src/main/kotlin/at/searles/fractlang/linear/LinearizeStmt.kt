@@ -4,17 +4,16 @@ import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.NameGenerator
 import at.searles.fractlang.Visitor
 import at.searles.fractlang.nodes.*
-import at.searles.fractlang.ops.BaseOp
-import at.searles.fractlang.ops.Jump
-import at.searles.fractlang.ops.Switch
-import at.searles.fractlang.ops.VmBaseOp
+import at.searles.fractlang.ops.*
 import at.searles.fractlang.vm.VmArg
 import at.searles.fractlang.vm.VmInstruction
 
 class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGenerator: NameGenerator): Visitor<Unit> {
 
     override fun visit(app: App) {
-        require(app.head is OpNode && app.head.op is VmBaseOp)
+        require(app.head is OpNode)
+        if(app.head.op == Plot) return
+        require(app.head.op is VmBaseOp)
 
         val op: VmBaseOp = app.head.op
 

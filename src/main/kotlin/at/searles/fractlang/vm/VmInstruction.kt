@@ -2,8 +2,9 @@ package at.searles.fractlang.vm
 
 import at.searles.fractlang.linear.CodeLine
 import at.searles.fractlang.ops.VmBaseOp
+import at.searles.parsing.Trace
 
-class VmInstruction(val op: VmBaseOp, private val index: Int, val args: List<VmArg>): CodeLine {
+class VmInstruction(val op: VmBaseOp, val index: Int, val args: List<VmArg>): CodeLine {
 
 	init {
 		require(0 <= index && index < op.countArgKinds) { "failed for $op and $index" }
