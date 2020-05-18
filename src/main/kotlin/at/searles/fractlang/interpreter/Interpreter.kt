@@ -61,7 +61,7 @@ class Interpreter(private val point: Cplx, private val debugCallback: DebugCallb
             }
         }
 
-        return (op as VmBaseOp).evaluate(trace, evalArgs)
+        return op.evaluate(trace, evalArgs)
     }
 
     override fun visit(assignment: Assignment): Node {
