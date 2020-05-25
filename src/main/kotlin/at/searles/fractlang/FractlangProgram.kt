@@ -56,6 +56,10 @@ class FractlangProgram(val sourceCode: String, val customParameters: Map<String,
         }
 
         typedAst = ast.accept(SemanticAnalysisVisitor(symbolTable, varNameGenerator))
+
+        if(typedAst.type != BaseTypes.Unit) {
+            throw SemanticAnalysisException("Program must be of type 'Unit'", typedAst.trace)
+        }
     }
 
     private fun compile(): FractlangProgram {
