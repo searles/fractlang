@@ -4,6 +4,7 @@ import at.searles.commons.math.Cplx
 import at.searles.fractlang.Visitor
 import at.searles.fractlang.nodes.*
 import at.searles.fractlang.ops.*
+import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.parsing.Trace
 
 class Interpreter(private val point: Cplx, private val debugCallback: DebugCallback, private val plotCallback: PlotCallback?): Visitor<Node> {
@@ -74,7 +75,8 @@ class Interpreter(private val point: Cplx, private val debugCallback: DebugCallb
     }
 
     override fun visit(idNode: IdNode): Node {
-        return table[idNode.id] as Node
+        table.containsKey(idNode.id)
+        return table[idNode.id] as Node? ?: throw DebugException("uninitialized variable", idNode.trace)
     }
 
     override fun visit(block: Block): Node {
