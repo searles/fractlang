@@ -625,6 +625,43 @@ class SemanticAnalysisTest {
         Assert.assertEquals("x=1.0;varx:Real;a=-Cos(x);vara:Real;", output)
     }
 
+    @Test
+    fun testMin3() {
+        withSource("var x = max(1, 2, 3);")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("x=1.0;varx:Real;a=-Cos(x);vara:Real;", output)
+    }
+
+    @Test
+    fun testMin1() {
+        withSource("var x = max(1);")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("x=1;varx:Int;", output)
+    }
+
+    @Test
+    fun testMin2() {
+        withSource("var x = max(1, 2);")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("x=1.0;varx:Real;a=-Cos(x);vara:Real;", output)
+    }
+
+
 
     @Test
     fun testIfTrueElseBlock() {
