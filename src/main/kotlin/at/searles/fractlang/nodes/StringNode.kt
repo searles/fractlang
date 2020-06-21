@@ -2,6 +2,8 @@ package at.searles.fractlang.nodes
 
 import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.Visitor
+import at.searles.parsing.Mapping
+import at.searles.parsing.ParserStream
 import at.searles.parsing.Trace
 class StringNode(trace: Trace, val value: String): Node(trace) {
     init {
@@ -15,4 +17,19 @@ class StringNode(trace: Trace, val value: String): Node(trace) {
     override fun toString(): String {
         return "\"$value\""
     }
+
+    object Creator: Mapping<String, Node> {
+        override fun parse(stream: ParserStream, input: String): Node {
+            return StringNode(stream.createTrace(), input)
+        }
+
+        override fun left(result: Node): String? {
+            return (result as? StringNode)?.value
+        }
+
+        override fun toString(): String {
+            return "{string}"
+        }
+    }
+
 }

@@ -1,11 +1,14 @@
 package at.searles.fractlang
 
 import at.searles.commons.math.Scale
+import at.searles.fractlang.nodes.AppChain
+import at.searles.fractlang.nodes.IdNode
 import at.searles.fractlang.nodes.Node
-import at.searles.fractlang.parsing.FractlangParser
+import at.searles.fractlang.parsing.FractlangGrammar
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.parsing.ParserStream
+import at.searles.parsing.Trace
 import org.junit.Assert
 import org.junit.Test
 
@@ -661,8 +664,6 @@ class SemanticAnalysisTest {
         Assert.assertEquals("x=1.0;varx:Real;a=-Cos(x);vara:Real;", output)
     }
 
-
-
     @Test
     fun testIfTrueElseBlock() {
         withSource("var a = 0; if(a == 1) true else { a = 2; false }")
@@ -839,6 +840,22 @@ class SemanticAnalysisTest {
         Assert.assertEquals("f=2;varf:Int;{a=3;vara:Int;b=1+a*f;varb:Int;e=b;vare:Int;}", output)
     }
 
+    @Test
+    fun testClassFunCallWithParameters() {
+        withSource(
+            "class A(a) {\n" +
+                "    fun add(b) { var c = a + b; c }\n" +
+                "}\n" +
+                "var f = A(1).add(2);\n")
+
+        actParse()
+        actInline()
+
+        actPrint()
+
+        Assert.assertEquals("f=2;varf:Int;{a=3;vara:Int;b=1+a*f;varb:Int;e=b;vare:Int;}", output)
+    }
+
     private lateinit var palettes: List<PaletteEntry>
     private lateinit var scale: Scale
     private lateinit var output: String
@@ -847,7 +864,7 @@ class SemanticAnalysisTest {
     private lateinit var stream: ParserStream
 
     private fun actPrint() {
-        output = FractlangParser.program.print(inlined).toString()
+        output = FractlangGrammar.program.print(inlined).toString()
     }
 
     private fun actInline() {
@@ -866,7 +883,7 @@ class SemanticAnalysisTest {
     }
 
     private fun actParse() {
-        ast = FractlangParser.program.parse(stream)!!
+        ast = FractlangGrammar.program.parse(stream)!!
     }
 
     private fun withSource(src: String) {

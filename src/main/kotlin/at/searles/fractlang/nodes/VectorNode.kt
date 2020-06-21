@@ -2,6 +2,8 @@ package at.searles.fractlang.nodes
 
 import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.Visitor
+import at.searles.parsing.Mapping
+import at.searles.parsing.ParserStream
 import at.searles.parsing.Trace
 
 /**
@@ -20,4 +22,19 @@ class VectorNode(trace: Trace, val items: List<Node>): Node(trace) {
     override fun toString(): String {
         return "[${items.joinToString(", ")}]"
     }
+
+    object Creator: Mapping<List<Node>, Node> {
+        override fun parse(stream: ParserStream, input: List<Node>): Node {
+            return VectorNode(stream.createTrace(), input)
+        }
+
+        override fun left(result: Node): List<Node>? {
+            return (result as? VectorNode)?.items
+        }
+
+        override fun toString(): String {
+            return "{vector}"
+        }
+    }
+
 }

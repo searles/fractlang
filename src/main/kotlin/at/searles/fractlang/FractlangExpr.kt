@@ -1,19 +1,20 @@
 package at.searles.fractlang
 
 import at.searles.fractlang.nodes.Node
-import at.searles.fractlang.parsing.FractlangParser
+import at.searles.fractlang.parsing.FractlangGrammar
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
 import at.searles.parsing.ParserStream
+import at.searles.parsing.ParserStream.Companion.createParserStream
 
 object FractlangExpr {
     fun fromString(expr: String): Node {
-        val sourceCodeStream = ParserStream.fromString(expr)
+        val sourceCodeStream = expr.createParserStream()
 
-        val ast = FractlangParser.program.parse(sourceCodeStream)
+        val ast = FractlangGrammar.program.parse(sourceCodeStream)
             ?: throw SemanticAnalysisException("Could not parse program", sourceCodeStream.createTrace())
 
-        if(!FractlangParser.eof.recognize(sourceCodeStream)) {
+        if(!FractlangGrammar.eof.recognize(sourceCodeStream)) {
             throw SemanticAnalysisException("Expression not fully parsed", sourceCodeStream.createTrace())
         }
 

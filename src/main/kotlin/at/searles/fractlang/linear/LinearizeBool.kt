@@ -221,4 +221,8 @@ class LinearizeBool(private val code: ArrayList<CodeLine>, private val nameGener
     override fun visit(externNode: ExternNode) {
         error("not applicable")
     }
+
+    override fun visit(appChain: AppChain) {
+        error("not applicable")
+    }
 }

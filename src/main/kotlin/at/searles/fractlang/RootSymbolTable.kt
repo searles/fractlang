@@ -118,8 +118,8 @@ class RootSymbolTable(private val namedInstructions: Map<String, MetaOp>, privat
             Pair(
                 "Black",
                 PaletteEntry(object: Trace {
-                    override fun getStart(): Long = 0
-                    override fun getEnd(): Long = 0
+                    override val start: Long = 0
+                    override val end: Long = 0
                 }, 0, "Black (no palette defined in program)",
                 Palette(1, 1, 0f, 0f, IntIntMap<Lab>().apply {
                     set(0, 0, Rgb(0f, 0f, 0f).toLab())

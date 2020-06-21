@@ -3,7 +3,7 @@ package at.searles.fractlang
 import at.searles.fractlang.linear.CodeLine
 import at.searles.fractlang.linear.LinearizeStmt
 import at.searles.fractlang.nodes.Node
-import at.searles.fractlang.parsing.FractlangParser
+import at.searles.fractlang.parsing.FractlangGrammar
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.parsing.ParserStream
@@ -555,7 +555,7 @@ class LinearizationTest {
     }
 
     private fun actParse() {
-        ast = FractlangParser.program.parse(stream)!!
+        ast = FractlangGrammar.program.parse(stream)!!
     }
 
     private fun withSource(src: String) {

@@ -21,7 +21,7 @@ class GenerateParser {
 
         if(output is Generator.Program) {
             val kotlinSource = output.accept(KotlinVisitor())
-            File("generated/FractlangParser.kt").writeText(kotlinSource)
+            File("generated/FractlangGrammar.kt").writeText(kotlinSource)
         } else {
             Assert.fail()
         }

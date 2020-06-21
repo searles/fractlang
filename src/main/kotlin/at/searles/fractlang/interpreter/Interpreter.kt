@@ -242,4 +242,8 @@ class Interpreter(private val point: Cplx, private val debugCallback: DebugCallb
     override fun visit(externNode: ExternNode): Node {
         error("unexpected in interpreter")
     }
+
+    override fun visit(appChain: AppChain): Node {
+        error("unexpected in interpreter")
+    }
 }

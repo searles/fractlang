@@ -8,11 +8,12 @@ import at.searles.fractlang.nodes.CplxNode
 import at.searles.fractlang.nodes.Node
 import at.searles.fractlang.nodes.RealNode
 import at.searles.fractlang.ops.*
-import at.searles.fractlang.parsing.FractlangParser
+import at.searles.fractlang.parsing.FractlangGrammar
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
 import at.searles.fractlang.vm.VmCodeAssembler
 import at.searles.parsing.ParserStream
+import at.searles.parsing.ParserStream.Companion.createParserStream
 
 @Suppress("CanBeParameter", "MemberVisibilityCanBePrivate", "unused")
 class FractlangProgram(val sourceCode: String, val customParameters: Map<String, String>) {
@@ -46,12 +47,12 @@ class FractlangProgram(val sourceCode: String, val customParameters: Map<String,
     }
 
     private fun analyze() {
-        val sourceCodeStream = ParserStream.fromString(sourceCode)
+        val sourceCodeStream = sourceCode.createParserStream()
 
-        val ast = FractlangParser.program.parse(sourceCodeStream)
+        val ast = FractlangGrammar.program.parse(sourceCodeStream)
             ?: throw SemanticAnalysisException("Could not parse program", sourceCodeStream.createTrace())
 
-        if(!FractlangParser.eof.recognize(sourceCodeStream)) {
+        if(!FractlangGrammar.eof.recognize(sourceCodeStream)) {
             throw SemanticAnalysisException("Program not fully parsed", sourceCodeStream.createTrace())
         }
 

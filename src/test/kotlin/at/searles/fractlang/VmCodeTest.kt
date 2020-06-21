@@ -1,6 +1,6 @@
 package at.searles.fractlang
 
-import at.searles.fractlang.parsing.FractlangParser
+import at.searles.fractlang.parsing.FractlangGrammar
 import at.searles.parsing.ParserStream
 import org.junit.Assert
 import org.junit.Test

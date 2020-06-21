@@ -2,6 +2,8 @@ package at.searles.fractlang.nodes
 
 import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.Visitor
+import at.searles.parsing.Mapping
+import at.searles.parsing.ParserStream
 import at.searles.parsing.Trace
 
 class BoolNode(trace: Trace, val value: Boolean): Node(trace) {
@@ -16,4 +18,19 @@ class BoolNode(trace: Trace, val value: Boolean): Node(trace) {
     override fun toString(): String {
         return "$value"
     }
+
+    object Creator: Mapping<Boolean, Node> {
+        override fun parse(stream: ParserStream, input: Boolean): Node {
+            return BoolNode(stream.createTrace(), input)
+        }
+
+        override fun left(result: Node): Boolean? {
+            return (result as? BoolNode)?.value
+        }
+
+        override fun toString(): String {
+            return "{bool}"
+        }
+    }
+
 }

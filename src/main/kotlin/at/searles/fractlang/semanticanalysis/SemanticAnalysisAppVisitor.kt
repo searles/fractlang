@@ -115,6 +115,14 @@ class SemanticAnalysisAppVisitor(val trace: Trace, private val args: List<Node>,
         return createImplicit(app)
     }
 
+    override fun visit(appChain: AppChain): Node {
+        // case (sin cos) where arg is x
+        val rightArgs = appChain.right.map { App(appChain.trace, it, args).accept(parentVisitor) }
+        val visitorForLeft = SemanticAnalysisAppVisitor(appChain.trace, rightArgs, parentVisitor)
+
+        return appChain.left.accept(visitorForLeft)
+    }
+
     override fun visit(block: Block): Node {
         return createImplicit(block)
     }
@@ -215,4 +223,5 @@ class SemanticAnalysisAppVisitor(val trace: Trace, private val args: List<Node>,
     override fun visit(indexedNode: IndexedNode): Node {
         return createImplicit(indexedNode)
     }
+
 }

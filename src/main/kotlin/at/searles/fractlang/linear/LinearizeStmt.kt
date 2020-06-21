@@ -47,8 +47,8 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(varDecl: VarDecl) {
-        require(varDecl.init == null && varDecl.varType != null && varDecl.varType.vmCodeSize() > 0)
-        code.add(Alloc(varDecl.name, varDecl.varType))
+        require(varDecl.init == null && varDecl.varType != null && varDecl.varType!!.vmCodeSize() > 0)
+        code.add(Alloc(varDecl.name, varDecl.varType!!))
     }
 
     override fun visit(idNode: IdNode) {
@@ -203,6 +203,10 @@ class LinearizeStmt(private val code: ArrayList<CodeLine>, private val nameGener
     }
 
     override fun visit(externNode: ExternNode) {
+        error("not applicable")
+    }
+
+    override fun visit(appChain: AppChain) {
         error("not applicable")
     }
 }

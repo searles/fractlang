@@ -13,7 +13,7 @@ import at.searles.fractlang.nodes.*
 
 }}}
 
-grammar FractlangParser {
+grammar FractlangGrammar {
     regex eof: `Regex.eof()` ;
 
     regex ws: [\t\x0b\r\n\x0c \x85\xa0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]+ ;
@@ -55,6 +55,7 @@ grammar FractlangParser {
         | stringNode  @ `Annot.Str`
         | boolNode    @ `Annot.Num`
         | idNode      @ `Annot.Id`
+        | '(' expr ')'
         ;
 
 	qualifier: '.' identifier >> `toQualified`
@@ -77,7 +78,25 @@ grammar FractlangParser {
 
     appArgument<`List<Node>`>: `singleArgument.or(argumentList, true)` ; // must reverse for printing
 
-    app: appHead (appArgument >> `toApp`)? qualifier* ;
+    appArgWithAbs: '.' id >> `toQualified`
+                 | '[' expr ']' >> `toIndexed`
+                 | '|' expr >> `toUnary(Abs)` '|'
+                 | atom >> `toUnaryApp`
+                 ;
+
+    appArg: '.' id >> `toQualified`
+          | '[' expr ']' >> `toIndexed`
+          | '(' exprList ')' >> `toApp`
+          | atom >> `toUnaryApp`
+          ;
+
+    vector: '[' exprList @ `Annot.Intent` `toVectorNode` ']' ;
+
+    appHeadWithAbs = atom | vector | '(' expr ')' | '|' expr '|' ;
+
+    appHead: atom | vector | '(' expr ')' ;
+
+    app: appHead (appArgWithAbs)* | appHeadWithAbs (appArg)* ;
 
     ifExpr<Node>: 'if' @ `Annot.Keyword` `CreateEmptyProperties`
                         '(' expr >> `PutProperty("condition")` ')'

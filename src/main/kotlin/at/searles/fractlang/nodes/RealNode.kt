@@ -4,6 +4,8 @@ import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.Visitor
 import at.searles.fractlang.vm.VmArg
 import at.searles.fractlang.vm.VmCodeAssembler
+import at.searles.parsing.Mapping
+import at.searles.parsing.ParserStream
 import at.searles.parsing.Trace
 
 class RealNode(trace: Trace, val value: Double) : Node(trace), NumValue, VmArg.Num {
@@ -30,4 +32,19 @@ class RealNode(trace: Trace, val value: Double) : Node(trace), NumValue, VmArg.N
     override fun toString(): String {
         return "$value"
     }
+
+    object Creator: Mapping<Double, Node> { // TODO: Use BigDecimal
+        override fun parse(stream: ParserStream, input: Double): Node {
+            return RealNode(stream.createTrace(), input)
+        }
+
+        override fun left(result: Node): Double? {
+            return (result as? RealNode)?.value
+        }
+
+        override fun toString(): String {
+            return "{real}"
+        }
+    }
+
 }

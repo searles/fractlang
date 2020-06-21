@@ -1,13 +1,16 @@
 package at.searles.fractlang.semanticanalysis
 
-import at.searles.fractlang.*
+import at.searles.fractlang.BaseTypes
+import at.searles.fractlang.NameGenerator
+import at.searles.fractlang.SymbolTable
+import at.searles.fractlang.Visitor
 import at.searles.fractlang.nodes.*
 import at.searles.fractlang.ops.And
 import at.searles.fractlang.ops.Not
 import at.searles.fractlang.ops.Or
-import at.searles.fractlang.parsing.FractlangParser
-import at.searles.parsing.ParserLookaheadException
-import at.searles.parsing.ParserStream
+import at.searles.fractlang.parsing.FractlangGrammar
+import at.searles.parsing.BacktrackNotAllowedException
+import at.searles.parsing.ParserStream.Companion.createParserStream
 import at.searles.parsing.Trace
 
 class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: NameGenerator): Visitor<Node> {
@@ -56,7 +59,7 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: Na
 			addStmt(assignment)
 		}
 
-		val newVarDecl = VarDecl(trace, newVarName, type, null)
+		val newVarDecl = VarDecl(trace, newVarName, type.toString(), null)
 		addStmt(newVarDecl)
 
 		setInTable(varNode.trace, varNode.name, newIdNode)
@@ -87,7 +90,11 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: Na
         )
     }
 
-    override fun visit(qualifiedNode: QualifiedNode): Node {
+	override fun visit(appChain: AppChain): Node {
+		return appChain.left.accept(SemanticAnalysisAppVisitor(appChain.trace, appChain.right, this))
+	}
+
+	override fun visit(qualifiedNode: QualifiedNode): Node {
         val instance = qualifiedNode.instance.accept(this)
 
         if(instance is ObjectNode) {
@@ -119,13 +126,13 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: Na
 
 		if(type.vmCodeSize() == 0) {
 			throw SemanticAnalysisException(
-				"cannot create variable of this type",
+				"cannot create variable of type $type",
 				varDecl.trace
 			)
 		}
 
 		initializeVar(varDecl.trace,
-			VarParameter(varDecl.trace, varDecl.name, type), initialization)
+			VarParameter(varDecl.trace, varDecl.name, type.toString()), initialization)
 		
         return Nop(varDecl.trace)
     }
@@ -465,19 +472,22 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: Na
 
 	override fun visit(externNode: ExternNode): Node {
 		try {
-			val stream = ParserStream.fromString(externNode.expr)
-			val exprAst = FractlangParser.expr.parse(stream)
+			val stream = externNode.expr.createParserStream().apply {
+				isBacktrackAllowed = false
+			}
+			val exprAst = FractlangGrammar.expr.parse(stream)
 				?: throw SemanticAnalysisException("Could not parse extern value", externNode.trace)
 
-			if(!FractlangParser.eof.recognize(stream)) {
+			if(!FractlangGrammar.eof.recognize(stream)) {
 				throw SemanticAnalysisException("Extern value not fully parsed", externNode.trace)
 			}
 
 			return exprAst.accept(SemanticAnalysisVisitor(AllowImplicitExternsFacade(externNode.id, externNode.trace, this), varNameGenerator))
-		} catch(e: ParserLookaheadException) {
-			throw SemanticAnalysisException("Unexpected token. Expected ${e.failedParser().right()}", externNode.trace)
+		} catch(e: BacktrackNotAllowedException) {
+			throw SemanticAnalysisException("Unexpected token. Expected ${e.failedParser.right}", externNode.trace)
 		} catch (e: SemanticAnalysisException) {
 			throw SemanticAnalysisException("Semantic error in extern value: ${e.message}", externNode.trace)
 		}
 	}
+
 }

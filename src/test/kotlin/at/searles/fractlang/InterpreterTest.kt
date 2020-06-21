@@ -5,7 +5,7 @@ import at.searles.fractlang.interpreter.DebugCallback
 import at.searles.fractlang.interpreter.Interpreter
 import at.searles.fractlang.interpreter.PlotCallback
 import at.searles.fractlang.nodes.Node
-import at.searles.fractlang.parsing.FractlangParser
+import at.searles.fractlang.parsing.FractlangGrammar
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
 import at.searles.parsing.ParserStream
 import org.junit.Assert
@@ -210,7 +210,7 @@ class InterpreterTest {
     }
 
     private fun actParse() {
-        ast = FractlangParser.program.parse(stream)!!
+        ast = FractlangGrammar.program.parse(stream)!!
     }
 
     private fun withSource(src: String) {

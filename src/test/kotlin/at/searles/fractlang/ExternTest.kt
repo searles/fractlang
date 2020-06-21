@@ -1,7 +1,7 @@
 package at.searles.fractlang
 
 import at.searles.fractlang.nodes.Node
-import at.searles.fractlang.parsing.FractlangParser
+import at.searles.fractlang.parsing.FractlangGrammar
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisVisitor
 import at.searles.parsing.ParserStream
@@ -207,7 +207,7 @@ class ExternTest {
     }
 
     private fun actPrint() {
-        output = FractlangParser.program.print(inlined).toString()
+        output = FractlangGrammar.program.print(inlined).toString()
     }
 
     private fun actInline() {
@@ -223,7 +223,7 @@ class ExternTest {
     }
 
     private fun actParse() {
-        ast = FractlangParser.program.parse(stream)!!
+        ast = FractlangGrammar.program.parse(stream)!!
     }
 
     private fun withSource(src: String) {

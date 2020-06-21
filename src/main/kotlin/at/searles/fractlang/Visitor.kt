@@ -31,4 +31,5 @@ interface Visitor<T> {
     fun visit(externDecl: ExternDecl): T
     fun visit(externNode: ExternNode): T
     fun visit(indexedNode: IndexedNode): T
+    fun visit(appChain: AppChain): T
 }

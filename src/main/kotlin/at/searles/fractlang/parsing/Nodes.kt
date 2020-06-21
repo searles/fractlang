@@ -4,140 +4,20 @@ import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.Type
 import at.searles.fractlang.nodes.*
 import at.searles.fractlang.ops.Op
-import at.searles.fractlang.ops.HasSpecialSyntax
 import at.searles.fractlang.semanticanalysis.SemanticAnalysisException
 import at.searles.parsing.*
 import at.searles.regexparser.CodePointStream
 import at.searles.regexparser.EscStringParser
-import at.searles.regexparser.RegexParserException
-import java.math.BigInteger
 
 val toInt = {s: CharSequence -> s.toString().toBigInteger()}
 val toHex = {s: CharSequence -> s.substring(1).toBigInteger(16).toInt().toBigInteger()} // this must cover #ffffffff
 val toReal = {s: CharSequence -> s.toString().toDouble()}
 val toIdString = {s: CharSequence -> s.toString()}
 
-object toIntNode: Mapping<BigInteger, Node> {
-    override fun parse(stream: ParserStream, left: BigInteger): Node? {
-        val intValue = left.toInt()
-
-        if(BigInteger.valueOf(intValue.toLong()) != left) {
-            throw SemanticAnalysisException("integer must be in range -2147483648 to 2147483647", stream.createTrace())
-        }
-
-        return IntNode(stream.createTrace(), left.toInt())
-    }
-
-    override fun left(result: Node): BigInteger? {
-        return (result as? IntNode)?.value?.let { BigInteger.valueOf(it.toLong()) }
-    }
-
-    override fun toString(): String {
-        return "{int}"
-    }
-}
-
-object toRealNode: Mapping<Double, Node> {
-    override fun parse(stream: ParserStream, left: Double): Node? {
-        return RealNode(stream.createTrace(), left)
-    }
-
-    override fun left(result: Node): Double? {
-        return (result as? RealNode)?.value
-    }
-
-    override fun toString(): String {
-        return "{real}"
-    }
-}
-
-object toStringNode: Mapping<String, Node> {
-    override fun parse(stream: ParserStream, left: String): Node? {
-        return StringNode(stream.createTrace(), left)
-    }
-
-    override fun left(result: Node): String? {
-        return (result as? StringNode)?.value
-    }
-
-    override fun toString(): String {
-        return "{string}"
-    }
-}
-
-object toIdNode: Mapping<String, Node> {
-    override fun parse(stream: ParserStream, left: String): Node? {
-        return IdNode(stream.createTrace(), left)
-    }
-
-    override fun left(result: Node): String? {
-        // also covers ops that were already converted.
-        return (result as? IdNode)?.id
-            ?: (result as? OpNode)?.op?.toString()
-    }
-
-    override fun toString(): String {
-        return "{id}"
-    }
-}
-
-object toVectorNode: Mapping<List<Node>, Node> {
-    override fun parse(stream: ParserStream, left: List<Node>): Node? {
-        return VectorNode(stream.createTrace(), left)
-    }
-
-    override fun left(result: Node): List<Node>? {
-        return (result as? VectorNode)?.items
-    }
-
-    override fun toString(): String {
-        return "{vector}"
-    }
-}
-
-object toQualified: Fold<Node, String, Node> {
-    override fun apply(stream: ParserStream, left: Node, right: String): Node {
-        return QualifiedNode(stream.createTrace(), left, right)
-    }
-
-    override fun leftInverse(result: Node): Node? {
-        return (result as? QualifiedNode)?.instance
-    }
-
-    override fun rightInverse(result: Node): String? {
-        return (result as? QualifiedNode)?.qualifier
-    }
-
-    override fun toString(): String {
-        return "{qualified}"
-    }
-}
-
-object toIndexed: Fold<Node, Node, Node> {
-    override fun apply(stream: ParserStream, left: Node, right: Node): Node {
-        return IndexedNode(stream.createTrace(), left, right)
-    }
-
-    override fun leftInverse(result: Node): Node? {
-        return (result as? IndexedNode)?.field
-    }
-
-    override fun rightInverse(result: Node): Node? {
-        return (result as? IndexedNode)?.index
-    }
-
-    override fun toString(): String {
-        return "{index}"
-    }
-}
-
-object toEscString: Mapping<CharSequence, String> {
-    override fun parse(stream: ParserStream, left: CharSequence): String? {
-        return try {
-            EscStringParser.parse(CodePointStream(left.toString()))
-        } catch(e: RegexParserException) {
-            null
-        }
+object EscStringMapper: Mapping<CharSequence, String> {
+    override fun parse(stream: ParserStream, input: CharSequence): String {
+        // TODO How to handle exception?
+        return EscStringParser.parse(CodePointStream(input.toString()))
     }
 
     override fun left(result: String): CharSequence? {
@@ -146,74 +26,6 @@ object toEscString: Mapping<CharSequence, String> {
 
     override fun toString(): String {
         return "{escString}"
-    }
-}
-
-object listApply: Fold<List<Node>, List<Node>, List<Node>> {
-    // for (x+1) 5
-    override fun apply(stream: ParserStream, left: List<Node>, right: List<Node>): List<Node>? {
-        // sin (x+1) y = sin ((x+1)*y)
-        // max (x,y) z is an error.
-
-        if(left.size != 1 || right.size != 1) {
-            return null
-        }
-
-        return listOf(toApp.apply(stream, left.first(), right))
-    }
-
-    // no inverse. Other methods will take care of that.
-
-    override fun toString(): String {
-        return "{apply}"
-    }
-}
-
-object toApp: Fold<Node, List<Node>, Node> {
-    override fun apply(stream: ParserStream, left: Node, right: List<Node>): Node {
-        return App(stream.createTrace(), left, right)
-    }
-
-    override fun leftInverse(result: Node): Node? {
-        if(result !is App) {
-            return null
-        }
-
-        if(result.head is OpNode && result.head.op is HasSpecialSyntax) {
-            return null
-        }
-
-        return result.head
-    }
-
-    override fun rightInverse(result: Node): List<Node>? {
-        if(result !is App) {
-            return null
-        }
-
-        if(result.head is OpNode && result.head.op is HasSpecialSyntax) {
-            return null
-        }
-
-        return result.args
-    }
-
-    override fun toString(): String {
-        return "{apply}"
-    }
-}
-
-object toBlock: Mapping<List<Node>, Node> {
-    override fun parse(stream: ParserStream, left: List<Node>): Node? {
-        return Block(stream.createTrace(), left)
-    }
-
-    override fun left(result: Node): List<Node>? {
-        return (result as? Block)?.stmts
-    }
-
-    override fun toString(): String {
-        return "{block}"
     }
 }
 
@@ -226,10 +38,10 @@ private fun appArgOrNull(app: Node, op: Op, arity: Int, index: Int): Node? {
     return app.args[index]
 }
 
-fun toUnary(op: Op): Mapping<Node, Node> {
+fun UnaryCreator(op: Op): Mapping<Node, Node> {
     return object: Mapping<Node, Node> {
-        override fun parse(stream: ParserStream, left: Node): Node? {
-            return App(stream.createTrace(), op, listOf(left))
+        override fun parse(stream: ParserStream, input: Node): Node {
+            return App(stream.createTrace(), op, listOf(input))
         }
 
         override fun left(result: Node): Node? {
@@ -242,25 +54,8 @@ fun toUnary(op: Op): Mapping<Node, Node> {
     }
 }
 
-object toAssignment: Fold<Node, Node, Node> {
-    override fun apply(stream: ParserStream, left: Node, right: Node): Node {
-        return Assignment(stream.createTrace(), left, right)
-    }
 
-    override fun leftInverse(result: Node): Node? {
-        return (result as? Assignment)?.lhs
-    }
-
-    override fun rightInverse(result: Node): Node? {
-        return (result as? Assignment)?.rhs
-    }
-
-    override fun toString(): String {
-        return "{set}"
-    }
-}
-
-fun toBinary(op: Op): Fold<Node, Node, Node> {
+fun BinaryCreator(op: Op): Fold<Node, Node, Node> {
     return object: Fold<Node, Node, Node> {
         override fun apply(stream: ParserStream, left: Node, right: Node): Node {
             return App(stream.createTrace(), op, listOf(left, right))
@@ -286,8 +81,8 @@ fun stringToType(trace: Trace, typeName: String): Type {
 }
 
 object ToType: Mapping<String, Type> {
-    override fun parse(stream: ParserStream, left: String): Type? {
-        return stringToType(stream.createTrace(), left)
+    override fun parse(stream: ParserStream, input: String): Type {
+        return stringToType(stream.createTrace(), input)
     }
 
     override fun left(result: Type): String? {
@@ -301,7 +96,7 @@ object ToType: Mapping<String, Type> {
 
 fun toBool(value: Boolean): Initializer<Boolean> {
     return object: Initializer<Boolean> {
-        override fun parse(stream: ParserStream): Boolean? {
+        override fun parse(stream: ParserStream): Boolean {
             return value
         }
 
@@ -315,34 +110,6 @@ fun toBool(value: Boolean): Initializer<Boolean> {
     }
 }
 
-object toBoolNode: Mapping<Boolean, Node> {
-    override fun parse(stream: ParserStream, left: Boolean): Node? {
-        return BoolNode(stream.createTrace(), left)
-    }
-
-    override fun left(result: Node): Boolean? {
-        return (result as? BoolNode)?.value
-    }
-
-    override fun toString(): String {
-        return "{bool}"
-    }
-}
-
-object createNop: Initializer<Node> {
-    override fun parse(stream: ParserStream): Node? {
-        return Nop(stream.createTrace())
-    }
-
-    override fun consume(t: Node?): Boolean {
-        return t is Nop
-    }
-
-    override fun toString(): String {
-        return "{nop}"
-    }
-}
-
 
 /**
  * Identity in parse-direction. In left-direction, this
@@ -350,8 +117,8 @@ object createNop: Initializer<Node> {
  * are added after blocks.
  */
 object SkipSemicolon: Mapping<Node, Node> {
-    override fun parse(stream: ParserStream?, left: Node): Node? {
-        return left
+    override fun parse(stream: ParserStream, input: Node): Node {
+        return input
     }
 
     override fun left(result: Node): Node? {

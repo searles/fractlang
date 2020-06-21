@@ -2,9 +2,9 @@ package at.searles.fractlang.parsing
 
 enum class Annot {
     Comma,
-    Num,
+    Const,
     Str,
-    Id,
+    Name,
     Keyword,
     DefKeyword,
     Stmt,
