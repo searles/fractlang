@@ -559,6 +559,6 @@ class LinearizationTest {
     }
 
     private fun withSource(src: String) {
-        stream = ParserStream.fromString(src)
+        stream = ParserStream.create(src)
     }
 }

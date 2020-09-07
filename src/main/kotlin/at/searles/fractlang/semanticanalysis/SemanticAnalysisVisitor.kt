@@ -10,7 +10,7 @@ import at.searles.fractlang.ops.Not
 import at.searles.fractlang.ops.Or
 import at.searles.fractlang.parsing.FractlangGrammar
 import at.searles.parsing.BacktrackNotAllowedException
-import at.searles.parsing.ParserStream.Companion.createParserStream
+import at.searles.parsing.ParserStream
 import at.searles.parsing.Trace
 
 class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: NameGenerator): Visitor<Node> {
@@ -81,7 +81,8 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: Na
 	}
 
 	override fun visit(app: App): Node {
-        return app.head.accept(this).accept(
+		val head = app.head.accept(this)
+		return head.accept(
 			SemanticAnalysisAppVisitor(
 				app.trace,
 				app.args,
@@ -91,7 +92,14 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: Na
     }
 
 	override fun visit(appChain: AppChain): Node {
-		return appChain.left.accept(SemanticAnalysisAppVisitor(appChain.trace, appChain.right, this))
+		val head = appChain.left.accept(this)
+		return head.accept(
+			SemanticAnalysisAppVisitor(
+				appChain.trace,
+				appChain.right,
+				this
+			)
+		)
 	}
 
 	override fun visit(qualifiedNode: QualifiedNode): Node {
@@ -472,7 +480,7 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: Na
 
 	override fun visit(externNode: ExternNode): Node {
 		try {
-			val stream = externNode.expr.createParserStream().apply {
+			val stream = ParserStream.create(externNode.expr).apply {
 				isBacktrackAllowed = false
 			}
 			val exprAst = FractlangGrammar.expr.parse(stream)

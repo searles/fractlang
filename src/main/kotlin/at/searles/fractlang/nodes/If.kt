@@ -2,6 +2,7 @@ package at.searles.fractlang.nodes
 
 import at.searles.fractlang.BaseTypes
 import at.searles.fractlang.Visitor
+import at.searles.parsing.Fold
 import at.searles.parsing.Mapping
 import at.searles.parsing.ParserStream
 import at.searles.parsing.Trace
@@ -18,20 +19,23 @@ class If(trace: Trace, val condition: Node, val thenBranch: Node): Node(trace) {
         return "if($condition) $thenBranch"
     }
 
-    object Creator: Mapping<Map<String, Node>, Node> {
-        override fun parse(stream: ParserStream, input: Map<String, Node>): Node {
-            return If(stream.createTrace(), input.getValue("condition"), input.getValue("then"))
+    object Creator: Fold<Node, Node, Node> {
+        override fun apply(stream: ParserStream, left: Node, right: Node): Node {
+            return If(stream.toTrace(), left, right)
         }
 
-        override fun left(result: Node): Map<String, Node>? {
-            return (result as? If)?.let {
-                mapOf("condition" to it.condition, "then" to it.thenBranch)
-            }
+        override fun leftInverse(result: Node): Node? {
+            return (result as? If)?.condition
+        }
+
+        override fun rightInverse(result: Node): Node? {
+            return (result as? If)?.thenBranch
         }
 
         override fun toString(): String {
             return javaClass.simpleName
         }
+
     }
 
 }

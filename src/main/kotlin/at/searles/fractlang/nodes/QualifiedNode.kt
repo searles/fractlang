@@ -15,7 +15,7 @@ class QualifiedNode(trace: Trace, val instance: Node, val qualifier: String) : N
 
     object Creator: Fold<Node, String, Node> {
         override fun apply(stream: ParserStream, left: Node, right: String): Node {
-            return QualifiedNode(stream.createTrace(), left, right)
+            return QualifiedNode(stream.toTrace(), left, right)
         }
 
         override fun leftInverse(result: Node): Node? {

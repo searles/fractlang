@@ -41,7 +41,7 @@ private fun appArgOrNull(app: Node, op: Op, arity: Int, index: Int): Node? {
 fun UnaryCreator(op: Op): Mapping<Node, Node> {
     return object: Mapping<Node, Node> {
         override fun parse(stream: ParserStream, input: Node): Node {
-            return App(stream.createTrace(), op, listOf(input))
+            return App(stream.toTrace(), op, listOf(input))
         }
 
         override fun left(result: Node): Node? {
@@ -58,7 +58,7 @@ fun UnaryCreator(op: Op): Mapping<Node, Node> {
 fun BinaryCreator(op: Op): Fold<Node, Node, Node> {
     return object: Fold<Node, Node, Node> {
         override fun apply(stream: ParserStream, left: Node, right: Node): Node {
-            return App(stream.createTrace(), op, listOf(left, right))
+            return App(stream.toTrace(), op, listOf(left, right))
         }
 
         override fun leftInverse(result: Node): Node? {
@@ -82,7 +82,7 @@ fun stringToType(trace: Trace, typeName: String): Type {
 
 object ToType: Mapping<String, Type> {
     override fun parse(stream: ParserStream, input: String): Type {
-        return stringToType(stream.createTrace(), input)
+        return stringToType(stream.toTrace(), input)
     }
 
     override fun left(result: Type): String? {

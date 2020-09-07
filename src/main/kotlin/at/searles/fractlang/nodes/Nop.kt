@@ -25,7 +25,7 @@ class Nop(trace: Trace) : Node(trace) {
 
     object Creator: Initializer<Node> {
         override fun parse(stream: ParserStream): Node {
-            return Nop(stream.createTrace())
+            return Nop(stream.toTrace())
         }
 
         override fun consume(t: Node): Boolean {

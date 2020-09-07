@@ -40,10 +40,10 @@ class IntNode(trace: Trace, val value: Int) : Node(trace), NumValue, VmArg.Num {
             val intValue = input.toInt()
 
             if(BigInteger.valueOf(intValue.toLong()) != input) {
-                throw SemanticAnalysisException("integer must be in range -2147483648 to 2147483647", stream.createTrace())
+                throw SemanticAnalysisException("integer must be in range -2147483648 to 2147483647", stream.toTrace())
             }
 
-            return IntNode(stream.createTrace(), input.toInt())
+            return IntNode(stream.toTrace(), input.toInt())
         }
 
         override fun left(result: Node): BigInteger? {

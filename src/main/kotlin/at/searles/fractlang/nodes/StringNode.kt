@@ -20,7 +20,7 @@ class StringNode(trace: Trace, val value: String): Node(trace) {
 
     object Creator: Mapping<String, Node> {
         override fun parse(stream: ParserStream, input: String): Node {
-            return StringNode(stream.createTrace(), input)
+            return StringNode(stream.toTrace(), input)
         }
 
         override fun left(result: Node): String? {

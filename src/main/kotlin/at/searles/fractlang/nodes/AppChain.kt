@@ -18,7 +18,7 @@ class AppChain(trace: Trace, val left: Node, val right: List<Node>): Node(trace)
 
     object Creator: Fold<Node, List<Node>, Node> {
         override fun apply(stream: ParserStream, left: Node, right: List<Node>): Node {
-            return AppChain(stream.createTrace(), left, right)
+            return AppChain(stream.toTrace(), left, right)
         }
 
         override fun leftInverse(result: Node): Node? {

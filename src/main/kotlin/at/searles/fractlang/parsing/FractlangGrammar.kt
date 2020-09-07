@@ -11,38 +11,36 @@ import at.searles.parsing.Reducer.Companion.rep
 import at.searles.parsing.tokens.TokenParser
 import at.searles.parsing.tokens.TokenRecognizer
 import at.searles.parsingtools.common.PairCreator
-import at.searles.parsingtools.common.ValueHolder
-import at.searles.parsingtools.list
+import at.searles.parsingtools.common.ValueInitializer
 import at.searles.parsingtools.list.ListCreator
-import at.searles.parsingtools.map.MapAdder
-import at.searles.parsingtools.map.MapCreator
-import at.searles.regexp.Regexp
+import at.searles.regexp.CharSet
+import at.searles.regexp.Text
 import at.searles.regexparser.RegexpParser
 
 open class Grammar<T: Tokenizer>(val tokenizer: T) {
 
     val eof by lazy {
-        val regexp = Regexp.eof()
+        val regexp = CharSet.eof()
         val tokenId = tokenizer.add(regexp)
-        TokenRecognizer(tokenId, tokenizer, false, "")
+        TokenRecognizer(tokenId, tokenizer, "")
     }
 
     fun regexOf(regexStr: String): TokenParser {
         val regex = RegexpParser.parse(regexStr)
         val tokenId = tokenizer.add(regex)
 
-        return TokenParser(tokenId, tokenizer, false)
+        return TokenParser(tokenId, tokenizer)
     }
 
     fun <T> regexOf(regexStr: String, conversion: (CharSequence) -> T): Parser<T> {
-        val mapping = Mapping.create<CharSequence, T>( { it.toString() } ) { conversion(it) }
+        val mapping = Mapping.create<CharSequence, T>( { v -> v.toString() } ) { s -> conversion(s) }
         return regexOf(regexStr) + mapping
     }
 
     fun keywordOf(text: String): TokenRecognizer {
-        val regex = Regexp.text(text)
+        val regex = Text(text)
         val tokenId = tokenizer.add(regex)
-        return TokenRecognizer(tokenId, tokenizer, false, text)
+        return TokenRecognizer(tokenId, tokenizer, text)
     }
 
     operator fun <T, U> Reducer<T, U>.plus(right: String): Reducer<T, U> {
@@ -73,8 +71,6 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
     val singlelineComment = regexOf("""'//' [^\n]*""")
 
     init {
-        // TODO unintuitive syntax.
-        // TODO: Introduce HierarchicalTokenizer: Tokens are organized in trees?
         tokenizer.addSkipped(whiteSpace.tokenId)
         tokenizer.addSkipped(singlelineComment.tokenId)
         tokenizer.addSkipped(multilineComment.tokenId)
@@ -84,11 +80,9 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
     val hexRex = "'#' [0-9A-Fa-f]{1,8}"
     val decimals = "'.'[0-9]*"
     val exponent = "[eE]'-'?[0-9]+"
-    val realRex = "[0-9]+ ($decimals or $exponent or $decimals $exponent)"
-    val identifierRex = "[a-zA-Z_][a-zA-Z0-9_]*"
-    val stringRex = """('"' ([^\"] or '\'. )* '"')"""
-    val boolTrueRex = "'true'"
-    val boolFalseRex = "'false'"
+    val realRex = "[0-9]+ ($decimals | $exponent | $decimals $exponent)"
+    val identifierRex = "[a-zA-Z_][a-zA-Z0-9_]* - ('else' | 'if' | 'while' | 'val' | 'var' | 'fun' | 'for' | 'in' | 'class' | 'extern' | 'and' | 'or' | 'xor' | 'true' | 'false')"
+    val stringRex = """('"' ([^\"] | '\\'. )* '"')"""
 
     val intNum = regexOf(intRex) { toInt(it) }
     val realNum = regexOf(realRex) { toReal(it) }
@@ -97,11 +91,9 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
 
     val str = regexOf(stringRex) + EscStringMapper
 
-    // TODO: Regex should also use + and or.
     val bool =
-            keywordOf(boolTrueRex) + ValueHolder(true) or
-            keywordOf(boolFalseRex) + ValueHolder(false)
-
+            keywordOf("true") + ValueInitializer(true) or
+            keywordOf("false") + ValueInitializer(false)
 
     val intNode = (intNum or hexNum) + IntNode.Creator
     val realNode = realNum + RealNode.Creator
@@ -122,12 +114,12 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
     val stmts = Ref<List<Node>>("stmts")
     val app = Ref<Node>("app")
 
-    val exprList = expr.list(comma)
+    val exprList = expr.rep(comma)
 
-    val qualifier = keywordOf(".") + identifier.fold(QualifiedNode.Creator)
-    val index = keywordOf("[") + expr.fold(IndexedNode.Creator) + "]"
-    val multiArgument = keywordOf("(") + exprList.fold(AppChain.Creator) + ")"
-    val singleArgument = (app + ListCreator()).fold(AppChain.Creator)
+    val qualifier = keywordOf(".") + identifier + (QualifiedNode.Creator)
+    val index = keywordOf("[") + expr + (IndexedNode.Creator) + "]"
+    val multiArgument = keywordOf("(") + exprList + AppChain.Creator + ")"
+    val singleArgument = (app + ListCreator()) + AppChain.Creator
 
     val vector = keywordOf("[") + exprList + VectorNode.Creator + "]"
 
@@ -135,19 +127,17 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
             vector or
             keywordOf("(") + expr + ")"
 
-    // abs is tough: or1 + log orxoror and or1 + xor y
-    // using a flag is no solution: or1 + (log orxor)or
+    // abs is tough: |1 + log |x|| and |1 + x| y
+    // using a flag is no solution: |1 + (log |x|)|
     init {
         app.ref = appHead + (qualifier or index or multiArgument or singleArgument).rep()
     }
 
     val ifExpr = "if".annotate(Annot.Keyword) +
-            "(" + expr + MapCreator<String, Node>("condition") + ")" +
-            stmt.fold(MapAdder<String, Node>("then")) +
-            (
-                    "else".annotate(Annot.Keyword) + stmt.fold(MapAdder("else")) + IfElse.Creator or
-                    If.Creator
-            )
+            "(" + expr + ")" +
+            (stmt + If.Creator) + (
+                "else".annotate(Annot.Keyword) + stmt + IfElse.Creator
+            ).opt()
 
     val block = "{".annotate(Annot.Newline) + stmts.annotate(Annot.Intent).annotate(Annot.Newline) + Block.Creator + "}"
 
@@ -162,81 +152,81 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
 
     init { literal.ref = literalRef }
 
-    val cons = literalRef + (keywordOf(":") + literalRef.fold(BinaryCreator(Cons))).opt()
+    val cons = literalRef + (keywordOf(":") + literalRef + (BinaryCreator(Cons))).opt()
 
     val powRef = Ref<Node>("pow")
 
-    val pow = cons + (keywordOf("^") + powRef.fold(BinaryCreator(Pow)) ).opt()
+    val pow = cons + (keywordOf("^") + powRef + (BinaryCreator(Pow)) ).opt()
     
     init { powRef.ref = pow }
 
     val product = pow + (
-            keywordOf("*") + pow.fold(BinaryCreator(Mul)) or 
-            keywordOf("/") + pow.fold(BinaryCreator(Div)) or 
-            keywordOf("%") + pow.fold(BinaryCreator(Mod))
+            keywordOf("*") + pow + (BinaryCreator(Mul)) or 
+            keywordOf("/") + pow + (BinaryCreator(Div)) or 
+            keywordOf("%") + pow + (BinaryCreator(Mod))
     ).rep()
 
     val sum = product + (
-            keywordOf("+") + product.fold(BinaryCreator(Add)) or 
-            keywordOf("-") + product.fold(BinaryCreator(Sub))
+            keywordOf("+") + product + (BinaryCreator(Add)) or 
+            keywordOf("-") + product + (BinaryCreator(Sub))
     ).rep()
 
     val cmp = sum + ( 
-            keywordOf(">") +  sum.fold(BinaryCreator(Greater)) or 
-            keywordOf(">=") + sum.fold(BinaryCreator(GreaterEqual)) or
-            keywordOf("<=") + sum.fold(BinaryCreator(LessEqual)) or
-            keywordOf("<") + sum.fold(BinaryCreator(Less)) or
-            keywordOf("==") + sum.fold(BinaryCreator(Equal)) or
-            keywordOf("!=") + sum.fold(BinaryCreator(NotEqual))
+            keywordOf(">") +  sum + (BinaryCreator(Greater)) or 
+            keywordOf(">=") + sum + (BinaryCreator(GreaterEqual)) or
+            keywordOf("<=") + sum + (BinaryCreator(LessEqual)) or
+            keywordOf("<") + sum + (BinaryCreator(Less)) or
+            keywordOf("==") + sum + (BinaryCreator(Equal)) or
+            keywordOf("!=") + sum + (BinaryCreator(NotEqual))
     ).opt()
 
     val logicalLit = keywordOf("not") + cmp + UnaryCreator(Not) or cmp
-    val logicalAnd = logicalLit + (keywordOf("and") + logicalLit.fold(BinaryCreator(And))).rep()
-    val logicalXor = logicalAnd + (keywordOf("xor") + logicalAnd.fold(BinaryCreator(Xor))).rep()
-    val logicalOr = logicalXor + (keywordOf("or") + logicalXor.fold(BinaryCreator(Or))).rep()
+    val logicalAnd = logicalLit + (keywordOf("and") + logicalLit + (BinaryCreator(And))).rep()
+    val logicalXor = logicalAnd + (keywordOf("xor") + logicalAnd + (BinaryCreator(Xor))).rep()
+    val logicalOr = logicalXor + (keywordOf("or") + logicalXor + (BinaryCreator(Or))).rep()
 
     init { expr.ref = logicalOr }
 
-    val exprstmt = expr + (keywordOf("=") + expr.fold(Assignment.Creator)).opt()
+    val exprstmt = expr + (keywordOf("=") + expr + (Assignment.Creator)).opt()
 
     val whilestmt = "while".annotate(Annot.Keyword) +
-        "(" + expr + ")" +
-        ( stmt orSwapOnPrint Nop.Creator).fold(While.Creator)
+        "(" + expr + ")" + (
+            (stmt orSwapOnPrint Nop.Creator) + While.Creator
+        )
 
 
     // TODO eliminate mapcreator
     val forstmt = "for".annotate(Annot.Keyword) + "(" +
-            idNode + MapCreator<String, Node>("name") + "in" + expr.fold(MapAdder<String, Node>("range")) + ")" +
-            stmt.fold(MapAdder<String, Node>("body")) +
-            For.Creator
+            identifier + "in" + (expr + PairCreator<String, Node>()) + ")" +
+            (stmt + For.Creator)
 
     init { stmt.ref = whilestmt or forstmt or exprstmt }
 
-    val valdecl = "val".annotate(Annot.DefKeyword) + identifier + "=" + expr.fold(ValDecl.Creator)
+    val valdecl = "val".annotate(Annot.DefKeyword) + identifier + "=" + (expr + ValDecl.Creator)
 
 
     val varParameter = "var".annotate(Annot.DefKeyword) + identifier + (
-            keywordOf(":") + identifier.fold(VarParameter.CreatorWithType) or
+            keywordOf(":") + identifier + (VarParameter.CreatorWithType) or
             VarParameter.CreatorWithoutType
     )
 
-    val parameters = (varParameter or idNode).list(comma)
+    val parameters = (varParameter or idNode).rep(comma)
 
-    val signature: Parser<Pair<String, List<Node>>> = identifier + "(" + parameters.fold(PairCreator<String, List<Node>>()) + ")"
+    val signature: Parser<Pair<String, List<Node>>> = identifier + "(" + (parameters + PairCreator<String, List<Node>>()) + ")"
 
     val fundecl = "fun".annotate(Annot.DefKeyword) + signature +
-            (block or keywordOf("=") + expr).fold(FunDecl.Creator)
+            ((block or keywordOf("=") + expr) + FunDecl.Creator)
 
     val classdecl = "class".annotate(Annot.DefKeyword) +
             signature +
-            block.fold(ClassDecl.Creator)
+            (block + ClassDecl.Creator)
 
     val externdecl = "extern".annotate(Annot.DefKeyword) + identifier +
-            (keywordOf(":") + expr.fold(PairCreator<String, Node>())) +
-            "=" + str.fold(ExternDecl.Creator)
+            (keywordOf(":") + expr + (PairCreator<String, Node>())) +
+            "=" + (str + ExternDecl.Creator)
 
     val vardecl = varParameter + (
-            keywordOf("=") + expr.fold(VarDecl.CreatorWithInit) or
+            keywordOf("=") + expr + (VarDecl.CreatorWithInit) or
             VarDecl.CreatorWithoutInit
     )
 
@@ -245,10 +235,9 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
 
     val semicolon = keywordOf(";") + Mapping.identity<Node>()
 
-    // TODO Reducer needs onSwapOnPrint
-    val stmtOrDecl = ((decl or stmt) + (semicolon or SkipSemicolon)).annotate(Annot.Stmt)
+    val stmtOrDecl = ((decl or stmt) + (semicolon orSwapOnPrint SkipSemicolon)).annotate(Annot.Stmt)
 
-    init { stmts.ref = stmtOrDecl.list() }
+    init { stmts.ref = stmtOrDecl.rep() }
 
     val program = stmts + Block.Creator
 }

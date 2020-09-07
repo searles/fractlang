@@ -15,7 +15,7 @@ class Block(trace: Trace, val stmts: List<Node>): Node(trace) {
 
     object Creator: Mapping<List<Node>, Node> {
         override fun parse(stream: ParserStream, input: List<Node>): Node {
-            return Block(stream.createTrace(), input)
+            return Block(stream.toTrace(), input)
         }
 
         override fun left(result: Node): List<Node>? {

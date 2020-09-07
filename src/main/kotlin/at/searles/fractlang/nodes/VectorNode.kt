@@ -25,7 +25,7 @@ class VectorNode(trace: Trace, val items: List<Node>): Node(trace) {
 
     object Creator: Mapping<List<Node>, Node> {
         override fun parse(stream: ParserStream, input: List<Node>): Node {
-            return VectorNode(stream.createTrace(), input)
+            return VectorNode(stream.toTrace(), input)
         }
 
         override fun left(result: Node): List<Node>? {

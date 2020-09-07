@@ -637,7 +637,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("x=1.0;varx:Real;a=-Cos(x);vara:Real;", output)
+        Assert.assertEquals("x=3;varx:Int;", output)
     }
 
     @Test
@@ -661,7 +661,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("x=1.0;varx:Real;a=-Cos(x);vara:Real;", output)
+        Assert.assertEquals("x=2;varx:Int;", output)
     }
 
     @Test
@@ -887,6 +887,6 @@ class SemanticAnalysisTest {
     }
 
     private fun withSource(src: String) {
-        stream = ParserStream.fromString(src)
+        stream = ParserStream.create(src)
     }
 }

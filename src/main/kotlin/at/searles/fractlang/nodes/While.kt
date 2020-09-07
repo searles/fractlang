@@ -23,7 +23,7 @@ class While(trace: Trace, val condition: Node, val body: Node): Node(trace) {
     object Creator: Fold<Node, Node, Node> {
 
         override fun apply(stream: ParserStream, left: Node, right: Node): Node {
-            return While(stream.createTrace(), left, right)
+            return While(stream.toTrace(), left, right)
         }
 
         override fun leftInverse(result: Node): Node? {
