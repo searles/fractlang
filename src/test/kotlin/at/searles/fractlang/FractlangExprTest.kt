@@ -8,23 +8,23 @@ import org.junit.Assert
 import org.junit.Test
 
 class FractlangExprTest {
-    @Test
-    fun testAppChainSingleArg() {
-        val node = FractlangExpr.fromString("neg b")
-        Assert.assertEquals(2, (node as IntNode).value)
-    }
-
-    @Test
-    fun testAppChainMultiArg() {
-        val node = FractlangExpr.fromString("max(b, c)")
-        Assert.assertEquals(2, (node as IntNode).value)
-    }
-
-    @Test
-    fun testAppChainMultiMultiArg() {
-        val node = FractlangExpr.fromString("sin max (c, d)")
-        Assert.assertEquals(2, (node as IntNode).value)
-    }
+//    @Test
+//    fun testAppChainSingleArg() {
+//        val node = FractlangExpr.fromString("neg b")
+//        Assert.assertEquals(2, (node as IntNode).value)
+//    }
+//
+//    @Test
+//    fun testAppChainMultiArg() {
+//        val node = FractlangExpr.fromString("max(b, c)")
+//        Assert.assertEquals(2, (node as IntNode).value)
+//    }
+//
+//    @Test
+//    fun testAppChainMultiMultiArg() {
+//        val node = FractlangExpr.fromString("sin max (c, d)")
+//        Assert.assertEquals(2, (node as IntNode).value)
+//    }
 
     @Test
     fun testAddition() {

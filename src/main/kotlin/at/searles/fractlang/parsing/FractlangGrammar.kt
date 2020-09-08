@@ -12,6 +12,7 @@ import at.searles.parsing.tokens.TokenParser
 import at.searles.parsing.tokens.TokenRecognizer
 import at.searles.parsingtools.common.PairCreator
 import at.searles.parsingtools.common.ValueInitializer
+import at.searles.parsingtools.list.EmptyListCreator
 import at.searles.parsingtools.list.ListCreator
 import at.searles.regexp.CharSet
 import at.searles.regexp.Text
@@ -127,10 +128,17 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
             vector or
             keywordOf("(") + expr + ")"
 
-    // abs is tough: |1 + log |x|| and |1 + x| y
-    // using a flag is no solution: |1 + (log |x|)|
+    val appHeadAbs = keywordOf("|") + expr + "|" + UnaryCreator(Abs)
+
+    // abs is tough: |1 + log |x|| and |1 + x| y cannot be distinguished.
+    //
+    // log |x| should be fine. |x| y is not fine. |x| * y is fine.
+    // Hence, after abs, there is no single-argument allowed.
+
     init {
-        app.ref = appHead + (qualifier or index or multiArgument or singleArgument).rep()
+        app.ref =
+            appHeadAbs + (qualifier or index or multiArgument).rep() orSwapOnPrint
+            appHead + (qualifier or index or multiArgument or singleArgument).rep()
     }
 
     val ifExpr = "if".annotate(Annot.Keyword) +
@@ -195,7 +203,6 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
         )
 
 
-    // TODO eliminate mapcreator
     val forstmt = "for".annotate(Annot.Keyword) + "(" +
             identifier + "in" + (expr + PairCreator<String, Node>()) + ")" +
             (stmt + For.Creator)
@@ -217,8 +224,12 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
     val fundecl = "fun".annotate(Annot.DefKeyword) + signature +
             ((block or keywordOf("=") + expr) + FunDecl.Creator)
 
+    val classSignature: Parser<Pair<String, List<Node>>> = identifier + (
+            keywordOf("(") + parameters + ")" orSwapOnPrint EmptyListCreator()
+    )
+
     val classdecl = "class".annotate(Annot.DefKeyword) +
-            signature +
+            classSignature +
             (block + ClassDecl.Creator)
 
     val externdecl = "extern".annotate(Annot.DefKeyword) + identifier +
@@ -230,7 +241,6 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
             VarDecl.CreatorWithoutInit
     )
 
-
     val decl = vardecl or valdecl or fundecl or classdecl or externdecl
 
     val semicolon = keywordOf(";") + Mapping.identity<Node>()
@@ -239,5 +249,5 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
 
     init { stmts.ref = stmtOrDecl.rep() }
 
-    val program = stmts + Block.Creator
+    val program = stmts + Block.Creator + eof
 }

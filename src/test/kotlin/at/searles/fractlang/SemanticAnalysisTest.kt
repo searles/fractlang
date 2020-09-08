@@ -853,7 +853,7 @@ class SemanticAnalysisTest {
 
         actPrint()
 
-        Assert.assertEquals("f=2;varf:Int;{a=3;vara:Int;b=1+a*f;varb:Int;e=b;vare:Int;}", output)
+        Assert.assertEquals("f={c=3;varc:Int;c;};varf:Int;", output)
     }
 
     private lateinit var palettes: List<PaletteEntry>
