@@ -887,6 +887,8 @@ class SemanticAnalysisTest {
     }
 
     private fun withSource(src: String) {
-        stream = ParserStream.create(src)
+        stream = ParserStream.create(src).apply {
+            this.isBacktrackAllowed = false
+        }
     }
 }

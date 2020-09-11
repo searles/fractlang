@@ -8,6 +8,7 @@ import at.searles.lexer.Tokenizer
 import at.searles.parsing.*
 import at.searles.parsing.Reducer.Companion.opt
 import at.searles.parsing.Reducer.Companion.rep
+import at.searles.parsing.ref.Ref
 import at.searles.parsing.tokens.TokenParser
 import at.searles.parsing.tokens.TokenRecognizer
 import at.searles.parsingtools.common.PairCreator
@@ -56,10 +57,6 @@ open class Grammar<T: Tokenizer>(val tokenizer: T) {
         return this + keywordOf(right)
     }
 
-    fun <C> String.annotate(annotation: C): Recognizer {
-        return keywordOf(this).annotate(annotation)
-    }
-
     fun String.ref(label: String): Recognizer {
         return keywordOf(this).ref(label)
     }
@@ -102,13 +99,13 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
     val idNode = identifier + IdNode.Creator
     val boolNode = bool + BoolNode.Creator
 
-    val atom = intNode.annotate(Annot.Const) or
-            realNode.annotate(Annot.Const) or
-            stringNode.annotate(Annot.Str) or
-            boolNode.annotate(Annot.Const) or
-            idNode.annotate(Annot.Name)
+    val atom = intNode.ref(Annot.Const) or
+            realNode.ref(Annot.Const) or
+            stringNode.ref(Annot.Str) or
+            boolNode.ref(Annot.Const) or
+            idNode.ref(Annot.Name)
 
-    val comma = ",".annotate(Annot.Comma)
+    val comma = ",".ref(Annot.Comma)
 
     val expr = Ref<Node>("expr")
     val stmt = Ref<Node>("stmt")
@@ -135,19 +132,34 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
     // log |x| should be fine. |x| y is not fine. |x| * y is fine.
     // Hence, after abs, there is no single-argument allowed.
 
-    init {
-        app.ref =
-            appHeadAbs + (qualifier or index or multiArgument).rep() orSwapOnPrint
-            appHead + (qualifier or index or multiArgument or singleArgument).rep()
+    val appPrinter = object: Mapping<Node, Node> {
+        override fun parse(stream: ParserStream, input: Node): Node {
+            return input
+        }
+
+        override fun left(result: Node): Node? {
+            return if(result is App) {
+                AppChain(result.trace, result.head, result.args)
+            } else {
+                result
+            }
+        }
     }
 
-    val ifExpr = "if".annotate(Annot.Keyword) +
+    init {
+        app.ref = (
+            appHeadAbs + (qualifier or index or multiArgument).rep() or
+            appHead + (qualifier or index or multiArgument or singleArgument).rep()
+        ) + appPrinter
+    }
+
+    val ifExpr = "if".ref(Annot.Keyword) +
             "(" + expr + ")" +
             (stmt + If.Creator) + (
-                "else".annotate(Annot.Keyword) + stmt + IfElse.Creator
+                "else".ref(Annot.Keyword) + stmt + IfElse.Creator
             ).opt()
 
-    val block = "{".annotate(Annot.Newline) + stmts.annotate(Annot.Intent).annotate(Annot.Newline) + Block.Creator + "}"
+    val block = "{".ref(Annot.Newline) + stmts.ref(Annot.Intent).ref(Annot.Newline) + Block.Creator + "}"
 
     val term = ifExpr or block or app
 
@@ -197,22 +209,22 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
 
     val exprstmt = expr + (keywordOf("=") + expr + (Assignment.Creator)).opt()
 
-    val whilestmt = "while".annotate(Annot.Keyword) +
+    val whilestmt = "while".ref(Annot.Keyword) +
         "(" + expr + ")" + (
             (stmt orSwapOnPrint Nop.Creator) + While.Creator
         )
 
 
-    val forstmt = "for".annotate(Annot.Keyword) + "(" +
+    val forstmt = "for".ref(Annot.Keyword) + "(" +
             identifier + "in" + (expr + PairCreator<String, Node>()) + ")" +
             (stmt + For.Creator)
 
     init { stmt.ref = whilestmt or forstmt or exprstmt }
 
-    val valdecl = "val".annotate(Annot.DefKeyword) + identifier + "=" + (expr + ValDecl.Creator)
+    val valdecl = "val".ref(Annot.DefKeyword) + identifier + "=" + (expr + ValDecl.Creator)
 
 
-    val varParameter = "var".annotate(Annot.DefKeyword) + identifier + (
+    val varParameter = "var".ref(Annot.DefKeyword) + identifier + (
             keywordOf(":") + identifier + (VarParameter.CreatorWithType) or
             VarParameter.CreatorWithoutType
     )
@@ -221,18 +233,18 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
 
     val signature: Parser<Pair<String, List<Node>>> = identifier + "(" + (parameters + PairCreator<String, List<Node>>()) + ")"
 
-    val fundecl = "fun".annotate(Annot.DefKeyword) + signature +
+    val fundecl = "fun".ref(Annot.DefKeyword) + signature +
             ((block or keywordOf("=") + expr) + FunDecl.Creator)
 
     val classSignature: Parser<Pair<String, List<Node>>> = identifier + (
             keywordOf("(") + parameters + ")" orSwapOnPrint EmptyListCreator()
     )
 
-    val classdecl = "class".annotate(Annot.DefKeyword) +
+    val classdecl = "class".ref(Annot.DefKeyword) +
             classSignature +
             (block + ClassDecl.Creator)
 
-    val externdecl = "extern".annotate(Annot.DefKeyword) + identifier +
+    val externdecl = "extern".ref(Annot.DefKeyword) + identifier +
             (keywordOf(":") + expr + (PairCreator<String, Node>())) +
             "=" + (str + ExternDecl.Creator)
 
@@ -245,7 +257,7 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
 
     val semicolon = keywordOf(";") + Mapping.identity<Node>()
 
-    val stmtOrDecl = ((decl or stmt) + (semicolon orSwapOnPrint SkipSemicolon)).annotate(Annot.Stmt)
+    val stmtOrDecl = ((decl or stmt) + (semicolon orSwapOnPrint SkipSemicolon)).ref(Annot.Stmt)
 
     init { stmts.ref = stmtOrDecl.rep() }
 

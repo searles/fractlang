@@ -46,7 +46,9 @@ class FractlangProgram(val sourceCode: String, val customParameters: Map<String,
     }
 
     private fun analyze() {
-        val sourceCodeStream = ParserStream.create(sourceCode)
+        val sourceCodeStream = ParserStream.create(sourceCode).apply {
+            this.isBacktrackAllowed = false
+        }
 
         val ast = FractlangGrammar.program.parse(sourceCodeStream)
             ?: throw SemanticAnalysisException("Could not parse program", sourceCodeStream.toTrace())

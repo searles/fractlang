@@ -94,13 +94,13 @@ class InterpreterTest {
 
         Thread.sleep(10)
 
-        Assert.assertTrue(bgThread.state == Thread.State.RUNNABLE)
+        Assert.assertEquals(Thread.State.RUNNABLE, bgThread.state)
 
         isStopped = true
 
         Thread.sleep(10)
 
-        Assert.assertTrue(bgThread.state == Thread.State.TERMINATED)
+        Assert.assertEquals(Thread.State.TERMINATED, bgThread.state)
     }
 
     @Test
@@ -214,7 +214,9 @@ class InterpreterTest {
     }
 
     private fun withSource(src: String) {
-        stream = ParserStream.create(src)
+        stream = ParserStream.create(src).apply {
+            this.isBacktrackAllowed = false
+        }
     }
 
 }
