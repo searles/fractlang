@@ -8,11 +8,11 @@ import at.searles.lexer.Tokenizer
 import at.searles.parsing.*
 import at.searles.parsing.Reducer.Companion.opt
 import at.searles.parsing.Reducer.Companion.rep
-import at.searles.parsing.ref.Ref
+import at.searles.parsing.ref.RefParser
 import at.searles.parsing.tokens.TokenParser
 import at.searles.parsing.tokens.TokenRecognizer
 import at.searles.parsingtools.common.PairCreator
-import at.searles.parsingtools.common.ValueInitializer
+import at.searles.parsingtools.common.Init
 import at.searles.parsingtools.list.EmptyListCreator
 import at.searles.parsingtools.list.ListCreator
 import at.searles.regexp.CharSet
@@ -64,14 +64,18 @@ open class Grammar<T: Tokenizer>(val tokenizer: T) {
 
 object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
 
-    val whiteSpace = regexOf("""[\t\x0b\r\n\x0c \x85\xa0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]+""")
-    val multilineComment = regexOf("""('/*' .* '*/')!""")
-    val singlelineComment = regexOf("""'//' [^\n]*""")
+    private val whiteSpaceRex = RegexpParser.parse("""[\t\x0b\r\n\x0c \x85\xa0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]+""")
+    private val multilineCommentRex = RegexpParser.parse("""('/*' .* '*/')!""")
+    private val singlelineCommentRex = RegexpParser.parse("""'//' [^\n]*""")
+
+    val whiteSpaceId: Int
+    val multilineCommentId: Int
+    val singlelineCommentId: Int
 
     init {
-        tokenizer.addSkipped(whiteSpace.tokenId)
-        tokenizer.addSkipped(singlelineComment.tokenId)
-        tokenizer.addSkipped(multilineComment.tokenId)
+        whiteSpaceId = tokenizer.addSkipped(whiteSpaceRex)
+        multilineCommentId = tokenizer.addSkipped(singlelineCommentRex)
+        singlelineCommentId = tokenizer.addSkipped(multilineCommentRex)
     }
 
     val intRex = "[0-9]+"
@@ -90,8 +94,8 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
     val str = regexOf(stringRex) + EscStringMapper
 
     val bool =
-            keywordOf("true") + ValueInitializer(true) or
-            keywordOf("false") + ValueInitializer(false)
+            keywordOf("true") + Init(true) or
+            keywordOf("false") + Init(false)
 
     val intNode = (intNum or hexNum) + IntNode.Creator
     val realNode = realNum + RealNode.Creator
@@ -107,10 +111,10 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
 
     val comma = ",".ref(Annot.Comma)
 
-    val expr = Ref<Node>("expr")
-    val stmt = Ref<Node>("stmt")
-    val stmts = Ref<List<Node>>("stmts")
-    val app = Ref<Node>("app")
+    val expr = RefParser<Node>("expr")
+    val stmt = RefParser<Node>("stmt")
+    val stmts = RefParser<List<Node>>("stmts")
+    val app = RefParser<Node>("app")
 
     val exprList = expr.rep(comma)
 
@@ -125,7 +129,7 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
             vector or
             keywordOf("(") + expr + ")"
 
-    val appHeadAbs = keywordOf("|") + expr + "|" + UnaryCreator(Abs)
+    val appHeadAbs = keywordOf("|") + expr + "|" + unaryCreator(Abs)
 
     // abs is tough: |1 + log |x|| and |1 + x| y cannot be distinguished.
     //
@@ -133,11 +137,11 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
     // Hence, after abs, there is no single-argument allowed.
 
     val appPrinter = object: Mapping<Node, Node> {
-        override fun parse(stream: ParserStream, input: Node): Node {
-            return input
+        override fun parse(left: Node, stream: ParserStream): Node {
+            return left
         }
 
-        override fun left(result: Node): Node? {
+        override fun left(result: Node): Node {
             return if(result is App) {
                 AppChain(result.trace, result.head, result.args)
             } else {
@@ -163,18 +167,18 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
 
     val term = ifExpr or block or app
 
-    val literal = Ref<Node>("literal")
+    val literal = RefParser<Node>("literal")
 
     val literalRef = 
-            keywordOf("-") + literal + UnaryCreator(Neg) or
-            keywordOf("/") + literal + UnaryCreator(Recip) or
+            keywordOf("-") + literal + unaryCreator(Neg) or
+            keywordOf("/") + literal + unaryCreator(Recip) or
             term
 
     init { literal.ref = literalRef }
 
     val cons = literalRef + (keywordOf(":") + literalRef + (BinaryCreator(Cons))).opt()
 
-    val powRef = Ref<Node>("pow")
+    val powRef = RefParser<Node>("pow")
 
     val pow = cons + (keywordOf("^") + powRef + (BinaryCreator(Pow)) ).opt()
     
@@ -200,7 +204,7 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
             keywordOf("!=") + sum + (BinaryCreator(NotEqual))
     ).opt()
 
-    val logicalLit = keywordOf("not") + cmp + UnaryCreator(Not) or cmp
+    val logicalLit = keywordOf("not") + cmp + unaryCreator(Not) or cmp
     val logicalAnd = logicalLit + (keywordOf("and") + logicalLit + (BinaryCreator(And))).rep()
     val logicalXor = logicalAnd + (keywordOf("xor") + logicalAnd + (BinaryCreator(Xor))).rep()
     val logicalOr = logicalXor + (keywordOf("or") + logicalXor + (BinaryCreator(Or))).rep()

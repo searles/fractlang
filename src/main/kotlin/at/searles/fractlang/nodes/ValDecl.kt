@@ -17,7 +17,7 @@ class ValDecl(trace: Trace, val name: String, val init: Node): Node(trace) {
 
     object Creator: Fold<String, Node, Node> {
         override fun apply(stream: ParserStream, left: String, right: Node): Node {
-            return ValDecl(stream.toTrace(), left, right)
+            return ValDecl(stream.createTrace(), left, right)
         }
 
         override fun leftInverse(result: Node): String? {

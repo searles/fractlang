@@ -15,9 +15,9 @@ val toReal = {s: CharSequence -> s.toString().toDouble()}
 val toIdString = {s: CharSequence -> s.toString()}
 
 object EscStringMapper: Mapping<CharSequence, String> {
-    override fun parse(stream: ParserStream, input: CharSequence): String {
+    override fun parse(left: CharSequence, stream: ParserStream): String {
         // TODO How to handle exception?
-        return EscStringParser.parse(CodePointStream(input.toString()))
+        return EscStringParser.parse(CodePointStream(left.toString()))
     }
 
     override fun left(result: String): CharSequence? {
@@ -38,10 +38,10 @@ private fun appArgOrNull(app: Node, op: Op, arity: Int, index: Int): Node? {
     return app.args[index]
 }
 
-fun UnaryCreator(op: Op): Mapping<Node, Node> {
+fun unaryCreator(op: Op): Mapping<Node, Node> {
     return object: Mapping<Node, Node> {
-        override fun parse(stream: ParserStream, input: Node): Node {
-            return App(stream.toTrace(), op, listOf(input))
+        override fun parse(left: Node, stream: ParserStream): Node {
+            return App(stream.createTrace(), op, listOf(left))
         }
 
         override fun left(result: Node): Node? {
@@ -58,7 +58,7 @@ fun UnaryCreator(op: Op): Mapping<Node, Node> {
 fun BinaryCreator(op: Op): Fold<Node, Node, Node> {
     return object: Fold<Node, Node, Node> {
         override fun apply(stream: ParserStream, left: Node, right: Node): Node {
-            return App(stream.toTrace(), op, listOf(left, right))
+            return App(stream.createTrace(), op, listOf(left, right))
         }
 
         override fun leftInverse(result: Node): Node? {
@@ -81,11 +81,11 @@ fun stringToType(trace: Trace, typeName: String): Type {
 }
 
 object ToType: Mapping<String, Type> {
-    override fun parse(stream: ParserStream, input: String): Type {
-        return stringToType(stream.toTrace(), input)
+    override fun parse(left: String, stream: ParserStream): Type {
+        return stringToType(stream.createTrace(), left)
     }
 
-    override fun left(result: Type): String? {
+    override fun left(result: Type): String {
         return result.toString()
     }
 
@@ -117,8 +117,8 @@ fun toBool(value: Boolean): Initializer<Boolean> {
  * are added after blocks.
  */
 object SkipSemicolon: Mapping<Node, Node> {
-    override fun parse(stream: ParserStream, input: Node): Node {
-        return input
+    override fun parse(left: Node, stream: ParserStream): Node {
+        return left
     }
 
     override fun left(result: Node): Node? {

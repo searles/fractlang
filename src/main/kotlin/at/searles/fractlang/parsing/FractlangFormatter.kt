@@ -1,10 +1,12 @@
 package at.searles.fractlang.parsing
 
+import at.searles.parsing.format.FormatRules
 import at.searles.parsingtools.formatter.CodeFormatter
 
-object FractlangFormatter: CodeFormatter(FractlangGrammar.whiteSpace.tokenId, FractlangGrammar.program) {
+object FractlangFormatter: CodeFormatter(FormatRules(), FractlangGrammar.program, FractlangGrammar.whiteSpaceId) {
     init {
-        addIndentLabel(Annot.Intent)
-        addForceNewlineLabel(Annot.Newline)
+        // TODO!!!
+//        addIndentLabel(Annot.Intent)
+//        addForceNewlineLabel(Annot.Newline)
     }
 }

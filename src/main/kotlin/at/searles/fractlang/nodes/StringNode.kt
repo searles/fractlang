@@ -19,8 +19,8 @@ class StringNode(trace: Trace, val value: String): Node(trace) {
     }
 
     object Creator: Mapping<String, Node> {
-        override fun parse(stream: ParserStream, input: String): Node {
-            return StringNode(stream.toTrace(), input)
+        override fun parse(left: String, stream: ParserStream): Node {
+            return StringNode(stream.createTrace(), left)
         }
 
         override fun left(result: Node): String? {

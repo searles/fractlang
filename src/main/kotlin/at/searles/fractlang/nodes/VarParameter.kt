@@ -31,7 +31,7 @@ class VarParameter(trace: Trace, val name: String, val varTypeString: String?): 
 
     object CreatorWithType: Fold<String, String, Node> {
         override fun apply(stream: ParserStream, left: String, right: String): Node {
-            return VarParameter(stream.toTrace(), left, right)
+            return VarParameter(stream.createTrace(), left, right)
         }
 
         override fun leftInverse(result: Node): String? {
@@ -46,8 +46,8 @@ class VarParameter(trace: Trace, val name: String, val varTypeString: String?): 
     }
 
     object CreatorWithoutType: Mapping<String, Node> {
-        override fun parse(stream: ParserStream, input: String): Node {
-            return VarParameter(stream.toTrace(), input, null)
+        override fun parse(left: String, stream: ParserStream): Node {
+            return VarParameter(stream.createTrace(), left, null)
         }
 
         override fun left(result: Node): String? {

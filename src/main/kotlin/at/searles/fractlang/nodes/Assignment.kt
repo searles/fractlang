@@ -22,7 +22,7 @@ class Assignment(trace: Trace, val lhs: Node, val rhs: Node): Node(trace) {
 
     object Creator: Fold<Node, Node, Node> {
         override fun apply(stream: ParserStream, left: Node, right: Node): Node {
-            return Assignment(stream.toTrace(), left, right)
+            return Assignment(stream.createTrace(), left, right)
         }
 
         override fun leftInverse(result: Node): Node? {

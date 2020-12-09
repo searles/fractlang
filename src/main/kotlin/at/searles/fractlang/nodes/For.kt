@@ -13,7 +13,7 @@ class For(trace: Trace, val name: String, val range: Node, val body: Node): Node
 
     object Creator: Fold<Pair<String, Node>, Node, Node> {
         override fun apply(stream: ParserStream, left: Pair<String, Node>, right: Node): Node {
-            return For(stream.toTrace(), left.first, left.second, right)
+            return For(stream.createTrace(), left.first, left.second, right)
         }
 
         override fun leftInverse(result: Node): Pair<String, Node>? {

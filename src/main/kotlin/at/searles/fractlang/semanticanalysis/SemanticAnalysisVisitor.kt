@@ -9,7 +9,6 @@ import at.searles.fractlang.ops.And
 import at.searles.fractlang.ops.Not
 import at.searles.fractlang.ops.Or
 import at.searles.fractlang.parsing.FractlangGrammar
-import at.searles.parsing.BacktrackNotAllowedException
 import at.searles.parsing.ParserStream
 import at.searles.parsing.Trace
 
@@ -480,9 +479,7 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: Na
 
 	override fun visit(externNode: ExternNode): Node {
 		try {
-			val stream = ParserStream.create(externNode.expr).apply {
-				isBacktrackAllowed = false
-			}
+			val stream = ParserStream.create(externNode.expr)
 			val exprAst = FractlangGrammar.expr.parse(stream)
 				?: throw SemanticAnalysisException("Could not parse extern value", externNode.trace)
 
@@ -491,8 +488,8 @@ class SemanticAnalysisVisitor(parentTable: SymbolTable, val varNameGenerator: Na
 			}
 
 			return exprAst.accept(SemanticAnalysisVisitor(AllowImplicitExternsFacade(externNode.id, externNode.trace, this), varNameGenerator))
-		} catch(e: BacktrackNotAllowedException) {
-			throw SemanticAnalysisException("Unexpected token. Expected ${e.failedParser.right}", externNode.trace)
+// TODO		} catch(e: BacktrackNotAllowedException) {
+//			throw SemanticAnalysisException("Unexpected token. Expected ${e.failedParser.right}", externNode.trace)
 		} catch (e: SemanticAnalysisException) {
 			throw SemanticAnalysisException("Semantic error in extern value: ${e.message}", externNode.trace)
 		}

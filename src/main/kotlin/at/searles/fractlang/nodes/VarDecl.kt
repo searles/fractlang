@@ -35,9 +35,9 @@ class VarDecl(trace: Trace, val name: String, private val varTypeString: String?
     }
 
     object CreatorWithoutInit: Mapping<Node, Node> {
-        override fun parse(stream: ParserStream, input: Node): Node {
+        override fun parse(input: Node, stream: ParserStream): Node {
             return (input as VarParameter).let {
-                VarDecl(stream.toTrace(), it.name, it.varTypeString, null)
+                VarDecl(stream.createTrace(), it.name, it.varTypeString, null)
             }
         }
 
@@ -59,7 +59,7 @@ class VarDecl(trace: Trace, val name: String, private val varTypeString: String?
     object CreatorWithInit: Fold<Node, Node, Node> {
         override fun apply(stream: ParserStream, left: Node, right: Node): Node {
             return (left as VarParameter).let {
-                VarDecl(stream.toTrace(), it.name, it.varTypeString, right)
+                VarDecl(stream.createTrace(), it.name, it.varTypeString, right)
             }
         }
 

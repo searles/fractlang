@@ -21,7 +21,7 @@ class If(trace: Trace, val condition: Node, val thenBranch: Node): Node(trace) {
 
     object Creator: Fold<Node, Node, Node> {
         override fun apply(stream: ParserStream, left: Node, right: Node): Node {
-            return If(stream.toTrace(), left, right)
+            return If(stream.createTrace(), left, right)
         }
 
         override fun leftInverse(result: Node): Node? {

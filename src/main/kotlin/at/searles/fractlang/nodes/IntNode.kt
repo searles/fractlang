@@ -36,14 +36,14 @@ class IntNode(trace: Trace, val value: Int) : Node(trace), NumValue, VmArg.Num {
     }
 
     object Creator: Mapping<BigInteger, Node> {
-        override fun parse(stream: ParserStream, input: BigInteger): Node {
+        override fun parse(input: BigInteger, stream: ParserStream): Node {
             val intValue = input.toInt()
 
             if(BigInteger.valueOf(intValue.toLong()) != input) {
-                throw SemanticAnalysisException("integer must be in range -2147483648 to 2147483647", stream.toTrace())
+                throw SemanticAnalysisException("integer must be in range -2147483648 to 2147483647", stream.createTrace())
             }
 
-            return IntNode(stream.toTrace(), input.toInt())
+            return IntNode(stream.createTrace(), input.toInt())
         }
 
         override fun left(result: Node): BigInteger? {

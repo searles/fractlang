@@ -46,15 +46,13 @@ class FractlangProgram(val sourceCode: String, val customParameters: Map<String,
     }
 
     private fun analyze() {
-        val sourceCodeStream = ParserStream.create(sourceCode).apply {
-            this.isBacktrackAllowed = false
-        }
+        val sourceCodeStream = ParserStream.create(sourceCode)
 
         val ast = FractlangGrammar.program.parse(sourceCodeStream)
-            ?: throw SemanticAnalysisException("Could not parse program", sourceCodeStream.toTrace())
+            ?: throw SemanticAnalysisException("Could not parse program", sourceCodeStream.createTrace())
 
         if(!FractlangGrammar.eof.recognize(sourceCodeStream)) {
-            throw SemanticAnalysisException("Program not fully parsed", sourceCodeStream.toTrace())
+            throw SemanticAnalysisException("Program not fully parsed", sourceCodeStream.createTrace())
         }
 
         typedAst = ast.accept(SemanticAnalysisVisitor(symbolTable, varNameGenerator))

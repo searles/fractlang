@@ -16,7 +16,7 @@ class IfElse(trace: Trace, val condition: Node, val thenBranch: Node, val elseBr
 
     object Creator: Fold<Node, Node, Node> {
         override fun apply(stream: ParserStream, left: Node, right: Node): Node {
-            return IfElse(stream.toTrace(), (left as If).condition, left.thenBranch, right)
+            return IfElse(stream.createTrace(), (left as If).condition, left.thenBranch, right)
         }
 
         override fun leftInverse(result: Node): Node? {

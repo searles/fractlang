@@ -11,10 +11,10 @@ object FractlangExpr {
         val sourceCodeStream = ParserStream.create(expr)
 
         val ast = FractlangGrammar.program.parse(sourceCodeStream)
-            ?: throw SemanticAnalysisException("Could not parse program", sourceCodeStream.toTrace())
+            ?: throw SemanticAnalysisException("Could not parse program", sourceCodeStream.createTrace())
 
         if(!FractlangGrammar.eof.recognize(sourceCodeStream)) {
-            throw SemanticAnalysisException("Expression not fully parsed", sourceCodeStream.toTrace())
+            throw SemanticAnalysisException("Expression not fully parsed", sourceCodeStream.createTrace())
         }
 
         val symbolTable = RootSymbolTable(FractlangProgram.namedInstructions, emptyMap())

@@ -20,8 +20,8 @@ class BoolNode(trace: Trace, val value: Boolean): Node(trace) {
     }
 
     object Creator: Mapping<Boolean, Node> {
-        override fun parse(stream: ParserStream, input: Boolean): Node {
-            return BoolNode(stream.toTrace(), input)
+        override fun parse(input: Boolean, stream: ParserStream): Node {
+            return BoolNode(stream.createTrace(), input)
         }
 
         override fun left(result: Node): Boolean? {

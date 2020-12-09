@@ -1,5 +1,5 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.61'
+    id 'org.jetbrains.kotlin.jvm'
 }
 
 group 'at.searles.fractlang'
@@ -11,11 +11,11 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation 'com.github.searles:utils:0.6.1'
-    implementation 'com.github.searles:parsing:2.9.23'
+    // TODO implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation project(':utils')
+    implementation 'com.github.searles:parsing:2.9.38'
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'junit', name: 'junit', version: '4.13'
 }
 
 compileKotlin {

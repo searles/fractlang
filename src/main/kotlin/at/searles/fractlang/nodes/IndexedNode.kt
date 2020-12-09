@@ -15,7 +15,7 @@ class IndexedNode(trace: Trace, val field: Node, val index: Node) : Node(trace) 
 
     object Creator: Fold<Node, Node, Node> {
         override fun apply(stream: ParserStream, left: Node, right: Node): Node {
-            return IndexedNode(stream.toTrace(), left, right)
+            return IndexedNode(stream.createTrace(), left, right)
         }
 
         override fun leftInverse(result: Node): Node? {

@@ -25,8 +25,8 @@ class IdNode(trace: Trace, val id: String): Node(trace), VmArg {
     }
 
     object Creator: Mapping<String, Node> {
-        override fun parse(stream: ParserStream, input: String): Node {
-            return IdNode(stream.toTrace(), input)
+        override fun parse(input: String, stream: ParserStream): Node {
+            return IdNode(stream.createTrace(), input)
         }
 
         override fun left(result: Node): String? {

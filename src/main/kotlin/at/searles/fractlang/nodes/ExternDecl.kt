@@ -19,7 +19,7 @@ class ExternDecl(trace: Trace, val name: String, val description: Node, val expr
 
     object Creator: Fold<Pair<String, Node>, String, Node> {
         override fun apply(stream: ParserStream, left: Pair<String, Node>, right: String): Node {
-            return ExternDecl(stream.toTrace(), left.first, left.second, right)
+            return ExternDecl(stream.createTrace(), left.first, left.second, right)
         }
 
         override fun leftInverse(result: Node): Pair<String, Node>? {
