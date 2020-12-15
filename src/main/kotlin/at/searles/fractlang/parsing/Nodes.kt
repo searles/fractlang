@@ -15,7 +15,7 @@ val toReal = {s: CharSequence -> s.toString().toDouble()}
 val toIdString = {s: CharSequence -> s.toString()}
 
 object EscStringMapper: Mapping<CharSequence, String> {
-    override fun parse(left: CharSequence, stream: ParserStream): String {
+    override fun reduce(left: CharSequence, stream: ParserStream): String {
         // TODO How to handle exception?
         return EscStringParser.parse(CodePointStream(left.toString()))
     }
@@ -40,7 +40,7 @@ private fun appArgOrNull(app: Node, op: Op, arity: Int, index: Int): Node? {
 
 fun unaryCreator(op: Op): Mapping<Node, Node> {
     return object: Mapping<Node, Node> {
-        override fun parse(left: Node, stream: ParserStream): Node {
+        override fun reduce(left: Node, stream: ParserStream): Node {
             return App(stream.createTrace(), op, listOf(left))
         }
 
@@ -81,7 +81,7 @@ fun stringToType(trace: Trace, typeName: String): Type {
 }
 
 object ToType: Mapping<String, Type> {
-    override fun parse(left: String, stream: ParserStream): Type {
+    override fun reduce(left: String, stream: ParserStream): Type {
         return stringToType(stream.createTrace(), left)
     }
 
@@ -117,7 +117,7 @@ fun toBool(value: Boolean): Initializer<Boolean> {
  * are added after blocks.
  */
 object SkipSemicolon: Mapping<Node, Node> {
-    override fun parse(left: Node, stream: ParserStream): Node {
+    override fun reduce(left: Node, stream: ParserStream): Node {
         return left
     }
 

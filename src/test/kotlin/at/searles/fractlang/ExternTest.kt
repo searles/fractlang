@@ -227,9 +227,7 @@ class ExternTest {
     }
 
     private fun withSource(src: String) {
-        stream = ParserStream.create(src).apply {
-            this.isBacktrackAllowed = false
-        }
+        stream = ParserStream.create(src)
     }
 
 }

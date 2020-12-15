@@ -36,7 +36,7 @@ class IntNode(trace: Trace, val value: Int) : Node(trace), NumValue, VmArg.Num {
     }
 
     object Creator: Mapping<BigInteger, Node> {
-        override fun parse(input: BigInteger, stream: ParserStream): Node {
+        override fun reduce(input: BigInteger, stream: ParserStream): Node {
             val intValue = input.toInt()
 
             if(BigInteger.valueOf(intValue.toLong()) != input) {

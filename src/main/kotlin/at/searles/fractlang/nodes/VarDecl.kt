@@ -35,7 +35,7 @@ class VarDecl(trace: Trace, val name: String, private val varTypeString: String?
     }
 
     object CreatorWithoutInit: Mapping<Node, Node> {
-        override fun parse(input: Node, stream: ParserStream): Node {
+        override fun reduce(input: Node, stream: ParserStream): Node {
             return (input as VarParameter).let {
                 VarDecl(stream.createTrace(), it.name, it.varTypeString, null)
             }

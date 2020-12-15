@@ -23,7 +23,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
     @Test
     fun testSimpleMandel() {
         val filename = "src/test/resources/mandelbrot.ft"
-        val input = ParserStream(TokenStream.fromCharStream(ReaderCharStream(FileReader(filename))))
+        val input = ParserStream.create(FileReader(filename))
         val ast = FractlangGrammar.program.parse(input)
         val source = FractlangGrammar.program.print(ast!!)
 
@@ -43,7 +43,7 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
     fun testAddendBug() {
         // This was a bug in a beta version
         val filename = "src/test/resources/addend.ft"
-        val input = ParserStream(TokenStream.fromCharStream(ReaderCharStream(FileReader(filename))))
+        val input = ParserStream.create(FileReader(filename))
         FractlangGrammar.program.parse(input)
     }
 
@@ -381,11 +381,6 @@ float3(value.x [with layer], value.y, height) These values are then also stored.
     fun testErrorMessages() {
         val input = ParserStream.create("var i = 1 + 2 + ")
 
-        try {
-            FractlangGrammar.program.parse(input)
-            Assert.fail()
-        } catch(e: Exception) {
-            e.printStackTrace()
-        }
+        Assert.assertNull(FractlangGrammar.program.parse(input))
     }
 }

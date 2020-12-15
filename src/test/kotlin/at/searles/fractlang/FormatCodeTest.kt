@@ -1,7 +1,8 @@
 package at.searles.fractlang
 
-import at.searles.fractlang.parsing.FractlangFormatter
-import at.searles.parsingtools.formatter.EditableStringBuilder
+import at.searles.fractlang.parsing.FractlangGrammar
+import at.searles.parsing.format.CodeFormatter
+import at.searles.parsing.format.EditableString
 import org.junit.Assert
 import org.junit.Test
 
@@ -31,10 +32,9 @@ class FormatCodeTest {
 
     }
 
-    fun format(source: String) {
-        val sb = StringBuilder(source)
-        val editable = EditableStringBuilder(sb)
-        FractlangFormatter.format(editable)
-        output = sb.toString()
+    private fun format(source: String) {
+        val editable = EditableString(source)
+        CodeFormatter(FractlangGrammar.program, FractlangGrammar.whiteSpaceId).format(editable)
+        output = editable.toString()
     }
 }

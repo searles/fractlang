@@ -46,7 +46,7 @@ class VarParameter(trace: Trace, val name: String, val varTypeString: String?): 
     }
 
     object CreatorWithoutType: Mapping<String, Node> {
-        override fun parse(left: String, stream: ParserStream): Node {
+        override fun reduce(left: String, stream: ParserStream): Node {
             return VarParameter(stream.createTrace(), left, null)
         }
 

@@ -34,7 +34,7 @@ class RealNode(trace: Trace, val value: Double) : Node(trace), NumValue, VmArg.N
     }
 
     object Creator: Mapping<Double, Node> { // TODO: Use BigDecimal
-        override fun parse(input: Double, stream: ParserStream): Node {
+        override fun reduce(input: Double, stream: ParserStream): Node {
             return RealNode(stream.createTrace(), input)
         }
 

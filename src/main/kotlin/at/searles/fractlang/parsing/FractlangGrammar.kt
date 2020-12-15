@@ -137,16 +137,22 @@ object FractlangGrammar: Grammar<SkipTokenizer>(SkipTokenizer(Lexer())) {
     // Hence, after abs, there is no single-argument allowed.
 
     val appPrinter = object: Mapping<Node, Node> {
-        override fun parse(left: Node, stream: ParserStream): Node {
+        override fun reduce(left: Node, stream: ParserStream): Node {
             return left
         }
 
         override fun left(result: Node): Node {
-            return if(result is App) {
-                AppChain(result.trace, result.head, result.args)
-            } else {
-                result
+            if(result !is App) {
+                return result
             }
+
+            if(result.head is OpNode) {
+                when(result.head.op) {
+                    Add, Sub, Mul, Div, Pow, Neg, Abs -> return result
+                }
+            }
+
+            return AppChain(result.trace, result.head, result.args)
         }
     }
 
